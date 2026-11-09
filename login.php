@@ -248,15 +248,6 @@ require_once __DIR__ . '/includes/header.php';
             </div>
         </div>
     </div>
-
-    <!-- Info Demo Login Coretax Style -->
-    <div style="background: #ffffff; border: 1px solid var(--core-border); padding: 1rem 1.25rem; border-radius: var(--radius-sm); font-size: 0.825rem; color: var(--core-text-muted); box-shadow: var(--shadow-sm);">
-        <p style="font-weight: 700; color: var(--core-navy); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 6px;">
-            <span style="color: var(--core-gold);">●</span> Akun Demo Tersedia:
-        </p>
-        <p style="margin-bottom: 0.2rem;">&bull; <b>Administrator:</b> <code>admin@cpns.go.id</code> / Sandi: <code>admin123</code></p>
-        <p style="margin: 0;">&bull; <b>Peserta PRO VIP:</b> <code>peserta@cpns.go.id</code> / Sandi: <code>peserta123</code></p>
-    </div>
 </div>
 
 <script>
