@@ -1,0 +1,868 @@
+/* ==========================================================================
+   CORETAX DJP DESIGN SYSTEM (coretaxdjp.pajak.go.id Inspired)
+   Theme: Official Government Enterprise Portal (DJP Navy & Kemenkeu Gold)
+   ========================================================================== */
+
+:root {
+  /* Brand Colors */
+  --core-navy: #002b49;         /* DJP Deep Institutional Navy */
+  --core-navy-dark: #001c30;    /* Dark Navy for Footer & Topbar */
+  --core-navy-hover: #003a63;   /* Interactive Navy Hover */
+  --core-navy-subtle: #eef4f9;  /* Light Navy Surface Tint */
+  --core-blue: #0284c7;         /* Supporting Modern Blue */
+  --core-blue-light: #e0f2fe;   /* Light Sky Blue */
+
+  /* Gold & Accent Colors (Representing Taxpayer / Public Service) */
+  --core-gold: #fab005;         /* DJP Golden Yellow */
+  --core-gold-hover: #e59d00;   /* Gold Darker Hover */
+  --core-gold-subtle: #fff9db;  /* Soft Gold Tint */
+  --core-gold-text: #925800;    /* High contrast text on gold subtle */
+
+  /* Functional Status Colors */
+  --core-success: #059669;      /* Passing / Verified Green */
+  --core-success-light: #d1fae5;
+  --core-danger: #dc2626;       /* Failed / Danger Red */
+  --core-danger-light: #fee2e2;
+  --core-warning: #f59e0b;      /* Ragu-ragu / Warning Amber */
+  --core-warning-light: #fef3c7;
+
+  /* Neutrals & Slate */
+  --core-bg: #f4f6fa;           /* Institutional Slate Background */
+  --core-card-bg: #ffffff;      /* Pure White Surface */
+  --core-border: #d6e2ee;       /* Crisp Border */
+  --core-border-light: #e8eef5; /* Subtler Border */
+  --core-text: #0f1e2e;         /* High-contrast Text */
+  --core-text-muted: #52667a;   /* Secondary Label Text */
+  --core-text-dim: #7f93a7;     /* Placeholder & Footnote */
+
+  /* Aliases for backwards compatibility */
+  --primary: var(--core-navy);
+  --primary-hover: var(--core-navy-hover);
+  --primary-light: var(--core-navy-subtle);
+  --secondary: var(--core-blue);
+  --accent: var(--core-gold);
+  --danger: var(--core-danger);
+  --success: var(--core-success);
+  --warning: var(--core-gold);
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: var(--core-border);
+  --gray-300: #cbd5e1;
+  --gray-600: var(--core-text-muted);
+  --gray-700: #334155;
+  --gray-800: var(--core-text);
+  --gray-900: #0a1622;
+
+  /* Elevations & Shapes */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 43, 73, 0.05);
+  --shadow: 0 3px 8px -1px rgba(0, 43, 73, 0.08), 0 1px 3px -1px rgba(0, 43, 73, 0.05);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 43, 73, 0.12), 0 4px 8px -2px rgba(0, 43, 73, 0.06);
+}
+
+/* Base Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--core-bg);
+  color: var(--core-text);
+  line-height: 1.55;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--core-navy);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover {
+  color: var(--core-navy-hover);
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   TOP GOVERNMENT BANNER (Indonesian National Portal Ribbon)
+   ========================================================================== */
+.gov-topbar {
+  background: var(--core-navy-dark);
+  color: #d1e2f2;
+  font-size: 0.75rem;
+  padding: 0.45rem 1.5rem;
+  border-bottom: 2px solid var(--core-gold);
+}
+
+.gov-topbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gov-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.gov-flag {
+  display: inline-flex;
+  flex-direction: column;
+  width: 16px;
+  height: 12px;
+  border-radius: 1px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.gov-flag-red { background: #e11d48; height: 50%; }
+.gov-flag-white { background: #ffffff; height: 50%; }
+
+.gov-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.72rem;
+  opacity: 0.9;
+}
+
+.gov-status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: #22c55e;
+  border-radius: 50%;
+  margin-right: 4px;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* ==========================================================================
+   MAIN NAVBAR (Coretax DJP Navy & Gold)
+   ========================================================================== */
+.navbar {
+  background: var(--core-navy);
+  border-bottom: 3px solid var(--core-gold);
+  padding: 0.75rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none !important;
+}
+
+.brand-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #fab005 0%, #e59d00 100%);
+  color: var(--core-navy-dark);
+  border-radius: var(--radius-sm);
+  font-weight: 800;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.brand-title span {
+  color: var(--core-gold);
+}
+
+.brand-subtitle {
+  color: #9cbacf;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.nav-menu a {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #e2edf8;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-menu a:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+.nav-menu a.active {
+  color: var(--core-gold);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* User Profile Badge in Nav */
+.user-badge-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: #ffffff;
+  font-size: 0.825rem;
+}
+
+.user-badge-nav img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--core-gold);
+}
+
+/* ==========================================================================
+   BUTTONS (Enterprise Coretax Style)
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s ease-in-out;
+  font-size: 0.9rem;
+  text-decoration: none !important;
+  font-family: inherit;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Primary Navy Button */
+.btn-primary {
+  background: var(--core-navy);
+  color: #ffffff !important;
+  border-color: var(--core-navy-dark);
+}
+.btn-primary:hover {
+  background: var(--core-navy-hover);
+  box-shadow: 0 3px 8px rgba(0, 43, 73, 0.3);
+}
+
+/* Signature DJP Gold Button */
+.btn-gold, .btn-warning {
+  background: var(--core-gold);
+  color: var(--core-navy-dark) !important;
+  border-color: var(--core-gold-hover);
+  font-weight: 800;
+}
+.btn-gold:hover, .btn-warning:hover {
+  background: var(--core-gold-hover);
+  color: var(--core-navy-dark) !important;
+  box-shadow: 0 4px 12px rgba(250, 176, 5, 0.4);
+}
+
+/* Clean Outline Buttons */
+.btn-outline {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff !important;
+}
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+}
+
+.btn-outline-navy {
+  background: transparent;
+  border: 1.5px solid var(--core-navy);
+  color: var(--core-navy) !important;
+}
+.btn-outline-navy:hover {
+  background: var(--core-navy-subtle);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: #ffffff;
+  color: var(--core-text) !important;
+  border-color: var(--core-border);
+}
+.btn-secondary:hover {
+  background: var(--core-bg);
+  border-color: #b9cadc;
+}
+
+.btn-success {
+  background: var(--core-success);
+  color: #ffffff !important;
+}
+.btn-success:hover {
+  filter: brightness(0.92);
+}
+
+.btn-danger {
+  background: var(--core-danger);
+  color: #ffffff !important;
+}
+.btn-danger:hover {
+  filter: brightness(0.92);
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   CONTAINER & CORETAX HERO
+   ========================================================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  flex: 1;
+  width: 100%;
+}
+
+/* Coretax DJP Portal Hero */
+.hero {
+  background: linear-gradient(135deg, #00233d 0%, #003358 45%, #074775 100%);
+  color: #ffffff;
+  padding: 3.5rem 2rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Subtle Coretax Geometric Overlay */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    radial-gradient(rgba(250, 176, 5, 0.15) 1px, transparent 1px),
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(250, 176, 5, 0.15);
+  border: 1px solid rgba(250, 176, 5, 0.45);
+  color: var(--core-gold);
+  padding: 0.3rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+.hero h1 span {
+  color: var(--core-gold);
+}
+
+.hero p {
+  font-size: 1.05rem;
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  color: #d6e6f5;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   OFFICIAL NOTICE / PENGUMUMAN BANNER (Coretax Alert)
+   ========================================================================== */
+.gov-notice {
+  background: #ffffff;
+  border-left: 5px solid var(--core-gold);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.gov-notice-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--core-gold-subtle);
+  color: var(--core-gold-text);
+  font-weight: 800;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.gov-notice-content h4 {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--core-navy);
+  margin-bottom: 0.2rem;
+}
+
+.gov-notice-content p {
+  font-size: 0.85rem;
+  color: var(--core-text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ==========================================================================
+   CARDS & GRIDS (Coretax Panel)
+   ========================================================================== */
+.card {
+  background: var(--core-card-bg);
+  border: 1px solid var(--core-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.card-navy-top {
+  border-top: 4px solid var(--core-navy);
+}
+
+.card-gold-top {
+  border-top: 4px solid var(--core-gold);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1.5rem;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Stat Cards (Coretax Metrics) */
+.stat-card {
+  padding: 1.35rem 1.25rem;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid var(--core-border);
+  border-top: 4px solid var(--core-navy);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.stat-card.twk { border-top-color: var(--core-navy); }
+.stat-card.tiu { border-top-color: var(--core-blue); }
+.stat-card.tkp { border-top-color: var(--core-gold); }
+
+.stat-label {
+  color: var(--core-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-val {
+  font-size: 2.15rem;
+  font-weight: 800;
+  color: var(--core-navy);
+  margin: 0.35rem 0 0.15rem;
+  line-height: 1.1;
+}
+
+/* ==========================================================================
+   BADGES (Coretax Pill Standards)
+   ========================================================================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-navy { background: var(--core-navy-subtle); color: var(--core-navy); border: 1px solid #bfd3e6; }
+.badge-gold { background: var(--core-gold-subtle); color: var(--core-gold-text); border: 1px solid #fde08b; }
+.badge-twk { background: #e0ecf7; color: var(--core-navy); font-weight: 800; border: 1px solid #bcd3e8; }
+.badge-tiu { background: #e0f2fe; color: #0369a1; font-weight: 800; border: 1px solid #bae6fd; }
+.badge-tkp { background: #fef3c7; color: #92400e; font-weight: 800; border: 1px solid #fde68a; }
+.badge-tkd_bumn { background: #e0f2fe; color: #0369a1; font-weight: 800; border: 1px solid #bae6fd; }
+.badge-akhlak { background: #fff7ed; color: #c2410c; font-weight: 800; border: 1px solid #fed7aa; }
+.badge-eng_bumn { background: #ede9fe; color: #6d28d9; font-weight: 800; border: 1px solid #ddd6fe; }
+.badge-kedinasan_tpa { background: #ffe4e6; color: #be123c; font-weight: 800; border: 1px solid #fecdd3; }
+.badge-psiko_logika { background: #f0fdf4; color: #15803d; font-weight: 800; border: 1px solid #bbf7d0; }
+.badge-psiko_spasial { background: #f5f3ff; color: #5b21b6; font-weight: 800; border: 1px solid #ddd6fe; }
+.badge-psiko_sjt { background: #fffbeb; color: #b45309; font-weight: 800; border: 1px solid #fef3c7; }
+.badge-success { background: var(--core-success-light); color: #065f46; font-weight: 700; }
+.badge-danger { background: var(--core-danger-light); color: #991b1b; font-weight: 700; }
+
+/* ==========================================================================
+   FORMS (Institutional Inputs)
+   ========================================================================== */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.45rem;
+  color: var(--core-text);
+  letter-spacing: 0.2px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.7rem 0.95rem;
+  border: 1.5px solid var(--core-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.925rem;
+  font-family: inherit;
+  background-color: #ffffff;
+  color: var(--core-text);
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--core-navy);
+  box-shadow: 0 0 0 3px rgba(0, 43, 73, 0.15);
+}
+
+/* ==========================================================================
+   CAT EXAM INTERFACE (Official Government Console)
+   ========================================================================== */
+.exam-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .exam-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.exam-header {
+  background: var(--core-navy);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--core-gold);
+  box-shadow: var(--shadow);
+}
+
+.timer-box {
+  background: var(--core-navy-dark);
+  color: var(--core-gold);
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-sm);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.45rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(250, 176, 5, 0.4);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.question-box {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 1.75rem;
+  color: var(--core-text);
+  white-space: pre-line;
+}
+
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.option-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.95rem 1.15rem;
+  border: 1.5px solid var(--core-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: #ffffff;
+  transition: all 0.15s ease;
+}
+
+.option-item:hover {
+  background: var(--core-navy-subtle);
+  border-color: var(--core-navy);
+}
+
+.option-item.selected {
+  background: #eef5fb;
+  border-color: var(--core-navy);
+  box-shadow: inset 3px 0 0 var(--core-navy);
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background: var(--core-bg);
+  font-weight: 800;
+  color: var(--core-navy);
+  border: 1px solid var(--core-border);
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+.option-item.selected .option-letter {
+  background: var(--core-navy);
+  color: #ffffff;
+  border-color: var(--core-navy);
+}
+
+.nav-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.q-number-btn {
+  height: 42px;
+  border: 1px solid var(--core-border);
+  background: #fff;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--core-text);
+}
+
+.q-number-btn:hover {
+  border-color: var(--core-navy);
+  background: var(--core-navy-subtle);
+}
+
+.q-number-btn.active {
+  outline: 2.5px solid var(--core-navy);
+  outline-offset: 1px;
+}
+
+.q-number-btn.answered {
+  background: var(--core-success);
+  color: #ffffff;
+  border-color: var(--core-success);
+}
+
+.q-number-btn.doubt {
+  background: var(--core-gold);
+  color: var(--core-navy-dark);
+  border-color: var(--core-gold-hover);
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   TABLES (Enterprise Corporate Table)
+   ========================================================================== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+
+.table th, .table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--core-border);
+  text-align: left;
+}
+
+.table th {
+  background: var(--core-navy-subtle);
+  font-weight: 700;
+  color: var(--core-navy);
+  font-size: 0.825rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table tr:hover td {
+  background: #fbfdff;
+}
+
+/* ==========================================================================
+   OFFICIAL FOOTER (Coretax DJP Navy Style)
+   ========================================================================== */
+footer {
+  margin-top: auto;
+  background: var(--core-navy-dark);
+  color: #b0c6db;
+  border-top: 3px solid var(--core-gold);
+  padding: 2.5rem 1.5rem 1.5rem;
+  font-size: 0.85rem;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 768px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-brand h3 {
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.footer-brand h3 span {
+  color: var(--core-gold);
+}
+
+.footer-links h4 {
+  color: var(--core-gold);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+
+.footer-links ul {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.45rem;
+}
+
+.footer-links a {
+  color: #d1e2f2;
+  font-size: 0.825rem;
+}
+
+.footer-links a:hover {
+  color: var(--core-gold);
+}
+
+.footer-bottom {
+  padding-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.78rem;
+  color: #8da4be;
+}

@@ -1,0 +1,15 @@
+# Environment & Host Credentials
+.env
+config/db_local.php
+
+# SQLite Local Database (Supaya tidak menimpa DB live)
+database/*.sqlite
+database/*.sqlite-journal
+
+# Uploads user / bukti bayar
+assets/uploads/payments/*
+!assets/uploads/payments/.gitkeep
+
+# System & Editor files
+.DS_Store
+*.log
