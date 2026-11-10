@@ -37,6 +37,9 @@ define('QRIS_MERCHANT_NAME', 'SIAPTES.ID EDUKASI NASIONAL');
 define('QRIS_NMID', 'ID1026000882910');
 define('CUSTOM_QRIS_IMAGE_URL', '');
 
+// --- 4. KONTAK DUKUNGAN & KONFIRMASI (WhatsApp) ---
+define('ADMIN_WHATSAPP_NUMBER', getenv('ADMIN_WHATSAPP_NUMBER') ?: '6281234567890');
+
 /**
  * Cek apakah MIDTRANS_SERVER_KEY sudah benar (diawali Mid-server- atau SB-Mid-server-)
  */
@@ -99,7 +102,6 @@ function createMidtransSnapToken(string $invoiceNumber, int $amount, array $user
             'order_id' => $invoiceNumber,
             'gross_amount' => $amount
         ],
-        'enabled_payments' => ['other_qris', 'gopay'],
         'customer_details' => [
             'first_name' => $user['name'],
             'email' => $user['email']
@@ -124,14 +126,33 @@ function createMidtransSnapToken(string $invoiceNumber, int $amount, array $user
             'Authorization: Basic ' . base64_encode(MIDTRANS_SERVER_KEY . ':')
         ],
         CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_TIMEOUT => 12
+        CURLOPT_TIMEOUT => 8
     ]);
     $res = curl_exec($ch);
     curl_close($ch);
 
     if (!$res) return null;
     $data = json_decode($res, true);
-    return $data['token'] ?? null;
+    $token = $data['token'] ?? null;
+    if (!$token) return null;
+
+    // Verifikasi apakah token ini memiliki kanal pembayaran yang aktif di Midtrans
+    // Mencegah popup "No payment channels available" jika akun Production belum mengaktifkan metode pembayaran di dashboard
+    $chCheck = curl_init($snapUrl . '/' . $token);
+    curl_setopt_array($chCheck, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 5
+    ]);
+    $resCheck = curl_exec($chCheck);
+    curl_close($chCheck);
+    if ($resCheck) {
+        $checkData = json_decode($resCheck, true);
+        if (isset($checkData['enabled_payments']) && empty($checkData['enabled_payments'])) {
+            return null; // Belum ada metode pembayaran yang aktif di dashboard Midtrans
+        }
+    }
+
+    return $token;
 }
 
 /**

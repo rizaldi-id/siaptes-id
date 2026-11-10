@@ -61,18 +61,16 @@ if ($tx['status'] === 'pending' && isMidtransServerKeyValid()) {
                 'snap_token' => null
             ];
         } else {
-            // Gunakan Midtrans Snap API (aktif secara default di semua akun Midtrans)
+            // Gunakan Midtrans Snap API (hanya jika akun memiliki metode pembayaran aktif)
             $midtransSnapToken = createMidtransSnapToken($invKey, (int)$tx['amount'], [
                 'name' => $tx['user_name'],
                 'email' => $tx['user_email']
             ]);
-            if ($midtransSnapToken) {
-                $_SESSION['midtrans_cache'][$invKey] = [
-                    'qr_url' => '',
-                    'qr_string' => '',
-                    'snap_token' => $midtransSnapToken
-                ];
-            }
+            $_SESSION['midtrans_cache'][$invKey] = [
+                'qr_url' => '',
+                'qr_string' => '',
+                'snap_token' => $midtransSnapToken
+            ];
         }
     }
 }
@@ -92,17 +90,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $now = date('Y-m-d H:i:s');
         $isPaidViaApi = checkGatewayPaymentPaidStatus($tx['invoice_number']);
         $isLiveProviderConfigured = (isMidtransServerKeyValid() || !empty(TRIPAY_API_KEY));
+        $isAdminInstant = (isAdmin() && !empty($_POST['admin_instant_verify']));
 
-        if (!$isLiveProviderConfigured || $isPaidViaApi) {
+        if ($isAdminInstant || $isPaidViaApi || !$isLiveProviderConfigured) {
+            $notes = $isAdminInstant 
+                ? 'Lunas via Verifikasi Cepat Admin (Testing)' 
+                : 'Lunas Otomatis via QRIS Payment Gateway (Merchant ' . MIDTRANS_MERCHANT_ID . ')';
             $db->prepare("UPDATE transactions SET status = 'approved', notes = ?, updated_at = ? WHERE id = ?")
-               ->execute(['Lunas Otomatis via QRIS Payment Gateway (Merchant ' . MIDTRANS_MERCHANT_ID . ')', $now, $tx['id']]);
+               ->execute([$notes, $now, $tx['id']]);
             $db->prepare("UPDATE users SET is_premium = 1 WHERE id = ?")
                ->execute([$tx['user_id']]);
 
             header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&paid=1');
             exit;
         } else {
-            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Sistem Midtrans belum menerima pembayaran untuk QRIS ini. Pastikan Anda sudah menyelesaikan scan QRIS Rp 29.000 di aplikasi pembayaran Anda.'));
+            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Sistem pembayaran belum mendeteksi dana masuk untuk invoice ini. Jika Anda sudah transfer/scan, silakan konfirmasi melalui tombol WhatsApp di bawah atau tunggu beberapa saat.'));
             exit;
         }
     }
@@ -352,16 +354,6 @@ require_once __DIR__ . '/includes/header.php';
                         <div class="qris-box" id="qrisContainer">
                             <?php if (!empty($midtransQrUrl)): ?>
                                 <img src="<?= htmlspecialchars($midtransQrUrl) ?>" alt="QRIS Midtrans" style="width: 204px; height: 204px; display: block;">
-                            <?php elseif (!empty($midtransSnapToken)): ?>
-                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 10px;">
-                                    <div style="font-size: 2.2rem; margin-bottom: 6px;">📱</div>
-                                    <div style="font-size: 0.82rem; font-weight: 800; color: var(--core-navy); line-height: 1.3; margin-bottom: 8px;">
-                                        QRIS Resmi Midtrans Siap
-                                    </div>
-                                    <button type="button" onclick="payViaMidtransSnap();" class="btn btn-gold btn-sm" style="font-size: 0.78rem; padding: 5px 12px;">
-                                        ⚡ Buka Kode QRIS
-                                    </button>
-                                </div>
                             <?php elseif (CUSTOM_QRIS_IMAGE_URL !== ''): ?>
                                 <img src="<?= htmlspecialchars(CUSTOM_QRIS_IMAGE_URL) ?>" alt="QRIS SIAP TES" style="width: 100%; height: 100%; object-fit: contain;">
                             <?php else: ?>
@@ -437,8 +429,12 @@ require_once __DIR__ . '/includes/header.php';
                         <?php if (!empty($midtransSnapToken)): ?>
                             <script src="<?= MIDTRANS_IS_PRODUCTION ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' ?>" data-client-key="<?= htmlspecialchars(MIDTRANS_CLIENT_KEY) ?>"></script>
                             <button type="button" onclick="payViaMidtransSnap();" class="btn btn-primary" style="width: 100%; padding: 0.95rem; margin-bottom: 0.75rem; justify-content: center; font-size: 1rem; font-weight: 800; background: #0284c7; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
-                                📱 Bayar via QRIS Resmi Midtrans (Klik Di Sini) ➔
+                                📱 Bayar via Popup QRIS Midtrans (Klik Di Sini) ➔
                             </button>
+                        <?php else: ?>
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); padding: 0.75rem 0.9rem; margin-bottom: 0.85rem; font-size: 0.82rem; color: #166534; line-height: 1.5;">
+                                <b>📱 Scan QRIS Langsung:</b> Arahkan scanner di aplikasi e-wallet atau mobile banking Anda ke kode QRIS di samping sebesar <b>Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?></b>.
+                            </div>
                         <?php endif; ?>
 
                         <div id="gatewayCheckingBox" style="display: none; background: #eef6fc; border: 1px solid #bfd7ec; border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; text-align: center;">
@@ -453,7 +449,31 @@ require_once __DIR__ . '/includes/header.php';
                         <button type="submit" id="btnVerifyNow" class="btn btn-gold" style="width: 100%; padding: 0.9rem; font-size: 0.96rem; justify-content: center; box-shadow: 0 4px 12px rgba(250, 176, 5, 0.35);">
                             🔄 Saya Sudah Scan QRIS — Cek & Aktifkan PRO VIP Sekarang
                         </button>
+
+                        <?php if (isAdmin()): ?>
+                            <!-- Tombol Khusus Pengujian Admin -->
+                            <div style="margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px dashed var(--core-border); text-align: center;">
+                                <button type="submit" name="admin_instant_verify" value="1" class="btn btn-secondary btn-sm" style="width: 100%; font-size: 0.76rem; padding: 6px 10px;">
+                                    ⚡ [Mode Admin] Simulasikan Lunas Langsung (Uji Coba)
+                                </button>
+                            </div>
+                        <?php endif; ?>
                     </form>
+
+                    <?php
+                    $waText = "Halo Admin SIAPTES.ID, saya ingin konfirmasi pembayaran QRIS PRO VIP:\n\n"
+                            . "• Invoice: #" . $tx['invoice_number'] . "\n"
+                            . "• Nama: " . $tx['user_name'] . "\n"
+                            . "• Email: " . $tx['user_email'] . "\n"
+                            . "• Nominal: Rp " . number_format((int)$tx['amount'], 0, ',', '.') . "\n\n"
+                            . "Mohon bantu verifikasi dan aktivasi akun PRO VIP saya. Terima kasih!";
+                    $waUrl = "https://api.whatsapp.com/send?phone=" . ADMIN_WHATSAPP_NUMBER . "&text=" . urlencode($waText);
+                    ?>
+                    <div style="margin-top: 0.65rem; text-align: center;">
+                        <a href="<?= $waUrl ?>" target="_blank" rel="noopener" class="btn btn-sm" style="width: 100%; background: #25d366; color: #fff; font-weight: 700; font-size: 0.82rem; justify-content: center; padding: 0.6rem; border: none; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+                            💬 Butuh Bantuan / Konfirmasi via WhatsApp
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Panduan Cara Bayar QRIS -->
