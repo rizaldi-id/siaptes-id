@@ -55,7 +55,7 @@
                 &copy; <?= date('Y') ?> <b>SIAP TES</b> (<b>siaptes.id</b>). Hak Cipta Dilindungi Undang-Undang Republik Indonesia.
             </div>
             <div>
-                Platform Ekosistem Persiapan Ujian Seleksi Nasional & Karier Profesional
+                Platform Ekosistem Persiapan Ujian Seleksi Nasional & Karier Profesional &bull; <span style="color: var(--core-gold); font-size: 0.75rem;">v1.1 (Sync Aktif)</span>
             </div>
         </div>
     </div>
