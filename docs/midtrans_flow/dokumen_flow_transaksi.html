@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dokumen Alur Transaksi & Pembayaran Midtrans - SIAPTES.ID</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm 15mm 15mm 15mm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            background: #ffffff;
+            font-size: 10.5pt;
+        }
+        .header-box {
+            border-bottom: 2px solid #0b2d52;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .brand-title {
+            font-size: 20pt;
+            font-weight: 800;
+            color: #0b2d52;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+        .brand-title span {
+            color: #fab005;
+        }
+        .doc-meta {
+            text-align: right;
+            font-size: 8.5pt;
+            color: #64748b;
+        }
+        .doc-title-block {
+            background: #f1f5f9;
+            border-left: 4px solid #0b2d52;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+        }
+        .doc-title-block h1 {
+            font-size: 13pt;
+            font-weight: 800;
+            color: #0b2d52;
+            margin: 0 0 4px 0;
+            text-transform: uppercase;
+        }
+        .doc-title-block p {
+            margin: 0;
+            font-size: 9pt;
+            color: #475569;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 22px;
+            font-size: 9pt;
+        }
+        .info-table td {
+            padding: 5px 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .info-table td.label {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #0b2d52;
+            width: 25%;
+        }
+        .step-card {
+            margin-bottom: 26px;
+            page-break-inside: avoid;
+        }
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .step-badge {
+            background: #0b2d52;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 8.5pt;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .step-title {
+            font-size: 11pt;
+            font-weight: 800;
+            color: #0b2d52;
+            margin: 0;
+        }
+        .step-desc {
+            font-size: 9pt;
+            color: #334155;
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+        }
+        .img-container {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            background: #f8fafc;
+            text-align: center;
+        }
+        .img-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .footer-note {
+            margin-top: 30px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            font-size: 8pt;
+            color: #64748b;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Dokumen -->
+    <div class="header-box">
+        <div>
+            <h1 class="brand-title">SIAP<span>TES</span>.ID</h1>
+            <div style="font-size: 8.5pt; color: #475569; font-weight: 600;">Platform Edukasi & Simulasi CAT Seleksi Nasional</div>
+        </div>
+        <div class="doc-meta">
+            <div><b>Lampiran Dokumen Verifikasi Merchant Midtrans</b></div>
+            <div>Dokumen: Customer Journey & Checkout Transaction Flow</div>
+            <div>Tanggal Diterbitkan: 12 November 2026</div>
+        </div>
+    </div>
+
+    <!-- Judul Dokumen -->
+    <div class="doc-title-block">
+        <h1>Dokumen Alur Transaksi & Checkout Pembayaran Midtrans</h1>
+        <p>Panduan visual step-by-step dari pemilihan produk, pengisian identitas pemesanan, hingga pembayaran via Midtrans Snap / QRIS dan aktivasi akses otomatis.</p>
+    </div>
+
+    <!-- Tabel Identitas Merchant -->
+    <table class="info-table">
+        <tr>
+            <td class="label">Nama Usaha / Merchant</td>
+            <td><b>SIAP TES (siaptes.id)</b></td>
+            <td class="label">Merchant ID Midtrans</td>
+            <td><b>M376881517</b></td>
+        </tr>
+        <tr>
+            <td class="label">URL Website Resmi</td>
+            <td><a href="https://siaptes.id" style="color: #0284c7;">https://siaptes.id</a></td>
+            <td class="label">Kategori Bisnis</td>
+            <td>Education / Digital Goods (Simulasi Ujian CAT & Bank Soal Daring)</td>
+        </tr>
+        <tr>
+            <td class="label">Model Penetapan Harga</td>
+            <td>Paket PRO VIP All-Access: <b>Rp 29.000,-</b> (Akses Penuh Tanpa Batas)</td>
+            <td class="label">Mekanisme Fulfillment</td>
+            <td>Aktivasi Digital Instan Real-Time (Tanpa Pengiriman Fisik)</td>
+        </tr>
+    </table>
+
+    <!-- STEP 1 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 1</span>
+            <h2 class="step-title">Calon Pembeli Mengunjungi Website & Memilih Paket Layanan</h2>
+        </div>
+        <p class="step-desc">
+            Pengguna mengakses portal <b>https://siaptes.id</b>. Pada halaman beranda, pengguna dapat melihat katalog seleksi (CPNS, BUMN, Kedinasan, Psikotes) serta informasi penawaran Paket PRO VIP seharga Rp 29.000. Pengguna menekan tombol <b>"Upgrade Akun PRO VIP"</b> atau <b>"Coba Simulasi Tryout"</b>.
+        </p>
+        <div class="img-container">
+            <img src="step1_katalog_homepage.png" alt="Langkah 1: Halaman Beranda & Katalog Produk">
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 2</span>
+            <h2 class="step-title">Pendaftaran Akun / Autentikasi Pengguna (Customer Login & Register)</h2>
+        </div>
+        <p class="step-desc">
+            Untuk memastikan akses materi terhubung dengan identitas peserta, pengguna melakukan pendaftaran akun baru atau masuk ke akun yang sudah terdaftar melalui <b>https://siaptes.id/login.php</b> menggunakan email dan kata sandi yang aman.
+        </p>
+        <div class="img-container">
+            <img src="step2_login_register.png" alt="Langkah 2: Registrasi dan Login Pengguna">
+        </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 3</span>
+            <h2 class="step-title">Pemilihan Paket & Rincian Manfaat Layanan (Pricing & Order Placement)</h2>
+        </div>
+        <p class="step-desc">
+            Pada halaman <b>https://siaptes.id/upgrade.php</b>, pengguna melihat rincian manfaat Paket PRO VIP All-Access (Rp 29.000) termasuk bank soal lengkap, kunci pembahasan, perankingan nasional, dan akses ujian tanpa batas. Pengguna menekan tombol <b>"Beli Akses PRO VIP Sekarang (Rp 29.000)"</b> untuk membuat invoice pesanan.
+        </p>
+        <div class="img-container">
+            <img src="step3_pemilihan_paket.png" alt="Langkah 3: Pemilihan Paket PRO VIP">
+        </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 4</span>
+            <h2 class="step-title">Halaman Checkout Invoice & Integrasi Gerbang Pembayaran QRIS Midtrans</h2>
+        </div>
+        <p class="step-desc">
+            Sistem mengarahkan pengguna ke halaman pembayaran resmi <b>payment_checkout.php?invoice=INV-QRIS-...</b>. Halaman memuat nomor invoice resmi, batas waktu pembayaran, nama peserta, nominal tagihan tepat Rp 29.000, serta kode QRIS standar nasional yang siap di-scan langsung atau dibuka via modul gateway Midtrans.
+        </p>
+        <div class="img-container">
+            <img src="step4_checkout_invoice.png" alt="Langkah 4: Checkout Tagihan & Kode QRIS">
+        </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 5</span>
+            <h2 class="step-title">Proses Pembayaran via Popup Midtrans Snap (Seamless Payment Flow)</h2>
+        </div>
+        <p class="step-desc">
+            Ketika pengguna mengklik tombol pembayaran Midtrans, popup antarmuka resmi <b>Midtrans Snap</b> terbuka di layar dengan detail pesanan <i>Order ID #INV-QRIS-...</i> dan nominal <b>Rp 29.000</b>. Pembeli dapat menyelesaikan pembayaran menggunakan GoPay, ShopeePay, QRIS, atau saluran pembayaran aktif lainnya dari aplikasi di smartphone pengguna.
+        </p>
+        <div class="img-container">
+            <img src="step5_popup_midtrans_snap.jpg" alt="Langkah 5: Tampilan Antarmuka Popup Midtrans Snap">
+        </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 6</span>
+            <h2 class="step-title">Verifikasi Otomatis & Kwitansi Pembayaran Berhasil (Success & Receipt)</h2>
+        </div>
+        <p class="step-desc">
+            Setelah pembayaran sukses, sistem Midtrans mengirimkan notifikasi callback/webhook ke server <b>siaptes.id</b> secara real-time. Halaman pembayaran otomatis berubah menampilkan konfirmasi <b>"Selamat! Akun Anda Kini Resmi PRO VIP"</b> lengkap dengan nomor invoice, total pembayaran, waktu konfirmasi, dan opsi cetak kwitansi digital.
+        </p>
+        <div class="img-container">
+            <img src="step6_verifikasi_sukses.png" alt="Langkah 6: Konfirmasi Pembayaran Berhasil">
+        </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step-card">
+        <div class="step-header">
+            <span class="step-badge">LANGKAH 7</span>
+            <h2 class="step-title">Penyerahan Layanan Digital Seketika (Instant Product Access)</h2>
+        </div>
+        <p class="step-desc">
+            Status akun pengguna pada sistem database otomatis diperbarui menjadi <i>is_premium = 1</i>. Pengguna dapat langsung membuka portal ujian di <b>https://siaptes.id/tryout.php</b> dan mengerjakan seluruh paket ujian CAT CPNS, BUMN, Kedinasan, serta Psikotes tanpa batasan apapun.
+        </p>
+        <div class="img-container">
+            <img src="step7_akses_tryout_aktif.png" alt="Langkah 7: Akses Penuh Modul Tryout Terbuka">
+        </div>
+    </div>
+
+    <!-- Catatan & Kontak Kepatuhan -->
+    <div class="footer-note">
+        <b>SIAP TES (siaptes.id) &bull; Informasi Kepatuhan Pembayaran Digital</b><br>
+        Email Layanan: support@siaptes.id | WhatsApp: +62 812-3456-7890 | Website: https://siaptes.id<br>
+        Dokumen ini disiapkan khusus sebagai bukti pemenuhan syarat operasional integrasi Midtrans Merchant Onboarding (KYC).
+    </div>
+
+</body>
+</html>
