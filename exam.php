@@ -11,85 +11,96 @@ $action = $_GET['action'] ?? '';
 
 // 1. ACTION: START PACKAGE (TRYOUT)
 if ($action === 'start_package') {
-    $package_id = intval($_GET['package_id'] ?? 0);
-    $package = $db->query("SELECT * FROM packages WHERE id = $package_id AND is_active = 1")->fetch();
+    try {
+        $package_id = intval($_GET['package_id'] ?? 0);
+        $package = $db->query("SELECT * FROM packages WHERE id = $package_id AND is_active = 1")->fetch();
 
-    if (!$package) {
-        header('Location: tryout.php?msg=Paket tidak ditemukan');
+        if (!$package) {
+            header('Location: tryout.php?msg=' . urlencode('Paket tidak ditemukan'));
+            exit;
+        }
+
+        // Check Premium requirement
+        if (!empty($package['is_premium']) && !isPremiumUser()) {
+            header('Location: upgrade.php?package_id=' . $package_id . '&msg=' . urlencode('Konten ini khusus Member PRO VIP. Silakan lakukan pembayaran Rp 29.000 via QRIS terlebih dahulu untuk membuka akses penuh.'));
+            exit;
+        }
+
+        // Create new attempt
+        $now = date('Y-m-d H:i:s');
+        $stmt = $db->prepare("INSERT INTO exam_attempts (user_id, package_id, mode, status, start_time) VALUES (?, ?, 'tryout', 'in_progress', ?)");
+        $stmt->execute([$user['id'], $package_id, $now]);
+        $attempt_id = $db->lastInsertId();
+
+        // Select questions assigned to this package OR general questions
+        $questions = $db->query("SELECT id FROM questions WHERE package_id = $package_id ORDER BY category_id, id")->fetchAll(PDO::FETCH_COLUMN);
+        
+        // If no questions specific to package, fallback to all questions
+        if (empty($questions)) {
+            $questions = $db->query("SELECT id FROM questions ORDER BY category_id, id")->fetchAll(PDO::FETCH_COLUMN);
+        }
+
+        $ansStmt = $db->prepare("INSERT INTO user_answers (attempt_id, question_id) VALUES (?, ?)");
+        foreach ($questions as $qid) {
+            $ansStmt->execute([$attempt_id, $qid]);
+        }
+
+        header("Location: exam.php?attempt_id=$attempt_id");
+        exit;
+    } catch (Throwable $e) {
+        header('Location: tryout.php?msg=' . urlencode('Terjadi kendala memulai tryout: ' . $e->getMessage()));
         exit;
     }
-
-    // Check Premium requirement
-    if (!empty($package['is_premium']) && !isPremiumUser()) {
-        header('Location: upgrade.php?package_id=' . $package_id . '&msg=' . urlencode('Konten ini khusus Member PRO VIP. Silakan lakukan pembayaran Rp 29.000 via QRIS terlebih dahulu untuk membuka akses penuh.'));
-        exit;
-    }
-
-    // Create new attempt
-    $now = date('Y-m-d H:i:s');
-    $stmt = $db->prepare("INSERT INTO exam_attempts (user_id, package_id, mode, status, start_time) VALUES (?, ?, 'tryout', 'in_progress', ?)");
-    $stmt->execute([$user['id'], $package_id, $now]);
-    $attempt_id = $db->lastInsertId();
-
-    // Select questions assigned to this package OR general questions
-    $questions = $db->query("SELECT id FROM questions WHERE package_id = $package_id ORDER BY category_id, id")->fetchAll(PDO::FETCH_COLUMN);
-    
-    // If no questions specific to package, fallback to all questions
-    if (empty($questions)) {
-        $questions = $db->query("SELECT id FROM questions ORDER BY category_id, id")->fetchAll(PDO::FETCH_COLUMN);
-    }
-
-    $ansStmt = $db->prepare("INSERT INTO user_answers (attempt_id, question_id) VALUES (?, ?)");
-    foreach ($questions as $qid) {
-        $ansStmt->execute([$attempt_id, $qid]);
-    }
-
-    header("Location: exam.php?attempt_id=$attempt_id");
-    exit;
 }
 
 // 2. ACTION: START PRACTICE
 if ($action === 'start_practice') {
-    $category_id = intval($_GET['category_id'] ?? 0);
-    $limit = intval($_GET['limit'] ?? 5);
-    if ($limit <= 0) $limit = 5;
+    try {
+        $category_id = intval($_GET['category_id'] ?? 0);
+        $limit = intval($_GET['limit'] ?? 5);
+        if ($limit <= 0) $limit = 5;
 
-    // Jika akun belum PRO VIP dan memilih kuota > 5 soal, arahkan ke pembayaran QRIS Rp 29.000
-    if ($limit > 5 && !isPremiumUser()) {
-        header('Location: upgrade.php?msg=' . urlencode('Kuota latihan di atas 5 soal khusus Member PRO VIP. Silakan bayar Rp 29.000 via QRIS untuk membuka seluruh bank soal tanpa batas!'));
+        // Jika akun belum PRO VIP dan memilih kuota > 5 soal, arahkan ke pembayaran QRIS Rp 29.000
+        if ($limit > 5 && !isPremiumUser()) {
+            header('Location: upgrade.php?msg=' . urlencode('Kuota latihan di atas 5 soal khusus Member PRO VIP. Silakan bayar Rp 29.000 via QRIS untuk membuka seluruh bank soal tanpa batas!'));
+            exit;
+        }
+
+        $category = $db->query("SELECT * FROM categories WHERE id = $category_id")->fetch();
+        if (!$category) {
+            header('Location: latihan.php?msg=' . urlencode('Kategori tidak ditemukan'));
+            exit;
+        }
+
+        // Create attempt
+        $now = date('Y-m-d H:i:s');
+        $stmt = $db->prepare("INSERT INTO exam_attempts (user_id, package_id, mode, status, start_time) VALUES (?, NULL, 'practice', 'in_progress', ?)");
+        $stmt->execute([$user['id'], $now]);
+        $attempt_id = $db->lastInsertId();
+
+        // Select randomized questions for practice (kompatibel penuh MySQL & SQLite)
+        $randOrder = function_exists('sqlRandomOrder') ? sqlRandomOrder($db) : 'RANDOM()';
+        $safeLimit = max(1, intval($limit));
+        $qStmt = $db->prepare("SELECT id FROM questions WHERE category_id = ? ORDER BY $randOrder LIMIT " . $safeLimit);
+        $qStmt->execute([$category_id]);
+        $questions = $qStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($questions)) {
+            header('Location: latihan.php?msg=' . urlencode('Belum ada soal pada kategori ini'));
+            exit;
+        }
+
+        $ansStmt = $db->prepare("INSERT INTO user_answers (attempt_id, question_id) VALUES (?, ?)");
+        foreach ($questions as $qid) {
+            $ansStmt->execute([$attempt_id, $qid]);
+        }
+
+        header("Location: exam.php?attempt_id=$attempt_id");
+        exit;
+    } catch (Throwable $e) {
+        header('Location: latihan.php?msg=' . urlencode('Terjadi kendala memulai latihan: ' . $e->getMessage()));
         exit;
     }
-
-    $category = $db->query("SELECT * FROM categories WHERE id = $category_id")->fetch();
-    if (!$category) {
-        header('Location: latihan.php?msg=Kategori tidak ditemukan');
-        exit;
-    }
-
-    // Create attempt
-    $now = date('Y-m-d H:i:s');
-    $stmt = $db->prepare("INSERT INTO exam_attempts (user_id, package_id, mode, status, start_time) VALUES (?, NULL, 'practice', 'in_progress', ?)");
-    $stmt->execute([$user['id'], $now]);
-    $attempt_id = $db->lastInsertId();
-
-    // Select randomized questions for practice
-    $randOrder = function_exists('sqlRandomOrder') ? sqlRandomOrder() : 'RANDOM()';
-    $qStmt = $db->prepare("SELECT id FROM questions WHERE category_id = ? ORDER BY $randOrder LIMIT ?");
-    $qStmt->execute([$category_id, $limit]);
-    $questions = $qStmt->fetchAll(PDO::FETCH_COLUMN);
-
-    if (empty($questions)) {
-        header('Location: latihan.php?msg=Belum ada soal pada kategori ini');
-        exit;
-    }
-
-    $ansStmt = $db->prepare("INSERT INTO user_answers (attempt_id, question_id) VALUES (?, ?)");
-    foreach ($questions as $qid) {
-        $ansStmt->execute([$attempt_id, $qid]);
-    }
-
-    header("Location: exam.php?attempt_id=$attempt_id");
-    exit;
 }
 
 // 3. ACTION: FINISH EXAM

@@ -98,8 +98,16 @@ function ensureSchemaCompatibility(PDO $db) {
 /**
  * Helper untuk fungsi random ordering yang kompatibel dengan MySQL & SQLite
  */
-function sqlRandomOrder() {
-    return (DB_DRIVER === 'mysql') ? 'RAND()' : 'RANDOM()';
+function sqlRandomOrder($db = null) {
+    if ($db === null) {
+        $db = getDB();
+    }
+    try {
+        $driverName = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+        return ($driverName === 'mysql') ? 'RAND()' : 'RANDOM()';
+    } catch (Throwable $e) {
+        return (DB_DRIVER === 'mysql') ? 'RAND()' : 'RANDOM()';
+    }
 }
 
 /**
