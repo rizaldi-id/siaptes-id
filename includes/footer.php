@@ -30,22 +30,31 @@
             <div class="footer-links">
                 <h4>Kategori Ujian</h4>
                 <ul>
-                    <li><a href="tryout.php?track=cpns">Simulasi CAT SKD CPNS</a></li>
-                    <li><a href="tryout.php?track=bumn">Rekrutmen Bersama BUMN (RBB)</a></li>
-                    <li><a href="tryout.php?track=kedinasan">Sekolah Kedinasan (STAN, STIS, IPDN)</a></li>
-                    <li><a href="tryout.php?track=psikotes">Psikotes Kerja & Penalaran Logika</a></li>
-                    <li><a href="latihan.php">Bank Soal Semua Materi</a></li>
+                    <li><a href="<?= $root_url ?>/tryout.php?track=cpns">Simulasi CAT SKD CPNS</a></li>
+                    <li><a href="<?= $root_url ?>/tryout.php?track=bumn">Rekrutmen BUMN (RBB)</a></li>
+                    <li><a href="<?= $root_url ?>/tryout.php?track=kedinasan">Sekolah Kedinasan</a></li>
+                    <li><a href="<?= $root_url ?>/tryout.php?track=psikotes">Psikotes Kerja</a></li>
+                    <li><a href="<?= $root_url ?>/latihan.php">Bank Soal Semua Materi</a></li>
                 </ul>
             </div>
 
             <div class="footer-links">
-                <h4>Layanan & Informasi</h4>
+                <h4>Layanan & Fitur</h4>
                 <ul>
-                    <li><a href="<?= $root_url ?>/artikel.php">Artikel & Strategi Lulus</a></li>
+                    <li><a href="<?= $root_url ?>/artikel.php">Artikel & Tips Lulus</a></li>
                     <li><a href="<?= $root_url ?>/upgrade.php">Paket PRO VIP All-Access</a></li>
                     <li><a href="<?= $root_url ?>/tryout.php">Coba Free Trial Gratis</a></li>
                     <li><a href="<?= $root_url ?>/riwayat.php">Sertifikat & Riwayat Ujian</a></li>
-                    <li><a href="javascript:void(0)" onclick="alert('Helpdesk SIAP TES: Hubungi support@siaptes.id untuk bantuan aktivasi.')">Bantuan & Kontak</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-links">
+                <h4>Bantuan & Legalitas</h4>
+                <ul>
+                    <li><a href="<?= $root_url ?>/syarat-ketentuan.php">Syarat & Ketentuan</a></li>
+                    <li><a href="<?= $root_url ?>/kebijakan-privasi.php">Kebijakan Privasi</a></li>
+                    <li><a href="<?= $root_url ?>/kebijakan-pengembalian-dana.php">Kebijakan Refund</a></li>
+                    <li><a href="<?= $root_url ?>/kontak.php">Pusat Bantuan & Kontak</a></li>
                 </ul>
             </div>
         </div>
