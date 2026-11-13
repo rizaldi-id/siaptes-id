@@ -28,7 +28,8 @@ header('Content-Type: text/html; charset=utf-8');
 
     if (isset($_POST['sync'])) {
         require_once __DIR__ . '/database/seed_siaptes.php';
-        echo "<div class='success'>✅ Berhasil disinkronkan! Sebanyak 381 butir soal dan 10 kategori telah dimuat ke dalam database aktif (" . strtoupper($driver) . ").</div>";
+        $newTotal = $db->query("SELECT COUNT(*) FROM questions")->fetchColumn();
+        echo "<div class='success'>✅ Berhasil disinkronkan! Total <b>" . number_format($newTotal) . " butir soal</b> dan 10 kategori telah tersedia di dalam database aktif (" . strtoupper($driver) . ").</div>";
     }
 
     $qCount = $db->query("SELECT COUNT(*) FROM questions")->fetchColumn();
@@ -39,11 +40,11 @@ header('Content-Type: text/html; charset=utf-8');
     <ul>
         <li>Kategori Ujian: <b><?= $cCount ?></b></li>
         <li>Paket Tryout: <b><?= $pCount ?></b></li>
-        <li>Bank Soal: <b><?= $qCount ?> butir soal</b></li>
+        <li>Bank Soal: <b><?= number_format($qCount) ?> butir soal</b></li>
     </ul>
 
     <form method="POST">
-        <button type="submit" name="sync" class="btn">⚡ Klik Di Sini untuk Sinkronkan 381 Soal Sekarang</button>
+        <button type="submit" name="sync" class="btn">⚡ Klik Di Sini untuk Sinkronkan 3.800+ Bank Soal Sekarang</button>
     </form>
     <br>
     <a href="latihan.php" style="color: #0284c7; text-decoration: none; font-weight: bold;">← Kembali ke Halaman Bank Soal</a>

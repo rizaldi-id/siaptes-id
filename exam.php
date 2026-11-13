@@ -295,6 +295,7 @@ require_once __DIR__ . '/includes/header.php';
                         'E' => $q['option_e'],
                     ];
                     foreach ($options as $optKey => $optVal): 
+                        if ($optVal === null || trim((string)$optVal) === '') continue;
                         $isSelected = ($q['selected_option'] === $optKey);
                     ?>
                         <div class="option-item <?= $isSelected ? 'selected' : '' ?>" 

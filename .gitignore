@@ -13,3 +13,6 @@ assets/uploads/payments/*
 # System & Editor files
 .DS_Store
 *.log
+
+# Raw Bank Soal source archives (sudah diekstrak ke database/all_questions.json)
+Bank Soal/

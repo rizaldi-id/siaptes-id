@@ -171,6 +171,7 @@ require_once __DIR__ . '/includes/header.php';
                 ];
 
                 foreach ($options as $optKey => $optData): 
+                    if ($optData['text'] === null || trim((string)$optData['text']) === '') continue;
                     $isSelected = ($item['selected_option'] === $optKey);
                     $isTheKey = (!$isWeighted && $item['correct_option'] === $optKey);
                     
