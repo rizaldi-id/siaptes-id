@@ -302,7 +302,6 @@ function createDokuCheckoutPayment(string $invoiceNumber, int $amount, array $us
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
-    curl_close($ch);
 
     if (!$res) {
         return ['error' => $err ?: 'Tidak dapat menghubungi server DOKU.'];
@@ -366,7 +365,6 @@ function checkDokuOrderStatus(string $invoiceNumber): array {
         CURLOPT_TIMEOUT => 10
     ]);
     $res = curl_exec($ch);
-    curl_close($ch);
 
     if (!$res) {
         return ['paid' => false, 'channel' => '', 'status' => 'ERROR'];
@@ -410,7 +408,6 @@ function createMayarInvoice(string $invoiceNumber, int $amount, array $user): ?a
     ]);
     $res = curl_exec($ch);
     $err = curl_error($ch);
-    curl_close($ch);
     if (!$res) return ['error' => $err ?: 'Tidak dapat menghubungi server Mayar.id.'];
     $data = json_decode($res, true);
     if (!empty($data['data']['id']) && !empty($data['data']['link'])) {
@@ -424,7 +421,6 @@ function checkMayarInvoicePaidStatus(string $mayarInvoiceId): bool {
     $ch = curl_init(getMayarBaseUrl() . '/invoice/' . urlencode($mayarInvoiceId));
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Accept: application/json', 'Authorization: Bearer ' . MAYAR_API_KEY], CURLOPT_TIMEOUT => 10]);
     $res = curl_exec($ch);
-    curl_close($ch);
     if (!$res) return false;
     $data = json_decode($res, true);
     $status = strtolower(trim((string)($data['data']['status'] ?? '')));
@@ -450,7 +446,6 @@ function createTripayQrisTransaction(string $invoiceNumber, int $amount, array $
     $ch = curl_init(getTripayBaseUrl() . '/transaction/create');
     curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_POST => true, CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . TRIPAY_API_KEY], CURLOPT_POSTFIELDS => http_build_query($payload), CURLOPT_TIMEOUT => 12]);
     $res = curl_exec($ch);
-    curl_close($ch);
     if (!$res) return ['error' => 'Gagal menghubungi Tripay.'];
     $data = json_decode($res, true);
     if (!empty($data['success']) && !empty($data['data'])) {
@@ -488,7 +483,6 @@ function checkGatewayPaymentPaidStatus(string $invoiceNumber, ?string $gatewayRe
         $ch = curl_init(getTripayBaseUrl() . '/transaction/detail?' . http_build_query(['reference' => $gatewayRef]));
         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . TRIPAY_API_KEY], CURLOPT_TIMEOUT => 10]);
         $res = curl_exec($ch);
-        curl_close($ch);
         if ($res) {
             $data = json_decode($res, true);
             if (!empty($data['success']) && strtoupper($data['data']['status'] ?? '') === 'PAID') return true;
