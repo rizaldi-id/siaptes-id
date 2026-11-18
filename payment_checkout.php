@@ -33,22 +33,58 @@ $channels = getPaymentChannels();
 $channelMeta = $channels['QRIS'];
 $qrisPayload = generateQrisPayload($tx['invoice_number'], (int)$tx['amount']);
 
-// Inisialisasi Payment Gateway (Prioritas: Mayar.id -> Tripay -> Midtrans -> Built-in)
+// Inisialisasi Payment Gateway (Prioritas: DOKU -> Mayar -> Tripay -> Midtrans -> Built-in)
 $gatewayQrUrl = '';
 $gatewayCheckoutUrl = '';
 $gatewayError = '';
+$isDokuSession = false;
 $midtransSnapToken = null;
 
 if ($tx['status'] === 'pending') {
     $invKey = $tx['invoice_number'];
 
-    // 1. Jika menggunakan MAYAR.ID dan API Key sudah diisi
-    if (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) {
+    // 1. Jika menggunakan DOKU CHECKOUT dan kredensial DOKU sudah diisi
+    if (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) {
+        if (!empty($tx['gateway_checkout_url'])) {
+            $gatewayCheckoutUrl = $tx['gateway_checkout_url'];
+            $isDokuSession = true;
+
+            // Cek otomatis status ke server DOKU saat halaman diakses/redirect kembali
+            $dokuCheck = checkDokuOrderStatus($invKey);
+            if (!empty($dokuCheck['paid'])) {
+                activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via DOKU (' . ($dokuCheck['channel'] ?: 'DOKU') . ')');
+                header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
+                exit;
+            }
+        } else {
+            $dokuData = createDokuCheckoutPayment($invKey, (int)$tx['amount'], [
+                'id' => $tx['user_id'],
+                'name' => $tx['user_name'],
+                'email' => $tx['user_email']
+            ]);
+
+            if (!empty($dokuData['payment_url'])) {
+                $gatewayCheckoutUrl = $dokuData['payment_url'];
+                $isDokuSession = true;
+                $dokuRef = $dokuData['session_id'] ?: ($dokuData['token_id'] ?: $invKey);
+
+                $db->prepare("UPDATE transactions SET gateway_reference = ?, gateway_checkout_url = ? WHERE id = ?")
+                   ->execute([$dokuRef, $gatewayCheckoutUrl, $tx['id']]);
+                $tx['gateway_reference'] = $dokuRef;
+            } elseif (!empty($dokuData['error'])) {
+                $gatewayError = $dokuData['error'];
+            }
+        }
+        if (!empty($gatewayCheckoutUrl)) {
+            $qrisPayload = $gatewayCheckoutUrl;
+        }
+    }
+    // 2. Cadangan: Jika menggunakan MAYAR.ID
+    elseif (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) {
         if (!empty($tx['gateway_reference'])) {
             $gatewayQrUrl = $tx['gateway_qr_url'] ?? '';
             $gatewayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
 
-            // Cek apakah pembayaran sudah PAID saat user kembali dari redirectUrl Mayar
             if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'])) {
                 activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Mayar.id (' . $tx['gateway_reference'] . ')');
                 header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
@@ -63,7 +99,6 @@ if ($tx['status'] === 'pending') {
 
             if (!empty($mayarData['id']) && !empty($mayarData['link'])) {
                 $gatewayCheckoutUrl = $mayarData['link'];
-                // Render QR code yang mengarah langsung ke invoice Mayar jika belum ada QR image langsung
                 $qrisPayload = $gatewayCheckoutUrl;
 
                 $db->prepare("UPDATE transactions SET gateway_reference = ?, gateway_qr_url = ?, gateway_checkout_url = ? WHERE id = ?")
@@ -77,7 +112,7 @@ if ($tx['status'] === 'pending') {
             $qrisPayload = $gatewayCheckoutUrl;
         }
     }
-    // 2. Jika menggunakan TRIPAY dan kredensial Tripay sudah diisi
+    // 3. Cadangan: Jika menggunakan TRIPAY
     elseif (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) {
         if (!empty($tx['gateway_reference'])) {
             $gatewayQrUrl = $tx['gateway_qr_url'] ?? '';
@@ -109,43 +144,6 @@ if ($tx['status'] === 'pending') {
             }
         }
     }
-    // 3. Cadangan: Jika menggunakan MIDTRANS
-    elseif (GATEWAY_PROVIDER === 'midtrans' && isMidtransServerKeyValid()) {
-        if (!empty($_SESSION['midtrans_cache'][$invKey])) {
-            $cached = $_SESSION['midtrans_cache'][$invKey];
-            $gatewayQrUrl = $cached['qr_url'] ?? '';
-            $midtransSnapToken = $cached['snap_token'] ?? null;
-            if (!empty($cached['qr_string'])) {
-                $qrisPayload = $cached['qr_string'];
-            }
-        } else {
-            $mtData = createMidtransQrisTransaction($invKey, (int)$tx['amount'], [
-                'name' => $tx['user_name'],
-                'email' => $tx['user_email']
-            ]);
-            if (!empty($mtData['qr_url']) || !empty($mtData['qr_string'])) {
-                $gatewayQrUrl = $mtData['qr_url'] ?? '';
-                if (!empty($mtData['qr_string'])) {
-                    $qrisPayload = $mtData['qr_string'];
-                }
-                $_SESSION['midtrans_cache'][$invKey] = [
-                    'qr_url' => $gatewayQrUrl,
-                    'qr_string' => $mtData['qr_string'] ?? '',
-                    'snap_token' => null
-                ];
-            } else {
-                $midtransSnapToken = createMidtransSnapToken($invKey, (int)$tx['amount'], [
-                    'name' => $tx['user_name'],
-                    'email' => $tx['user_email']
-                ]);
-                $_SESSION['midtrans_cache'][$invKey] = [
-                    'qr_url' => '',
-                    'qr_string' => '',
-                    'snap_token' => $midtransSnapToken
-                ];
-            }
-        }
-    }
 }
 
 // Handle Aksi Pembayaran (Verifikasi Otomatis Gateway / Batal)
@@ -155,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'cancel_invoice' && $tx['status'] === 'pending') {
         $db->prepare("UPDATE transactions SET status = 'rejected', updated_at = ? WHERE id = ?")
            ->execute([date('Y-m-d H:i:s'), $tx['id']]);
-        header('Location: upgrade.php?msg=' . urlencode('Tagihan QRIS sebelumnya telah dibatalkan.'));
+        header('Location: upgrade.php?msg=' . urlencode('Tagihan pembayaran sebelumnya telah dibatalkan.'));
         exit;
     }
 
@@ -163,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $gatewayRef = $tx['gateway_reference'] ?? null;
         $isPaidViaApi = checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef);
         $isLiveProviderConfigured = (
+            (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) ||
             (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) ||
             (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) ||
             (GATEWAY_PROVIDER === 'midtrans' && isMidtransServerKeyValid())
@@ -179,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&paid=1');
             exit;
         } else {
-            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Pembayaran belum terkonfirmasi di server ' . ucfirst(GATEWAY_PROVIDER) . '. Pastikan Anda telah menyelesaikan transaksi Rp 29.000 pada halaman pembayaran, lalu tunggu beberapa detik.'));
+            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Pembayaran belum terkonfirmasi di server ' . strtoupper(GATEWAY_PROVIDER) . '. Pastikan Anda telah menyelesaikan transaksi Rp 29.000 pada halaman pembayaran DOKU, lalu tunggu beberapa detik.'));
             exit;
         }
     }
@@ -514,9 +513,19 @@ require_once __DIR__ . '/includes/header.php';
                     <form method="POST" id="verifyPaymentForm" onsubmit="return handleGatewayVerification(event);">
                         <input type="hidden" name="action" value="verify_payment">
 
-                        <?php if (!empty($gatewayCheckoutUrl)): ?>
+                        <?php if (!empty($gatewayCheckoutUrl) && $isDokuSession): ?>
+                            <script src="<?= htmlspecialchars(getDokuCheckoutJsUrl()) ?>"></script>
+                            <button type="button" onclick="openDokuCheckout();" class="btn btn-primary" style="width: 100%; padding: 0.95rem; margin-bottom: 0.65rem; justify-content: center; font-size: 0.98rem; font-weight: 800; background: #e11d48; border-color: #e11d48; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);">
+                                💳 Bayar Sekarang via DOKU (VA, E-Wallet & QRIS) ➔
+                            </button>
+                            <div style="text-align: center; margin-bottom: 0.85rem;">
+                                <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" style="font-size: 0.78rem; color: #0284c7; text-decoration: underline;">
+                                    Atau buka halaman pembayaran DOKU di tab baru ↗
+                                </a>
+                            </div>
+                        <?php elseif (!empty($gatewayCheckoutUrl)): ?>
                             <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; padding: 0.95rem; margin-bottom: 0.75rem; justify-content: center; font-size: 0.98rem; font-weight: 800; background: #0284c7; text-decoration: none; display: flex; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
-                                💳 Bayar Sekarang via QRIS <?= (GATEWAY_PROVIDER === 'mayar') ? 'Mayar.id' : ucfirst(GATEWAY_PROVIDER) ?> ➔
+                                💳 Bayar Sekarang via <?= ucfirst(GATEWAY_PROVIDER) ?> ➔
                             </a>
                         <?php elseif (!empty($midtransSnapToken)): ?>
                             <script src="<?= MIDTRANS_IS_PRODUCTION ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' ?>" data-client-key="<?= htmlspecialchars(MIDTRANS_CLIENT_KEY) ?>"></script>
@@ -534,12 +543,12 @@ require_once __DIR__ . '/includes/header.php';
                                 🔄 Mengecek Status Pembayaran ke Server Gateway...
                             </div>
                             <div style="font-size: 0.76rem; color: var(--core-text-muted);">
-                                Memverifikasi mutasi QRIS #<?= htmlspecialchars($tx['invoice_number']) ?>
+                                Memverifikasi mutasi pembayaran #<?= htmlspecialchars($tx['invoice_number']) ?>
                             </div>
                         </div>
 
                         <button type="submit" id="btnVerifyNow" class="btn btn-gold" style="width: 100%; padding: 0.9rem; font-size: 0.96rem; justify-content: center; box-shadow: 0 4px 12px rgba(250, 176, 5, 0.35);">
-                            🔄 Saya Sudah Scan QRIS — Cek & Aktifkan PRO VIP Sekarang
+                            🔄 Saya Sudah Bayar — Cek Status & Aktifkan PRO VIP
                         </button>
 
                         <?php if (isAdmin()): ?>
@@ -585,7 +594,19 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-// Snap Helper
+// DOKU Jokul Checkout Helper
+function openDokuCheckout() {
+    <?php if (!empty($gatewayCheckoutUrl) && $isDokuSession): ?>
+    const dokuUrl = <?= json_encode($gatewayCheckoutUrl) ?>;
+    if (typeof loadJokulCheckout === 'function') {
+        loadJokulCheckout(dokuUrl);
+    } else {
+        window.open(dokuUrl, '_blank', 'noopener');
+    }
+    <?php endif; ?>
+}
+
+// Snap Helper (Cadangan Midtrans)
 function payViaMidtransSnap() {
     <?php if (!empty($midtransSnapToken)): ?>
     if (window.snap) {

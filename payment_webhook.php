@@ -1,8 +1,8 @@
 <?php
 // payment_webhook.php
 // ============================================================================
-// ENDPOINT WEBHOOK / CALLBACK OTOMATIS PAYMENT GATEWAY (MAYAR.ID, TRIPAY & MIDTRANS)
-// URL Webhook di Dashboard Mayar: https://siaptes.id/payment_webhook.php?token=siaptes_mayar_2026
+// ENDPOINT WEBHOOK / CALLBACK OTOMATIS PAYMENT GATEWAY (DOKU, MAYAR, TRIPAY, MIDTRANS)
+// URL Notification di Dashboard DOKU: https://siaptes.id/payment_webhook.php
 // ============================================================================
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/payment_gateway.php';
@@ -20,6 +20,68 @@ if (!$payload || !is_array($payload)) {
 
 $db = getDB();
 $now = date('Y-m-d H:i:s');
+
+// ----------------------------------------------------------------------------
+// 0. PENANGANAN CALLBACK HTTP NOTIFICATION DOKU (Checkout / Non-SNAP)
+// ----------------------------------------------------------------------------
+if (isset($payload['order']['invoice_number']) && isset($payload['transaction']['status'])) {
+    $dokuInvoice = trim((string)$payload['order']['invoice_number']);
+    $dokuStatus = strtoupper(trim((string)$payload['transaction']['status']));
+    $dokuChannel = trim((string)($payload['channel']['id'] ?? ($payload['acquirer']['name'] ?? 'DOKU')));
+
+    // Verifikasi Header Signature DOKU jika konfigurasi Secret Key terisi
+    if (isDokuConfigured()) {
+        $hdrClientId = $_SERVER['HTTP_CLIENT_ID'] ?? '';
+        $hdrRequestId = $_SERVER['HTTP_REQUEST_ID'] ?? '';
+        $hdrTimestamp = $_SERVER['HTTP_REQUEST_TIMESTAMP'] ?? '';
+        $hdrSignature = $_SERVER['HTTP_SIGNATURE'] ?? '';
+
+        $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/payment_webhook.php', PHP_URL_PATH) ?: '/payment_webhook.php';
+        $digest = generateDokuDigest($rawBody);
+        $expectedSigPath = generateDokuSignature(DOKU_CLIENT_ID, $hdrRequestId, $hdrTimestamp, $reqPath, $digest, DOKU_SECRET_KEY);
+        $expectedSigDefault = generateDokuSignature(DOKU_CLIENT_ID, $hdrRequestId, $hdrTimestamp, '/payment_webhook.php', $digest, DOKU_SECRET_KEY);
+
+        $sigValid = ($hdrSignature !== '' && (hash_equals($expectedSigPath, $hdrSignature) || hash_equals($expectedSigDefault, $hdrSignature)));
+
+        if (!$sigValid) {
+            // Double-check langsung via DOKU Check Status API jika header proxy berbeda
+            $apiCheck = checkDokuOrderStatus($dokuInvoice);
+            if (empty($apiCheck['paid']) && $dokuStatus === 'SUCCESS') {
+                http_response_code(401);
+                echo json_encode(['status' => 'error', 'message' => 'Invalid DOKU signature']);
+                exit;
+            }
+        }
+    }
+
+    $stmt = $db->prepare("SELECT * FROM transactions WHERE invoice_number = ? LIMIT 1");
+    $stmt->execute([$dokuInvoice]);
+    $tx = $stmt->fetch();
+
+    if (!$tx) {
+        http_response_code(404);
+        echo json_encode(['status' => 'error', 'message' => 'Invoice not found']);
+        exit;
+    }
+
+    if ($dokuStatus === 'SUCCESS') {
+        activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Webhook DOKU (' . $dokuChannel . ')');
+
+        http_response_code(200);
+        echo json_encode(['status' => 'OK', 'message' => 'PRO VIP activated automatically via DOKU']);
+        exit;
+    } elseif (in_array($dokuStatus, ['FAILED', 'EXPIRED'], true)) {
+        $db->prepare("UPDATE transactions SET status = 'rejected', updated_at = ? WHERE id = ? AND status = 'pending'")
+           ->execute([$now, $tx['id']]);
+        http_response_code(200);
+        echo json_encode(['status' => 'OK', 'message' => 'Transaction marked as ' . $dokuStatus]);
+        exit;
+    }
+
+    http_response_code(200);
+    echo json_encode(['status' => 'OK', 'message' => 'Status received: ' . $dokuStatus]);
+    exit;
+}
 
 // ----------------------------------------------------------------------------
 // 1. PENANGANAN CALLBACK WEBHOOK MAYAR.ID (payment.received / testing)
