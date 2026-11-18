@@ -58,7 +58,19 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
             </div>
         </a>
 
-        <ul class="nav-menu">
+        <button type="button" class="nav-toggle" id="navToggleBtn" aria-label="Buka Menu Navigasi" aria-expanded="false" onclick="toggleMobileNav()">
+            <svg class="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+            <svg class="icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <ul class="nav-menu" id="mainNavMenu">
             <li><a href="<?= $root_url ?>/index.php" class="<?= $currentScript === 'index.php' ? 'active' : '' ?>">Beranda</a></li>
             <li><a href="<?= $root_url ?>/latihan.php" class="<?= $currentScript === 'latihan.php' ? 'active' : '' ?>">Bank Soal Mandiri</a></li>
             <li><a href="<?= $root_url ?>/tryout.php" class="<?= $currentScript === 'tryout.php' ? 'active' : '' ?>">Simulasi Tryout</a></li>
@@ -70,7 +82,7 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
                 <?php if ($user['role'] === 'admin'): ?>
                     <li><a href="<?= $root_url ?>/admin/index.php" style="color: #67e8f9; font-weight:700;">Panel Pengawas</a></li>
                 <?php endif; ?>
-                <li>
+                <li class="nav-user-item">
                     <div class="user-badge-nav">
                         <?php if (!empty($user['avatar'])): ?>
                             <img src="<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
@@ -85,14 +97,29 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
                         <?php endif; ?>
                     </div>
                 </li>
-                <li><a href="<?= $root_url ?>/logout.php" class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.15); color: #fff !important; border-color: rgba(255,255,255,0.25);">Keluar</a></li>
+                <li><a href="<?= $root_url ?>/logout.php" class="btn btn-secondary btn-sm nav-logout-btn" style="background: rgba(255,255,255,0.15); color: #fff !important; border-color: rgba(255,255,255,0.25);">Keluar</a></li>
             <?php else: ?>
-                <li><a href="<?= $root_url ?>/login.php" class="btn btn-outline btn-sm">Masuk Akun</a></li>
-                <li><a href="<?= $root_url ?>/register.php" class="btn btn-gold btn-sm">Daftar Akun Gratis</a></li>
+                <li class="nav-auth-btns"><a href="<?= $root_url ?>/login.php" class="btn btn-outline btn-sm">Masuk Akun</a></li>
+                <li class="nav-auth-btns"><a href="<?= $root_url ?>/register.php" class="btn btn-gold btn-sm">Daftar Akun Gratis</a></li>
             <?php endif; ?>
         </ul>
     </div>
 </nav>
+<script>
+function toggleMobileNav() {
+    const menu = document.getElementById('mainNavMenu');
+    const btn = document.getElementById('navToggleBtn');
+    if (!menu || !btn) return;
+    const isOpen = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    const iconMenu = btn.querySelector('.icon-menu');
+    const iconClose = btn.querySelector('.icon-close');
+    if (iconMenu && iconClose) {
+        iconMenu.style.display = isOpen ? 'none' : 'block';
+        iconClose.style.display = isOpen ? 'block' : 'none';
+    }
+}
+</script>
 
 <div class="container">
 <?php if (isset($_GET['msg'])): ?>

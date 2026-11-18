@@ -117,7 +117,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php if ($featuredArticle): 
         $fCat = $categories[$featuredArticle['category']] ?? ['icon' => '📌', 'badge_class' => 'badge-navy', 'color' => '#0b2d52'];
     ?>
-        <div class="card card-gold-top" style="margin-bottom: 2.5rem; padding: 0; overflow: hidden; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+        <div class="card card-gold-top" style="margin-bottom: 2.5rem; padding: 0; overflow: hidden; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));">
             <!-- Visual Banner Left -->
             <div style="background: linear-gradient(135deg, <?= $fCat['color'] ?> 0%, #071d36 100%); color: #fff; padding: 2.5rem 2rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 260px;">
                 <?php if (!empty($featuredArticle['cover_image'])): ?>

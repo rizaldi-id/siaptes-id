@@ -273,7 +273,7 @@ require_once __DIR__ . '/includes/header.php';
     <div>
         <?php foreach ($questions as $index => $q): ?>
             <div class="card question-container" id="q-card-<?= $index ?>" style="<?= $index === 0 ? '' : 'display:none;' ?>">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
                     <div>
                         <span style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">Soal Nomor <?= $index + 1 ?></span>
                         <span style="color: var(--gray-600); font-size: 0.85rem;">/ <?= $total_q ?></span>
@@ -309,7 +309,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
 
                 <!-- Kontrol Navigasi Soal -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; border-top: 1px solid var(--gray-200); padding-top: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
                     <div>
                         <?php if ($index > 0): ?>
                             <button type="button" class="btn btn-secondary btn-sm" onclick="showQuestion(<?= $index - 1 ?>)">
@@ -318,7 +318,7 @@ require_once __DIR__ . '/includes/header.php';
                         <?php endif; ?>
                     </div>
 
-                    <div style="display: flex; gap: 0.75rem;">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <button type="button" 
                                 class="btn btn-warning btn-sm" 
                                 id="doubt-btn-<?= $index ?>" 

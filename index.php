@@ -90,7 +90,7 @@ require_once __DIR__ . '/includes/header.php';
         <!-- Track 1: CPNS & ASN -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span class="badge badge-twk">🏛️ CPNS & PPPK (ASN)</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: var(--core-navy);">Standar CAT BKN</span>
                 </div>
@@ -101,7 +101,7 @@ require_once __DIR__ . '/includes/header.php';
                     Meliputi Tes Wawasan Kebangsaan (TWK passing grade 65), Tes Intelegensia Umum (TIU passing grade 80), dan Tes Karakteristik Pribadi (TKP skala bobot 1–5, passing grade 166). Total 110 soal dalam 100 menit persis sistem asli BKN.
                 </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">110 Soal &bull; Timer 100 Menit</span>
                 <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout CPNS ➔</a>
             </div>
@@ -110,7 +110,7 @@ require_once __DIR__ . '/includes/header.php';
         <!-- Track 2: BUMN -->
         <div class="card card-navy-top" style="border-top-color: var(--core-blue); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span class="badge badge-tkd_bumn">🏢 REKRUTMEN BERSAMA BUMN</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: var(--core-blue);">Standar RBB FHCI</span>
                 </div>
@@ -121,7 +121,7 @@ require_once __DIR__ . '/includes/header.php';
                     Simulasi terpadu seleksi BUMN nasional: Tes Kemampuan Dasar (TKD logika bisnis & numerik), Core Values AKHLAK (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) dengan kasus kontekstual, dan English for Business.
                 </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">TKD + AKHLAK + English</span>
                 <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout BUMN ➔</a>
             </div>
@@ -130,7 +130,7 @@ require_once __DIR__ . '/includes/header.php';
         <!-- Track 3: Kedinasan -->
         <div class="card card-navy-top" style="border-top-color: #be123c; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span class="badge badge-kedinasan_tpa">🎓 SEKOLAH KEDINASAN</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: #be123c;">SPMB STAN, STIS, IPDN</span>
                 </div>
@@ -141,7 +141,7 @@ require_once __DIR__ . '/includes/header.php';
                     Paket khusus seleksi calon praja dan taruna kedinasan: PKN STAN, Politeknik Statistika STIS, IPDN, Poltekip, Poltekim, dan STIN. Dilengkapi modul Matematika Terapan, Aljabar Fungsi, Geometri Ruang, dan Analisis Data.
                 </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">SKD + TPA Kedinasan</span>
                 <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout Kedinasan ➔</a>
             </div>
@@ -150,7 +150,7 @@ require_once __DIR__ . '/includes/header.php';
         <!-- Track 4: Psikotes Kerja -->
         <div class="card card-navy-top" style="border-top-color: #7c3aed; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span class="badge badge-psiko_logika">🧠 PSIKOTES KERJA & ASESMEN</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: #7c3aed;">Rekrutmen Korporat</span>
                 </div>
@@ -161,7 +161,7 @@ require_once __DIR__ . '/includes/header.php';
                     Latihan psikotes komprehensif untuk seleksi kerja perbankan (BCA, Mandiri, BRI, BNI), multinasional, startup, dan instansi. Menguji logika deduktif, visualisasi spasial 3D, rotasi gambar, dan Situational Judgement Test (SJT).
                 </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">Logika + Spasial + SJT</span>
                 <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout Psikotes ➔</a>
             </div>
@@ -330,7 +330,7 @@ require_once __DIR__ . '/includes/header.php';
             <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--core-navy);">Paket Simulasi Tryout Aktif</h2>
             <p style="color: var(--core-text-muted); font-size: 0.925rem;">Pilih simulasi berwaktu sesuai target karier yang ingin Anda capai.</p>
         </div>
-        <a href="tryout.php" class="btn btn-outline btn-sm">Lihat Semua <?= count($packages) ?> Paket Tryout →</a>
+        <a href="tryout.php" class="btn btn-outline-navy btn-sm">Lihat Semua <?= count($packages) ?> Paket Tryout →</a>
     </div>
 
     <div class="grid-2">
@@ -342,7 +342,7 @@ require_once __DIR__ . '/includes/header.php';
         ?>
             <div class="card <?= $isPkgPrem ? 'card-gold-top' : 'card-navy-top' ?>" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem; flex-wrap: wrap;">
                         <div>
                             <?php if ($isPkgPrem): ?>
                                 <span class="badge badge-gold" style="margin-bottom: 0.25rem;">⭐ PRO VIP</span>
@@ -362,7 +362,7 @@ require_once __DIR__ . '/includes/header.php';
                         📊 Kuota: <?= $pkg['question_count'] ?> Butir Soal Terstandarisasi
                     </div>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <span style="font-size: 0.85rem; font-weight: 600;">
                         <?= $isPkgPrem ? '<span style="color:var(--core-gold-text);">🔒 Khusus Member PRO</span>' : '<span style="color:var(--core-success);">🟢 Bebas Akses (Trial)</span>' ?>
                     </span>
@@ -372,7 +372,7 @@ require_once __DIR__ . '/includes/header.php';
                         </a>
                     <?php else: ?>
                         <a href="upgrade.php?package_id=<?= $pkg['id'] ?>" class="btn btn-gold btn-sm">
-                            Aktivasi PRO (Rp 29.000 via QRIS)
+                            Aktivasi PRO (Rp 29.000 via DOKU)
                         </a>
                     <?php endif; ?>
                 </div>
@@ -390,7 +390,7 @@ require_once __DIR__ . '/includes/header.php';
             <h2 style="font-size: 1.55rem; font-weight: 800; color: var(--core-navy); margin: 0;">Artikel, Kisi-Kisi & Tips Lulus Terbaru</h2>
             <p style="color: var(--core-text-muted); font-size: 0.925rem; margin-top: 0.25rem;">Pelajari panduan strategi menjawab soal CAT dan informasi seleksi terbaru di siaptes.id.</p>
         </div>
-        <a href="artikel.php" class="btn btn-outline btn-sm">Baca Semua Artikel & Tips →</a>
+        <a href="artikel.php" class="btn btn-outline-navy btn-sm">Baca Semua Artikel & Tips →</a>
     </div>
 
     <div class="grid-3">
@@ -399,7 +399,7 @@ require_once __DIR__ . '/includes/header.php';
         ?>
             <article class="card card-navy-top" style="border-top-color: <?= $cMeta['color'] ?>; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.4rem;">
                         <span class="badge <?= $cMeta['badge_class'] ?>"><?= $cMeta['icon'] ?> <?= htmlspecialchars($art['category']) ?></span>
                         <span style="font-size: 0.76rem; color: var(--core-text-muted);">⏱️ <?= (int)$art['reading_time'] ?> mnt baca</span>
                     </div>
@@ -412,7 +412,7 @@ require_once __DIR__ . '/includes/header.php';
                         <?= htmlspecialchars(mb_strimwidth($art['excerpt'], 0, 130, '...')) ?>
                     </p>
                 </div>
-                <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem;">
+                <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span style="color: var(--core-text-muted);">🗓️ <?= formatTanggalIndo($art['created_at']) ?></span>
                     <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="font-weight: 700; color: var(--core-navy); text-decoration: none;">
                         Baca Selengkapnya ➔
@@ -425,7 +425,7 @@ require_once __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <!-- SECTION: CALL TO ACTION (CTA BANNER) -->
-<div style="background: linear-gradient(135deg, var(--core-navy) 0%, #003a63 100%); color: #ffffff; padding: 3.5rem 2rem; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-lg); margin-bottom: 2rem; border-top: 4px solid var(--core-gold);">
+<div class="hero cta-banner" style="background: linear-gradient(135deg, var(--core-navy) 0%, #003a63 100%); color: #ffffff; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-lg); margin-bottom: 2rem; border-top: 4px solid var(--core-gold);">
     <div class="hero-pill" style="margin-bottom: 1rem; background: rgba(250, 176, 5, 0.2); color: var(--core-gold); border-color: rgba(250, 176, 5, 0.4);">
         🌟 INVESTASI KARIER TERBAIK DI SIAPTES.ID
     </div>

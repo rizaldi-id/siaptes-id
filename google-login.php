@@ -56,7 +56,7 @@ require_once __DIR__ . '/includes/header.php';
                 <input type="hidden" name="is_simulation" value="1">
                 <input type="hidden" name="state" value="<?= htmlspecialchars($_SESSION['oauth_state']) ?>">
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 0.75rem;">
                     <div>
                         <label style="font-size: 0.8rem; font-weight: 600; color: #166534;">Nama Akun Google:</label>
                         <input type="text" name="sim_name" class="form-control" value="Ahmad Farhan, S.Kom" required style="background: white;">
