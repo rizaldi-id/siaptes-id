@@ -42,13 +42,11 @@ if ($tx['status'] === 'approved') {
     exit;
 }
 
-// Jika masih pending, cek langsung ke API Midtrans / Tripay bila API Key sudah dikonfigurasi
-if ($tx['status'] === 'pending' && checkGatewayPaymentPaidStatus($tx['invoice_number'])) {
-    $now = date('Y-m-d H:i:s');
-    $db->prepare("UPDATE transactions SET status = 'approved', notes = ?, updated_at = ? WHERE id = ?")
-       ->execute(['Lunas Otomatis via API Gateway QRIS', $now, $tx['id']]);
-    $db->prepare("UPDATE users SET is_premium = 1 WHERE id = ?")
-       ->execute([$tx['user_id']]);
+// Jika masih pending, cek langsung ke API Tripay / Midtrans
+$gatewayRef = $tx['gateway_reference'] ?? null;
+if ($tx['status'] === 'pending' && checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef)) {
+    $refLabel = $gatewayRef ?: $tx['invoice_number'];
+    activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling Gateway (' . $refLabel . ')');
 
     echo json_encode([
         'status' => 'approved',

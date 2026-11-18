@@ -54,10 +54,7 @@ if (isset($payload['order_id']) && isset($payload['transaction_status'])) {
 
     if ($txStatus === 'settlement' || ($txStatus === 'capture' && $fraudStatus === 'accept')) {
         // Pembayaran QRIS Sukses -> Update transaksi & aktifkan PRO VIP otomatis!
-        $db->prepare("UPDATE transactions SET status = 'approved', notes = ?, updated_at = ? WHERE id = ?")
-           ->execute(['Lunas Otomatis via Webhook Midtrans QRIS', $now, $tx['id']]);
-        $db->prepare("UPDATE users SET is_premium = 1 WHERE id = ?")
-           ->execute([$tx['user_id']]);
+        activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Webhook Midtrans QRIS');
 
         echo json_encode(['status' => 'ok', 'message' => 'PRO VIP activated automatically']);
         exit;
@@ -73,13 +70,17 @@ if (isset($payload['order_id']) && isset($payload['transaction_status'])) {
 }
 
 // ----------------------------------------------------------------------------
-// 2. PENANGANAN CALLBACK WEBHOOK TRIPAY (QRIS)
+// 2. PENANGANAN CALLBACK WEBHOOK TRIPAY (QRIS / CLOSED PAYMENT)
 // ----------------------------------------------------------------------------
-if (isset($payload['merchant_ref']) && isset($payload['status'])) {
-    $merchantRef = trim($payload['merchant_ref']);
-    $tripayStatus = strtoupper(trim($payload['status']));
-    $callbackSig = $_SERVER['HTTP_X_CALLBACK_SIGNATURE'] ?? '';
+if (isset($payload['merchant_ref']) || isset($payload['reference'])) {
+    $callbackEvent = $_SERVER['HTTP_X_CALLBACK_EVENT'] ?? 'payment_status';
+    if ($callbackEvent !== 'payment_status') {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => 'Unrecognized callback event: ' . $callbackEvent]);
+        exit;
+    }
 
+    $callbackSig = $_SERVER['HTTP_X_CALLBACK_SIGNATURE'] ?? '';
     if (!empty(TRIPAY_PRIVATE_KEY)) {
         $expectedSig = hash_hmac('sha256', $rawBody, TRIPAY_PRIVATE_KEY);
         if (!hash_equals($expectedSig, $callbackSig)) {
@@ -89,8 +90,18 @@ if (isset($payload['merchant_ref']) && isset($payload['status'])) {
         }
     }
 
-    $stmt = $db->prepare("SELECT * FROM transactions WHERE invoice_number = ? LIMIT 1");
-    $stmt->execute([$merchantRef]);
+    $merchantRef = trim((string)($payload['merchant_ref'] ?? ''));
+    $tripayRef = trim((string)($payload['reference'] ?? ''));
+    $tripayStatus = strtoupper(trim((string)($payload['status'] ?? '')));
+    $isClosed = (int)($payload['is_closed_payment'] ?? 1);
+
+    if ($isClosed !== 1) {
+        echo json_encode(['success' => true, 'message' => 'Ignored non-closed payment']);
+        exit;
+    }
+
+    $stmt = $db->prepare("SELECT * FROM transactions WHERE invoice_number = ? OR (gateway_reference IS NOT NULL AND gateway_reference = ?) LIMIT 1");
+    $stmt->execute([$merchantRef, $tripayRef]);
     $tx = $stmt->fetch();
 
     if (!$tx) {
@@ -100,16 +111,16 @@ if (isset($payload['merchant_ref']) && isset($payload['status'])) {
     }
 
     if ($tripayStatus === 'PAID') {
-        $db->prepare("UPDATE transactions SET status = 'approved', notes = ?, updated_at = ? WHERE id = ?")
-           ->execute(['Lunas Otomatis via Webhook Tripay QRIS', $now, $tx['id']]);
-        $db->prepare("UPDATE users SET is_premium = 1 WHERE id = ?")
-           ->execute([$tx['user_id']]);
+        $refLabel = $tripayRef ?: $merchantRef;
+        activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Webhook Tripay (' . $refLabel . ')');
 
         echo json_encode(['success' => true, 'message' => 'PRO VIP activated automatically']);
         exit;
-    } elseif (in_array($tripayStatus, ['EXPIRED', 'FAILED'])) {
-        $db->prepare("UPDATE transactions SET status = 'rejected', updated_at = ? WHERE id = ?")
+    } elseif (in_array($tripayStatus, ['EXPIRED', 'FAILED', 'REFUND'], true)) {
+        $db->prepare("UPDATE transactions SET status = 'rejected', updated_at = ? WHERE id = ? AND status = 'pending'")
            ->execute([$now, $tx['id']]);
+        echo json_encode(['success' => true, 'message' => 'Transaction marked as ' . $tripayStatus]);
+        exit;
     }
 
     echo json_encode(['success' => true]);

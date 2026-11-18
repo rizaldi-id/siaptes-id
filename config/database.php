@@ -93,6 +93,20 @@ function ensureSchemaCompatibility(PDO $db) {
             $db->exec("ALTER TABLE packages ADD COLUMN category_group $colDef");
         } catch (Exception $ex) {}
     }
+
+    // Pastikan kolom referensi payment gateway tersedia pada tabel transactions
+    try {
+        $db->query("SELECT gateway_reference FROM transactions LIMIT 1");
+    } catch (Exception $e) {
+        try {
+            $driver = $db->getAttribute(PDO::ATTR_DRIVER_NAME);
+            $varcharCol = ($driver === 'mysql') ? "VARCHAR(120) NULL" : "TEXT NULL";
+            $textCol = "TEXT NULL";
+            $db->exec("ALTER TABLE transactions ADD COLUMN gateway_reference $varcharCol");
+            $db->exec("ALTER TABLE transactions ADD COLUMN gateway_qr_url $textCol");
+            $db->exec("ALTER TABLE transactions ADD COLUMN gateway_checkout_url $textCol");
+        } catch (Exception $ex) {}
+    }
 }
 
 /**

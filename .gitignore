@@ -1,6 +1,7 @@
 # Environment & Host Credentials
 .env
 config/db_local.php
+config/payment_local.php
 
 # SQLite Local Database (Supaya tidak menimpa DB live)
 database/*.sqlite
