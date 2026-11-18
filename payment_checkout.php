@@ -33,22 +33,56 @@ $channels = getPaymentChannels();
 $channelMeta = $channels['QRIS'];
 $qrisPayload = generateQrisPayload($tx['invoice_number'], (int)$tx['amount']);
 
-// Inisialisasi Payment Gateway (Prioritas: Tripay -> Midtrans -> Built-in)
+// Inisialisasi Payment Gateway (Prioritas: Mayar.id -> Tripay -> Midtrans -> Built-in)
 $gatewayQrUrl = '';
-$tripayCheckoutUrl = '';
-$tripayError = '';
+$gatewayCheckoutUrl = '';
+$gatewayError = '';
 $midtransSnapToken = null;
 
 if ($tx['status'] === 'pending') {
     $invKey = $tx['invoice_number'];
 
-    // 1. Jika menggunakan TRIPAY dan kredensial Tripay sudah diisi
-    if (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) {
+    // 1. Jika menggunakan MAYAR.ID dan API Key sudah diisi
+    if (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) {
         if (!empty($tx['gateway_reference'])) {
             $gatewayQrUrl = $tx['gateway_qr_url'] ?? '';
-            $tripayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
+            $gatewayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
 
-            // Cek apakah pembayaran sudah PAID saat user kembali dari halaman Tripay (return_url)
+            // Cek apakah pembayaran sudah PAID saat user kembali dari redirectUrl Mayar
+            if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'])) {
+                activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Mayar.id (' . $tx['gateway_reference'] . ')');
+                header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
+                exit;
+            }
+        } else {
+            $mayarData = createMayarInvoice($invKey, (int)$tx['amount'], [
+                'id' => $tx['user_id'],
+                'name' => $tx['user_name'],
+                'email' => $tx['user_email']
+            ]);
+
+            if (!empty($mayarData['id']) && !empty($mayarData['link'])) {
+                $gatewayCheckoutUrl = $mayarData['link'];
+                // Render QR code yang mengarah langsung ke invoice Mayar jika belum ada QR image langsung
+                $qrisPayload = $gatewayCheckoutUrl;
+
+                $db->prepare("UPDATE transactions SET gateway_reference = ?, gateway_qr_url = ?, gateway_checkout_url = ? WHERE id = ?")
+                   ->execute([$mayarData['id'], $gatewayQrUrl, $gatewayCheckoutUrl, $tx['id']]);
+                $tx['gateway_reference'] = $mayarData['id'];
+            } elseif (!empty($mayarData['error'])) {
+                $gatewayError = $mayarData['error'];
+            }
+        }
+        if (!empty($gatewayCheckoutUrl)) {
+            $qrisPayload = $gatewayCheckoutUrl;
+        }
+    }
+    // 2. Jika menggunakan TRIPAY dan kredensial Tripay sudah diisi
+    elseif (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) {
+        if (!empty($tx['gateway_reference'])) {
+            $gatewayQrUrl = $tx['gateway_qr_url'] ?? '';
+            $gatewayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
+
             if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'])) {
                 activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Tripay QRIS (' . $tx['gateway_reference'] . ')');
                 header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
@@ -62,21 +96,20 @@ if ($tx['status'] === 'pending') {
 
             if (!empty($tpData['reference'])) {
                 $gatewayQrUrl = $tpData['qr_url'] ?? '';
-                $tripayCheckoutUrl = $tpData['checkout_url'] ?? '';
+                $gatewayCheckoutUrl = $tpData['checkout_url'] ?? '';
                 if (!empty($tpData['qr_string'])) {
                     $qrisPayload = $tpData['qr_string'];
                 }
 
-                // Simpan referensi Tripay secara permanen di DB
                 $db->prepare("UPDATE transactions SET gateway_reference = ?, gateway_qr_url = ?, gateway_checkout_url = ? WHERE id = ?")
-                   ->execute([$tpData['reference'], $gatewayQrUrl, $tripayCheckoutUrl, $tx['id']]);
+                   ->execute([$tpData['reference'], $gatewayQrUrl, $gatewayCheckoutUrl, $tx['id']]);
                 $tx['gateway_reference'] = $tpData['reference'];
             } elseif (!empty($tpData['error'])) {
-                $tripayError = $tpData['error'];
+                $gatewayError = $tpData['error'];
             }
         }
     }
-    // 2. Cadangan: Jika menggunakan MIDTRANS
+    // 3. Cadangan: Jika menggunakan MIDTRANS
     elseif (GATEWAY_PROVIDER === 'midtrans' && isMidtransServerKeyValid()) {
         if (!empty($_SESSION['midtrans_cache'][$invKey])) {
             $cached = $_SESSION['midtrans_cache'][$invKey];
@@ -129,20 +162,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'verify_payment' && $tx['status'] === 'pending') {
         $gatewayRef = $tx['gateway_reference'] ?? null;
         $isPaidViaApi = checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef);
-        $isLiveProviderConfigured = (isTripayConfigured() || (GATEWAY_PROVIDER === 'midtrans' && isMidtransServerKeyValid()));
+        $isLiveProviderConfigured = (
+            (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) ||
+            (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) ||
+            (GATEWAY_PROVIDER === 'midtrans' && isMidtransServerKeyValid())
+        );
         $isAdminInstant = (isAdmin() && !empty($_POST['admin_instant_verify']));
 
         if ($isAdminInstant || $isPaidViaApi || !$isLiveProviderConfigured) {
             $refNote = $gatewayRef ?: $tx['invoice_number'];
             $notes = $isAdminInstant
                 ? 'Lunas via Verifikasi Cepat Admin (Testing)'
-                : 'Lunas Otomatis via QRIS Payment Gateway (' . $refNote . ')';
+                : 'Lunas Otomatis via Payment Gateway ' . strtoupper(GATEWAY_PROVIDER) . ' (' . $refNote . ')';
             activateUserProFromTransaction($db, $tx, $notes);
 
             header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&paid=1');
             exit;
         } else {
-            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Sistem Tripay belum mendeteksi pembayaran masuk untuk invoice ini. Pastikan Anda sudah menyelesaikan scan QRIS sebesar Rp 29.000, lalu tunggu beberapa detik.'));
+            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Pembayaran belum terkonfirmasi di server ' . ucfirst(GATEWAY_PROVIDER) . '. Pastikan Anda telah menyelesaikan transaksi Rp 29.000 pada halaman pembayaran, lalu tunggu beberapa detik.'));
             exit;
         }
     }
@@ -468,18 +505,18 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
 
-                    <?php if (!empty($tripayError) && isAdmin()): ?>
+                    <?php if (!empty($gatewayError) && isAdmin()): ?>
                         <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 0.85rem;">
-                            <b>Catatan Admin (Tripay API):</b> <?= htmlspecialchars($tripayError) ?>
+                            <b>Catatan Admin (<?= strtoupper(GATEWAY_PROVIDER) ?> API):</b> <?= htmlspecialchars($gatewayError) ?>
                         </div>
                     <?php endif; ?>
 
                     <form method="POST" id="verifyPaymentForm" onsubmit="return handleGatewayVerification(event);">
                         <input type="hidden" name="action" value="verify_payment">
 
-                        <?php if (!empty($tripayCheckoutUrl)): ?>
-                            <a href="<?= htmlspecialchars($tripayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; padding: 0.9rem; margin-bottom: 0.75rem; justify-content: center; font-size: 0.96rem; font-weight: 800; background: #0284c7; text-decoration: none; display: flex; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
-                                🌐 Buka Halaman Bayar Resmi Tripay ➔
+                        <?php if (!empty($gatewayCheckoutUrl)): ?>
+                            <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; padding: 0.95rem; margin-bottom: 0.75rem; justify-content: center; font-size: 0.98rem; font-weight: 800; background: #0284c7; text-decoration: none; display: flex; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+                                💳 Bayar Sekarang via QRIS <?= (GATEWAY_PROVIDER === 'mayar') ? 'Mayar.id' : ucfirst(GATEWAY_PROVIDER) ?> ➔
                             </a>
                         <?php elseif (!empty($midtransSnapToken)): ?>
                             <script src="<?= MIDTRANS_IS_PRODUCTION ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' ?>" data-client-key="<?= htmlspecialchars(MIDTRANS_CLIENT_KEY) ?>"></script>
