@@ -68,7 +68,7 @@ if (!defined('QRIS_NMID')) define('QRIS_NMID', 'ID1026000882910');
 if (!defined('CUSTOM_QRIS_IMAGE_URL')) define('CUSTOM_QRIS_IMAGE_URL', '');
 
 // --- 6. KONTAK DUKUNGAN & KONFIRMASI (WhatsApp) ---
-if (!defined('ADMIN_WHATSAPP_NUMBER')) define('ADMIN_WHATSAPP_NUMBER', getenv('ADMIN_WHATSAPP_NUMBER') ?: '6281234567890');
+if (!defined('ADMIN_WHATSAPP_NUMBER')) define('ADMIN_WHATSAPP_NUMBER', getenv('ADMIN_WHATSAPP_NUMBER') ?: '6281221500930');
 
 /**
  * Cek apakah konfigurasi DOKU sudah lengkap (Client ID & Secret Key)

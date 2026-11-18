@@ -5,7 +5,7 @@ $page_title = "Hubungi Kami & Pusat Bantuan";
 $meta_description = "Layanan pelanggan resmi SIAP TES (siaptes.id). Hubungi tim dukungan teknis, pertanyaan akun, dan bantuan pembayaran.";
 require_once __DIR__ . '/includes/header.php';
 
-$waNumber = defined('ADMIN_WHATSAPP_NUMBER') ? ADMIN_WHATSAPP_NUMBER : '6281234567890';
+$waNumber = defined('ADMIN_WHATSAPP_NUMBER') ? ADMIN_WHATSAPP_NUMBER : '6281221500930';
 ?>
 
 <div class="container" style="max-width: 960px; margin: 2rem auto; padding: 0 1rem;">

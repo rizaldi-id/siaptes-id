@@ -76,7 +76,7 @@ require_once __DIR__ . '/includes/header.php';
             <div style="background: #f8fafc; border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; margin-top: 0.5rem;">
                 <div><b>Pengelola Platform:</b> SIAP TES (siaptes.id)</div>
                 <div><b>Email Layanan Privasi:</b> <a href="mailto:privacy@siaptes.id" style="color: var(--core-navy); font-weight: 700;">privacy@siaptes.id</a> / <a href="mailto:support@siaptes.id" style="color: var(--core-navy); font-weight: 700;">support@siaptes.id</a></div>
-                <div><b>Layanan Pelanggan WhatsApp:</b> +62 812-3456-7890</div>
+                <div><b>Layanan Pelanggan WhatsApp:</b> +62 812-2150-0930</div>
             </div>
         </div>
     </div>

@@ -66,7 +66,7 @@ require_once __DIR__ . '/includes/header.php';
             <p>Kirimkan data permohonan tersebut ke:</p>
             <div style="background: #f8fafc; border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 1rem 1.25rem;">
                 <div>📧 <b>Email Helpdesk:</b> <a href="mailto:support@siaptes.id" style="color: var(--core-navy); font-weight: 700;">support@siaptes.id</a> (Subjek: Permohonan Refund - [Nomor Invoice])</div>
-                <div>💬 <b>WhatsApp Customer Care:</b> +62 812-3456-7890</div>
+                <div>💬 <b>WhatsApp Customer Care:</b> +62 812-2150-0930</div>
             </div>
 
             <h3 style="color: var(--core-navy); font-weight: 700; margin-top: 1.75rem; margin-bottom: 0.5rem;">5. Waktu Pemrosesan Pengembalian Dana</h3>

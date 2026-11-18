@@ -22,7 +22,7 @@ if ($action === 'start_package') {
 
         // Check Premium requirement
         if (!empty($package['is_premium']) && !isPremiumUser()) {
-            header('Location: upgrade.php?package_id=' . $package_id . '&msg=' . urlencode('Konten ini khusus Member PRO VIP. Silakan lakukan pembayaran Rp 29.000 via QRIS terlebih dahulu untuk membuka akses penuh.'));
+            header('Location: upgrade.php?package_id=' . $package_id . '&msg=' . urlencode('Konten ini khusus Member PRO VIP. Silakan selesaikan pembayaran Rp 29.000 via DOKU terlebih dahulu untuk membuka akses penuh.'));
             exit;
         }
 
@@ -60,9 +60,9 @@ if ($action === 'start_practice') {
         $limit = intval($_GET['limit'] ?? 5);
         if ($limit <= 0) $limit = 5;
 
-        // Jika akun belum PRO VIP dan memilih kuota > 5 soal, arahkan ke pembayaran QRIS Rp 29.000
+        // Jika akun belum PRO VIP dan memilih kuota > 5 soal, arahkan ke halaman upgrade
         if ($limit > 5 && !isPremiumUser()) {
-            header('Location: upgrade.php?msg=' . urlencode('Kuota latihan di atas 5 soal khusus Member PRO VIP. Silakan bayar Rp 29.000 via QRIS untuk membuka seluruh bank soal tanpa batas!'));
+            header('Location: upgrade.php?msg=' . urlencode('Kuota latihan di atas 5 soal khusus Member PRO VIP. Silakan upgrade Rp 29.000 via DOKU untuk membuka seluruh bank soal tanpa batas!'));
             exit;
         }
 

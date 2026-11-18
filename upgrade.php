@@ -1,5 +1,5 @@
 <?php
-// upgrade.php - Halaman Aktivasi PRO VIP Rp 29.000 Khusus Pembayaran QRIS Otomatis
+// upgrade.php - Halaman Aktivasi PRO VIP Rp 29.000 Otomatis via DOKU Payment Gateway
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/payment_gateway.php';
@@ -17,17 +17,17 @@ if ($package_id > 0) {
     $selectedPackage = $stmtPkg->fetch();
 }
 
-// Cek apakah user memiliki tagihan QRIS yang masih berstatus 'pending'
+// Cek apakah user memiliki tagihan yang masih berstatus 'pending'
 $stmtPending = $db->prepare("SELECT * FROM transactions WHERE user_id = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
 $stmtPending->execute([$user['id']]);
 $pendingTx = $stmtPending->fetch();
 
-// Handle pembuatan invoice QRIS Rp 29.000 -> arahkan ke Payment Gateway (payment_checkout.php)
+// Handle pembuatan invoice Rp 29.000 -> arahkan ke Payment Gateway DOKU (payment_checkout.php)
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $pkg_id = !empty($_POST['package_id']) ? intval($_POST['package_id']) : null;
     $finalAmount = PRO_VIP_BASE_PRICE; // Rp 29.000
-    $payment_method = 'QRIS';
-    $notes = 'Aktivasi PRO VIP All-Access via QRIS Nasional';
+    $payment_method = 'DOKU Payment Gateway';
+    $notes = 'Aktivasi PRO VIP All-Access via DOKU (VA / E-Wallet / QRIS / Retail)';
 
     // Jika sudah ada invoice pending dengan nominal Rp 29.000, langsung arahkan ke invoice tersebut
     if ($pendingTx && (int)$pendingTx['amount'] === $finalAmount) {
@@ -40,17 +40,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
        ->execute([$user['id']]);
 
     // Buat nomor invoice baru
-    $invNumber = 'INV-QRIS-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+    $invNumber = 'INV-DOKU-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
     $now = date('Y-m-d H:i:s');
 
-    // Simpan dengan status 'pending' (Akun BELUM menjadi PRO sebelum QRIS dibayar & terkonfirmasi!)
+    // Simpan dengan status 'pending' (Akun BELUM menjadi PRO sebelum dibayar & terkonfirmasi!)
     $stmt = $db->prepare("
         INSERT INTO transactions (invoice_number, user_id, package_id, type, amount, payment_method, status, notes, created_at, updated_at)
         VALUES (?, ?, ?, 'lifetime_premium', ?, ?, 'pending', ?, ?, ?)
     ");
     $stmt->execute([$invNumber, $user['id'], $pkg_id, $finalAmount, $payment_method, $notes, $now, $now]);
 
-    // Arahkan ke halaman Payment Gateway QRIS
+    // Arahkan ke halaman Payment Gateway DOKU
     header("Location: payment_checkout.php?invoice=" . urlencode($invNumber));
     exit;
 }
@@ -60,7 +60,7 @@ $stmtHistory = $db->prepare("SELECT * FROM transactions WHERE user_id = ? ORDER 
 $stmtHistory->execute([$user['id']]);
 $userTransactions = $stmtHistory->fetchAll();
 
-$page_title = "Upgrade PRO VIP Rp 29.000 via QRIS - SIAP TES";
+$page_title = "Upgrade PRO VIP Rp 29.000 - SIAP TES";
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -72,27 +72,27 @@ require_once __DIR__ . '/includes/header.php';
             </span>
         </div>
         <h1 style="font-size: 2.15rem; font-weight: 800; color: var(--core-navy); margin-top: 0.25rem; margin-bottom: 0.5rem;">
-            Buka Seluruh Konten PRO Hanya <span style="color: #b45309;">Rp 29.000</span> via QRIS
+            Buka Seluruh Konten PRO Hanya <span style="color: #b45309;">Rp 29.000</span>
         </h1>
-        <p style="color: var(--core-text-muted); font-size: 1rem; max-width: 680px; margin: 0 auto;">
-            Pembayaran praktis cukup <b>Scan QRIS</b> dari aplikasi bank atau e-wallet apa saja. Begitu pembayaran terkonfirmasi, akun Anda <b>otomatis berubah menjadi PRO VIP</b> detik itu juga!
+        <p style="color: var(--core-text-muted); font-size: 1rem; max-width: 700px; margin: 0 auto;">
+            Pembayaran instan &amp; aman melalui <b>DOKU Payment Gateway</b> (Virtual Account Bank, DOKU e-Wallet, QRIS, hingga Indomaret/Alfamart). Begitu pembayaran terkonfirmasi, akun Anda <b>otomatis aktif menjadi PRO VIP</b> detik itu juga!
         </p>
     </div>
 
-    <!-- Peringatan jika ada Tagihan QRIS Pending yang Belum Dibayar -->
+    <!-- Peringatan jika ada Tagihan Pending yang Belum Dibayar -->
     <?php if ($pendingTx && !$isUserPremium): ?>
         <div class="gov-notice" style="border-left-color: var(--core-gold); background: #fffbeb; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-                <div class="gov-notice-icon" style="background: #fef3c7; color: #b45309;">📱</div>
+                <div class="gov-notice-icon" style="background: #fef3c7; color: #b45309;">💳</div>
                 <div class="gov-notice-content">
-                    <h4 style="color: #92400e;">Tagihan QRIS Anda Menunggu Pembayaran</h4>
+                    <h4 style="color: #92400e;">Tagihan Anda Menunggu Pembayaran</h4>
                     <p style="color: #78350f; margin: 0;">
-                        Invoice <b>#<?= htmlspecialchars($pendingTx['invoice_number']) ?></b> sebesar <b>Rp <?= number_format((int)$pendingTx['amount'], 0, ',', '.') ?></b> via <b>QRIS</b> belum diselesaikan.
+                        Invoice <b>#<?= htmlspecialchars($pendingTx['invoice_number']) ?></b> sebesar <b>Rp <?= number_format((int)$pendingTx['amount'], 0, ',', '.') ?></b> belum diselesaikan.
                     </p>
                 </div>
             </div>
             <a href="payment_checkout.php?invoice=<?= urlencode($pendingTx['invoice_number']) ?>" class="btn btn-gold btn-sm">
-                📱 Tampilkan Kode QRIS & Bayar Sekarang ➔
+                💳 Lanjutkan Pembayaran via DOKU ➔
             </a>
         </div>
     <?php endif; ?>
@@ -143,7 +143,7 @@ require_once __DIR__ . '/includes/header.php';
                         <span style="font-size: 2.45rem; font-weight: 900; color: var(--core-navy);">Rp <?= number_format(PRO_VIP_BASE_PRICE, 0, ',', '.') ?></span>
                         <span style="font-size: 0.85rem; color: var(--core-text-muted);">/ sekali bayar (Seumur Hidup)</span>
                     </div>
-                    <span style="font-size: 0.8rem; color: var(--core-success); font-weight: 700;">⚡ Bebas biaya admin &bull; Langsung aktif otomatis setelah Scan QRIS</span>
+                    <span style="font-size: 0.8rem; color: var(--core-success); font-weight: 700;">⚡ Aktivasi Otomatis &bull; Mendukung Virtual Account Bank, E-Wallet, QRIS &amp; Retail</span>
                 </div>
 
                 <div style="font-size: 0.88rem; color: var(--core-text); line-height: 1.95;">
@@ -156,43 +156,40 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <!-- Kolom Kanan: Checkout Instan QRIS Rp 29.000 -->
+            <!-- Kolom Kanan: Checkout Instan DOKU Rp 29.000 -->
             <div class="card card-navy-top">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                     <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--core-navy); margin: 0;">
-                        📱 Pembayaran Instan via QRIS
+                        💳 Pembayaran Aman via DOKU
                     </h3>
                     <span class="badge badge-success">OTOMATIS AKTIF</span>
                 </div>
                 <p style="font-size: 0.84rem; color: var(--core-text-muted); margin-bottom: 1.25rem;">
-                    Sistem pembayaran terintegrasi dengan <b>QRIS Standar Pembayaran Nasional</b>. Cukup scan menggunakan salah satu aplikasi di HP Anda:
+                    Terintegrasi resmi dengan <b>DOKU Payment Gateway</b>. Anda bebas memilih berbagai saluran pembayaran berikut:
                 </p>
 
                 <form method="POST" action="upgrade.php">
                     <input type="hidden" name="package_id" value="<?= $package_id ?>">
-                    <input type="hidden" name="payment_method" value="QRIS">
+                    <input type="hidden" name="payment_method" value="DOKU Payment Gateway">
 
-                    <!-- Kotak Metode QRIS -->
+                    <!-- Kotak Metode Pembayaran DOKU -->
                     <div style="border: 2px solid var(--core-navy); background: #eef6fc; border-radius: var(--radius-md); padding: 1.15rem; margin-bottom: 1.25rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
                             <div style="display: flex; align-items: center; gap: 0.6rem;">
-                                <span style="background: #dc2626; color: #fff; font-weight: 900; font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px;">QRIS</span>
-                                <b style="color: var(--core-navy); font-size: 0.96rem;">QRIS Nasional (Semua Bank & E-Wallet)</b>
+                                <span style="background: #e11d48; color: #fff; font-weight: 900; font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; letter-spacing: 1px;">DOKU</span>
+                                <b style="color: var(--core-navy); font-size: 0.96rem;">Pembayaran Multi-Channel Otomatis</b>
                             </div>
                             <span style="font-weight: 800; color: #15803d; font-size: 0.85rem;">Rp 29.000</span>
                         </div>
                         <div style="font-size: 0.78rem; color: var(--core-text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
-                            Mendukung pembayaran langsung dari seluruh aplikasi perbankan dan dompet digital di Indonesia:
+                            Pilih metode pembayaran favorit Anda pada halaman DOKU Checkout:
                         </div>
                         <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.72rem; font-weight: 700;">
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0369a1; padding: 3px 8px; border-radius: 4px;">GoPay</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #6d28d9; padding: 3px 8px; border-radius: 4px;">OVO</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #1d4ed8; padding: 3px 8px; border-radius: 4px;">DANA</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #c2410c; padding: 3px 8px; border-radius: 4px;">ShopeePay</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0b2d52; padding: 3px 8px; border-radius: 4px;">BCA Mobile</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0b2d52; padding: 3px 8px; border-radius: 4px;">Livin' Mandiri</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0b2d52; padding: 3px 8px; border-radius: 4px;">BRImo</span>
-                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0b2d52; padding: 3px 8px; border-radius: 4px;">BNI Mobile</span>
+                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0b2d52; padding: 3px 8px; border-radius: 4px;">VA BRI / BNI / BSI</span>
+                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0b2d52; padding: 3px 8px; border-radius: 4px;">VA CIMB / BNC / BTN</span>
+                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #e11d48; padding: 3px 8px; border-radius: 4px;">DOKU e-Wallet</span>
+                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #0369a1; padding: 3px 8px; border-radius: 4px;">Indomaret / Alfamart</span>
+                            <span style="background: #fff; border: 1px solid #cbd5e1; color: #15803d; padding: 3px 8px; border-radius: 4px;">QRIS</span>
                         </div>
                     </div>
 
@@ -207,13 +204,13 @@ require_once __DIR__ . '/includes/header.php';
                             <span><?= htmlspecialchars($user['email']) ?></span>
                         </div>
                         <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--core-border); padding-top: 0.45rem; margin-top: 0.35rem;">
-                            <span style="font-weight: 700; color: var(--core-navy);">Total Pembayaran QRIS:</span>
+                            <span style="font-weight: 700; color: var(--core-navy);">Total Pembayaran:</span>
                             <b style="font-size: 1.05rem; color: #b45309;">Rp 29.000</b>
                         </div>
                     </div>
 
                     <button type="submit" class="btn btn-gold" style="width: 100%; font-size: 1.02rem; padding: 0.95rem; justify-content: center; box-shadow: 0 4px 14px rgba(250, 176, 5, 0.35);">
-                        📱 Buat Kode QRIS & Bayar Rp 29.000 Sekarang ➔
+                        💳 Lanjut Pembayaran via DOKU (Rp 29.000) ➔
                     </button>
                 </form>
             </div>
@@ -282,7 +279,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php if (!empty($userTransactions)): ?>
         <div class="card" style="margin-bottom: 2.5rem;">
             <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--core-navy); margin-bottom: 1rem;">
-                🧾 Riwayat Pembayaran QRIS Anda
+                🧾 Riwayat Pembayaran Anda
             </h3>
             <div style="overflow-x: auto;">
                 <table class="table">
@@ -300,21 +297,21 @@ require_once __DIR__ . '/includes/header.php';
                         <?php foreach ($userTransactions as $utx): ?>
                             <tr>
                                 <td><b><?= htmlspecialchars($utx['invoice_number']) ?></b></td>
-                                <td><span class="badge badge-navy">QRIS Nasional</span></td>
+                                <td><span class="badge badge-navy"><?= htmlspecialchars($utx['payment_method'] ?: 'DOKU Gateway') ?></span></td>
                                 <td><b>Rp <?= number_format((int)$utx['amount'], 0, ',', '.') ?></b></td>
                                 <td style="font-size: 0.82rem; color: var(--core-text-muted);"><?= date('d/m/Y H:i', strtotime($utx['created_at'])) ?></td>
                                 <td>
                                     <?php if ($utx['status'] === 'approved'): ?>
                                         <span class="badge badge-success">Lunas / PRO Aktif</span>
                                     <?php elseif ($utx['status'] === 'pending'): ?>
-                                        <span class="badge badge-gold">Menunggu Scan QRIS</span>
+                                        <span class="badge badge-gold">Menunggu Pembayaran</span>
                                     <?php else: ?>
                                         <span class="badge badge-danger">Dibatalkan</span>
                                     <?php endif; ?>
                                 </td>
                                 <td style="text-align: right;">
                                     <a href="payment_checkout.php?invoice=<?= urlencode($utx['invoice_number']) ?>" class="btn btn-secondary btn-sm">
-                                        <?= $utx['status'] === 'pending' ? '📱 Buka QRIS' : '📄 Kwitansi' ?>
+                                        <?= $utx['status'] === 'pending' ? '💳 Bayar Sekarang' : '📄 Kwitansi' ?>
                                     </a>
                                 </td>
                             </tr>

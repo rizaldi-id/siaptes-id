@@ -150,7 +150,7 @@ $isUserPremium = isPremiumUser();
                     </a>
                 <?php else: ?>
                     <a href="upgrade.php?package_id=<?= $pkg['id'] ?>" class="btn btn-gold">
-                        🔒 Buka Akses PRO (Rp 29.000 via QRIS)
+                        🔒 Buka Akses PRO (Rp 29.000 via DOKU)
                     </a>
                 <?php endif; ?>
             </div>
