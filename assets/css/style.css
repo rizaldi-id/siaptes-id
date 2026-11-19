@@ -911,6 +911,64 @@ footer {
   color: #8da4be;
 }
 
+/* Visitor Stats Widget (Bottom-Left Web Summary) */
+.visitor-footer-widget {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(250, 176, 5, 0.3);
+  border-left: 3px solid var(--core-gold);
+  border-radius: 8px;
+  padding: 0.65rem 0.9rem;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.vfw-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #cbd5e1;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.45rem;
+}
+
+.vfw-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  display: inline-block;
+}
+
+.vfw-metrics {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  flex-wrap: wrap;
+}
+
+.vfw-item {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.vfw-label {
+  font-size: 0.66rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.vfw-val {
+  font-size: 0.92rem;
+  color: #ffffff;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
 /* ==========================================================================
    RESPONSIVE BREAKPOINTS (TABLET & SMARTPHONE)
    ========================================================================== */

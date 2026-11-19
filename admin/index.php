@@ -2,9 +2,11 @@
 // admin/index.php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/visitor_tracker.php';
 
 requireAdmin();
 $db = getDB();
+$visitorSummary = getVisitorSummaryStats($db);
 
 // Handle Approve / Reject Transaction from Admin Panel
 if (isset($_GET['tx_action']) && isset($_GET['tx_id'])) {
@@ -83,13 +85,14 @@ require_once __DIR__ . '/../includes/header.php';
         <p style="color: var(--core-text-muted); font-size: 0.95rem;">Kelola bank soal multi-kategori, paket tryout (CPNS, BUMN, Kedinasan, Psikotes), dan transaksi peserta.</p>
     </div>
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <a href="statistik.php" class="btn btn-outline-navy btn-sm">📊 Statistik Pengunjung</a>
         <a href="artikel.php" class="btn btn-gold btn-sm">📰 Kelola Artikel SEO</a>
         <a href="soal.php" class="btn btn-primary btn-sm">📋 Kelola Bank Soal</a>
         <a href="paket.php" class="btn btn-secondary btn-sm">📦 Kelola Paket Tryout</a>
     </div>
 </div>
 
-<div class="grid-3" style="margin-bottom: 2rem;">
+<div class="grid-3" style="margin-bottom: 1.5rem;">
     <div class="stat-card twk">
         <div class="stat-label">BANK SOAL AKTIF</div>
         <div class="stat-val"><?= $totalQuestions ?></div>
@@ -104,6 +107,37 @@ require_once __DIR__ . '/../includes/header.php';
         <div style="color: var(--gray-600); font-size: 0.85rem; font-weight: 600;">PAKET SIMULASI AKTIF</div>
         <div class="stat-val"><?= $totalPackages ?></div>
         <p style="font-size: 0.85rem; color: var(--gray-600); margin-top: 0.25rem;"><a href="paket.php">Kelola Paket Trial & Pro →</a></p>
+    </div>
+</div>
+
+<!-- Ringkasan Trafik & Pertumbuhan Pengunjung Harian -->
+<div class="card" style="margin-bottom: 2rem; border-left: 4px solid #10B981; padding: 1.15rem 1.35rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--core-text-muted);">Pengunjung Hari Ini</div>
+                <div style="font-size: 1.45rem; font-weight: 800; color: var(--core-navy); display: flex; align-items: center; gap: 8px;">
+                    <?= number_format($visitorSummary['today_visitors']) ?>
+                    <?php $gPct = (float)$visitorSummary['growth_pct']; ?>
+                    <span style="font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: <?= $gPct > 0 ? '#DCFCE7' : ($gPct < 0 ? '#FEE2E2' : '#F1F5F9') ?>; color: <?= $gPct > 0 ? '#166534' : ($gPct < 0 ? '#991B1B' : '#475569') ?>;">
+                        <?= $gPct > 0 ? '▲ +' : ($gPct < 0 ? '▼ ' : '• ') ?><?= number_format($gPct, 1) ?>% vs kemarin
+                    </span>
+                </div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--core-text-muted);">Online (15 Menit)</div>
+                <div style="font-size: 1.35rem; font-weight: 800; color: #059669;">● <?= number_format($visitorSummary['online_now']) ?></div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--core-text-muted);">Bulan Ini</div>
+                <div style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy);"><?= number_format($visitorSummary['month_visitors']) ?> <span style="font-size: 0.8rem; font-weight: 500; color: var(--core-text-muted);">(<?= number_format($visitorSummary['month_views']) ?> views)</span></div>
+            </div>
+            <div>
+                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--core-text-muted);">Total Views</div>
+                <div style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy);"><?= number_format($visitorSummary['total_views']) ?></div>
+            </div>
+        </div>
+        <a href="statistik.php" class="btn btn-primary btn-sm">Lihat Grafik &amp; Statistik Detail →</a>
     </div>
 </div>
 

@@ -59,9 +59,58 @@
             </div>
         </div>
 
-        <div class="footer-bottom">
-            <div>
-                &copy; <?= date('Y') ?> <b>SIAP TES</b> (<b>siaptes.id</b>). Hak Cipta Dilindungi Undang-Undang Republik Indonesia.
+        <?php
+        $vSummary = null;
+        try {
+            if (function_exists('getVisitorSummaryStats')) {
+                $vSummary = getVisitorSummaryStats(getDB());
+            }
+        } catch (Throwable $e) {}
+        ?>
+        <div class="footer-bottom" style="align-items: flex-end;">
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 100%;">
+                <?php if ($vSummary): 
+                    $gPct = $vSummary['growth_pct'];
+                    $gBadge = ($gPct > 0)
+                        ? '<span style="color:#4ade80; font-weight:700;">▲ +' . $gPct . '%</span>'
+                        : (($gPct < 0)
+                            ? '<span style="color:#fca5a5; font-weight:700;">▼ ' . $gPct . '%</span>'
+                            : '<span style="color:#94a3b8;">• 0%</span>');
+                ?>
+                    <div class="visitor-footer-widget">
+                        <div class="vfw-header">
+                            <span class="vfw-dot"></span>
+                            <span>STATISTIK PENGUNJUNG</span>
+                            <?php if (function_exists('isAdmin') && isAdmin()): ?>
+                                <a href="<?= $root_url ?>/admin/statistik.php" style="color: var(--core-gold); font-size: 0.72rem; margin-left: auto; font-weight: 700; text-decoration: underline;">
+                                    Detail Grafik →
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                        <div class="vfw-metrics">
+                            <div class="vfw-item">
+                                <span class="vfw-label">Online</span>
+                                <b class="vfw-val" style="color: #4ade80;"><?= number_format($vSummary['online_now']) ?></b>
+                            </div>
+                            <div class="vfw-item">
+                                <span class="vfw-label">Hari Ini</span>
+                                <b class="vfw-val"><?= number_format($vSummary['today_visitors']) ?> <small style="font-weight:500; font-size:0.68rem;">(<?= $gBadge ?>)</small></b>
+                            </div>
+                            <div class="vfw-item">
+                                <span class="vfw-label">Bulan Ini</span>
+                                <b class="vfw-val"><?= number_format($vSummary['month_visitors']) ?></b>
+                            </div>
+                            <div class="vfw-item">
+                                <span class="vfw-label">Total Views</span>
+                                <b class="vfw-val" style="color: var(--core-gold);"><?= number_format($vSummary['total_views']) ?></b>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <div>
+                    &copy; <?= date('Y') ?> <b>SIAP TES</b> (<b>siaptes.id</b>). Hak Cipta Dilindungi Undang-Undang Republik Indonesia.
+                </div>
             </div>
             <div>
                 Platform Ekosistem Persiapan Ujian Seleksi Nasional & Karier Profesional &bull; <span style="color: var(--core-gold); font-size: 0.75rem;">v1.1 (Sync Aktif)</span>

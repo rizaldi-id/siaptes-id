@@ -1,6 +1,13 @@
 <?php
 // includes/header.php
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/visitor_tracker.php';
+
+try {
+    trackSiteVisit(getDB());
+} catch (Throwable $e) {}
+
 $user = currentUser();
 $base_url = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
 if ($base_url === '/admin' || $base_url === '/views') {
