@@ -42,18 +42,46 @@ if ($tx['status'] === 'approved') {
     exit;
 }
 
-// Jika masih pending, cek langsung ke API Tripay / Midtrans
+// Jika masih pending, cek langsung ke server Payment Gateway (DOKU / Mayar / Tripay)
 $gatewayRef = $tx['gateway_reference'] ?? null;
-if ($tx['status'] === 'pending' && checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef)) {
-    $refLabel = $gatewayRef ?: $tx['invoice_number'];
-    activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling Gateway (' . $refLabel . ')');
+if ($tx['status'] === 'pending') {
+    if (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) {
+        $dokuStatus = checkDokuOrderStatus($tx['invoice_number']);
+        if (!empty($dokuStatus['paid'])) {
+            activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling DOKU (' . ($dokuStatus['channel'] ?: 'DOKU') . ')');
+            echo json_encode([
+                'status' => 'approved',
+                'invoice' => $tx['invoice_number'],
+                'amount' => (int)$tx['amount']
+            ]);
+            exit;
+        }
+        if (isDokuTerminalFailureStatus($dokuStatus['status'] ?? '') || isTransactionLinkExpired($tx)) {
+            $db->prepare("UPDATE transactions SET status = 'rejected', notes = ?, updated_at = ? WHERE id = ? AND status = 'pending'")
+               ->execute(['Tagihan kedaluwarsa di DOKU', date('Y-m-d H:i:s'), $tx['id']]);
+            echo json_encode([
+                'status' => 'expired',
+                'invoice' => $tx['invoice_number']
+            ]);
+            exit;
+        }
+    } elseif (checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef)) {
+        $refLabel = $gatewayRef ?: $tx['invoice_number'];
+        activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling Gateway (' . $refLabel . ')');
 
-    echo json_encode([
-        'status' => 'approved',
-        'invoice' => $tx['invoice_number'],
-        'amount' => (int)$tx['amount']
-    ]);
-    exit;
+        echo json_encode([
+            'status' => 'approved',
+            'invoice' => $tx['invoice_number'],
+            'amount' => (int)$tx['amount']
+        ]);
+        exit;
+    } elseif (isTransactionLinkExpired($tx)) {
+        echo json_encode([
+            'status' => 'expired',
+            'invoice' => $tx['invoice_number']
+        ]);
+        exit;
+    }
 }
 
 echo json_encode([

@@ -182,6 +182,74 @@ function activateUserProFromTransaction(PDO $db, array $tx, string $notes): bool
 }
 
 /**
+ * Cek apakah tagihan pending sudah kedaluwarsa (default batas aman 23 jam sebelum limit 24 jam DOKU)
+ */
+function isTransactionLinkExpired(array $tx, int $ttlSeconds = 82800): bool {
+    if (empty($tx['created_at'])) {
+        return false;
+    }
+    $createdTs = strtotime((string)$tx['created_at']);
+    if ($createdTs === false) {
+        return false;
+    }
+    return (time() - $createdTs) >= $ttlSeconds;
+}
+
+/**
+ * Hitung sisa waktu nyata (detik) menuju batas 24 jam pembayaran
+ */
+function getTransactionRemainingSeconds(array $tx, int $ttlSeconds = 86400): int {
+    if (empty($tx['created_at'])) {
+        return $ttlSeconds;
+    }
+    $createdTs = strtotime((string)$tx['created_at']);
+    if ($createdTs === false) {
+        return $ttlSeconds;
+    }
+    return max(0, ($createdTs + $ttlSeconds) - time());
+}
+
+/**
+ * Cek apakah status order DOKU menandakan transaksi gagal / kedaluwarsa
+ */
+function isDokuTerminalFailureStatus(string $status): bool {
+    return in_array(strtoupper(trim($status)), ['EXPIRED', 'FAILED', 'CANCELLED', 'VOIDED'], true);
+}
+
+/**
+ * Batalkan tagihan pending lama milik user dan buat invoice DOKU baru yang masih fresh
+ */
+function createFreshProVipTransaction(
+    PDO $db,
+    int $userId,
+    ?int $packageId = null,
+    int $amount = PRO_VIP_BASE_PRICE,
+    string $cancelNote = 'Digantikan tagihan pembayaran baru (kedaluwarsa)'
+): string {
+    $now = date('Y-m-d H:i:s');
+    $db->prepare("UPDATE transactions SET status = 'rejected', notes = ?, updated_at = ? WHERE user_id = ? AND status = 'pending'")
+       ->execute([$cancelNote, $now, $userId]);
+
+    try {
+        $randSuffix = strtoupper(bin2hex(random_bytes(3)));
+    } catch (Throwable $e) {
+        $randSuffix = strtoupper(substr(uniqid('', true), -6));
+    }
+
+    $invNumber = 'INV-DOKU-' . date('Ymd') . '-' . $randSuffix;
+    $paymentMethod = 'DOKU Payment Gateway';
+    $notes = 'Aktivasi PRO VIP All-Access via DOKU (VA / E-Wallet / QRIS / Retail)';
+
+    $stmt = $db->prepare("
+        INSERT INTO transactions (invoice_number, user_id, package_id, type, amount, payment_method, status, notes, created_at, updated_at)
+        VALUES (?, ?, ?, 'lifetime_premium', ?, ?, 'pending', ?, ?, ?)
+    ");
+    $stmt->execute([$invNumber, $userId, $packageId, $amount, $paymentMethod, $notes, $now, $now]);
+
+    return $invNumber;
+}
+
+/**
  * Ambil base URL situs yang sedang berjalan
  */
 function getSiteBaseUrl(): string {

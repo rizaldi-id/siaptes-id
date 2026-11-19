@@ -22,36 +22,51 @@ $stmtPending = $db->prepare("SELECT * FROM transactions WHERE user_id = ? AND st
 $stmtPending->execute([$user['id']]);
 $pendingTx = $stmtPending->fetch();
 
-// Handle pembuatan invoice Rp 29.000 -> arahkan ke Payment Gateway DOKU (payment_checkout.php)
+// Validasi otomatis tagihan pending agar tidak mengarahkan ke link DOKU yang sudah kedaluwarsa (expired)
+if ($pendingTx && !$isUserPremium) {
+    $shouldExpirePending = isTransactionLinkExpired($pendingTx);
+
+    if (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) {
+        $dokuCheck = checkDokuOrderStatus($pendingTx['invoice_number']);
+        if (!empty($dokuCheck['paid'])) {
+            activateUserProFromTransaction($db, $pendingTx, 'Lunas Otomatis via DOKU (' . ($dokuCheck['channel'] ?: 'DOKU') . ')');
+            $isUserPremium = true;
+            $pendingTx = null;
+        } elseif (isDokuTerminalFailureStatus($dokuCheck['status'] ?? '')) {
+            $shouldExpirePending = true;
+        }
+    }
+
+    if ($pendingTx && $shouldExpirePending) {
+        $db->prepare("UPDATE transactions SET status = 'rejected', notes = ?, updated_at = ? WHERE id = ?")
+           ->execute(['Tagihan kedaluwarsa otomatis sebelum pembayaran diselesaikan', date('Y-m-d H:i:s'), $pendingTx['id']]);
+        $pendingTx = null;
+    }
+}
+
+// Handle pembuatan invoice Rp 29.000 -> langsung buka Payment Gateway DOKU (autopay=1)
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $pkg_id = !empty($_POST['package_id']) ? intval($_POST['package_id']) : null;
     $finalAmount = PRO_VIP_BASE_PRICE; // Rp 29.000
-    $payment_method = 'DOKU Payment Gateway';
-    $notes = 'Aktivasi PRO VIP All-Access via DOKU (VA / E-Wallet / QRIS / Retail)';
+    $forceNew = !empty($_POST['force_new']);
 
-    // Jika sudah ada invoice pending dengan nominal Rp 29.000, langsung arahkan ke invoice tersebut
-    if ($pendingTx && (int)$pendingTx['amount'] === $finalAmount) {
-        header("Location: payment_checkout.php?invoice=" . urlencode($pendingTx['invoice_number']));
+    // Gunakan invoice pending hanya jika belum kedaluwarsa (< 12 jam), nominal cocok, dan format DOKU terbaru
+    if (
+        !$forceNew
+        && $pendingTx
+        && (int)$pendingTx['amount'] === $finalAmount
+        && strpos((string)$pendingTx['invoice_number'], 'INV-DOKU-') === 0
+        && !isTransactionLinkExpired($pendingTx, 43200)
+    ) {
+        header("Location: payment_checkout.php?invoice=" . urlencode($pendingTx['invoice_number']) . "&autopay=1");
         exit;
     }
 
-    // Batalkan invoice pending lama bila ada
-    $db->prepare("UPDATE transactions SET status = 'rejected' WHERE user_id = ? AND status = 'pending'")
-       ->execute([$user['id']]);
+    // Buat invoice DOKU baru yang masih fresh
+    $invNumber = createFreshProVipTransaction($db, (int)$user['id'], $pkg_id, $finalAmount);
 
-    // Buat nomor invoice baru
-    $invNumber = 'INV-DOKU-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
-    $now = date('Y-m-d H:i:s');
-
-    // Simpan dengan status 'pending' (Akun BELUM menjadi PRO sebelum dibayar & terkonfirmasi!)
-    $stmt = $db->prepare("
-        INSERT INTO transactions (invoice_number, user_id, package_id, type, amount, payment_method, status, notes, created_at, updated_at)
-        VALUES (?, ?, ?, 'lifetime_premium', ?, ?, 'pending', ?, ?, ?)
-    ");
-    $stmt->execute([$invNumber, $user['id'], $pkg_id, $finalAmount, $payment_method, $notes, $now, $now]);
-
-    // Arahkan ke halaman Payment Gateway DOKU
-    header("Location: payment_checkout.php?invoice=" . urlencode($invNumber));
+    // Langsung arahkan ke halaman Payment Gateway DOKU dengan auto-open
+    header("Location: payment_checkout.php?invoice=" . urlencode($invNumber) . "&autopay=1");
     exit;
 }
 
@@ -91,9 +106,14 @@ require_once __DIR__ . '/includes/header.php';
                     </p>
                 </div>
             </div>
-            <a href="payment_checkout.php?invoice=<?= urlencode($pendingTx['invoice_number']) ?>" class="btn btn-gold btn-sm">
-                💳 Lanjutkan Pembayaran via DOKU ➔
-            </a>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <a href="payment_checkout.php?invoice=<?= urlencode($pendingTx['invoice_number']) ?>&amp;autopay=1" class="btn btn-gold btn-sm">
+                    💳 Lanjutkan Pembayaran ➔
+                </a>
+                <a href="payment_checkout.php?invoice=<?= urlencode($pendingTx['invoice_number']) ?>&amp;new_link=1" class="btn btn-secondary btn-sm">
+                    🔄 Buat Link Baru
+                </a>
+            </div>
         </div>
     <?php endif; ?>
 
@@ -209,9 +229,12 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-gold" style="width: 100%; font-size: 1.02rem; padding: 0.95rem; justify-content: center; box-shadow: 0 4px 14px rgba(250, 176, 5, 0.35);">
-                        💳 Lanjut Pembayaran via DOKU (Rp 29.000) ➔
+                    <button type="submit" class="btn btn-gold" style="width: 100%; font-size: 1.04rem; padding: 1rem; justify-content: center; box-shadow: 0 4px 14px rgba(250, 176, 5, 0.35);">
+                        ⚡ Bayar Sekarang via DOKU (Rp 29.000) ➔
                     </button>
+                    <p style="font-size: 0.76rem; color: var(--core-text-muted); text-align: center; margin: 0.65rem 0 0;">
+                        Jendela pembayaran DOKU langsung terbuka otomatis &bull; Akun PRO VIP aktif detik itu juga setelah bayar.
+                    </p>
                 </form>
             </div>
         </div>
@@ -303,16 +326,24 @@ require_once __DIR__ . '/includes/header.php';
                                 <td>
                                     <?php if ($utx['status'] === 'approved'): ?>
                                         <span class="badge badge-success">Lunas / PRO Aktif</span>
-                                    <?php elseif ($utx['status'] === 'pending'): ?>
+                                    <?php elseif ($utx['status'] === 'pending' && !isTransactionLinkExpired($utx)): ?>
                                         <span class="badge badge-gold">Menunggu Pembayaran</span>
+                                    <?php elseif ($utx['status'] === 'pending'): ?>
+                                        <span class="badge badge-danger">Kedaluwarsa</span>
                                     <?php else: ?>
                                         <span class="badge badge-danger">Dibatalkan</span>
                                     <?php endif; ?>
                                 </td>
                                 <td style="text-align: right;">
-                                    <a href="payment_checkout.php?invoice=<?= urlencode($utx['invoice_number']) ?>" class="btn btn-secondary btn-sm">
-                                        <?= $utx['status'] === 'pending' ? '💳 Bayar Sekarang' : '📄 Kwitansi' ?>
-                                    </a>
+                                    <?php if ($utx['status'] === 'pending' && isTransactionLinkExpired($utx)): ?>
+                                        <a href="payment_checkout.php?invoice=<?= urlencode($utx['invoice_number']) ?>&amp;new_link=1" class="btn btn-gold btn-sm">
+                                            🔄 Buat Link Baru
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="payment_checkout.php?invoice=<?= urlencode($utx['invoice_number']) ?><?= $utx['status'] === 'pending' ? '&amp;autopay=1' : '' ?>" class="btn btn-secondary btn-sm">
+                                            <?= $utx['status'] === 'pending' ? '💳 Bayar Sekarang' : '📄 Kwitansi' ?>
+                                        </a>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
