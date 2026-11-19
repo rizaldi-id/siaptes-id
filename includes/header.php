@@ -21,7 +21,8 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= $root_url ?>/assets/css/style.css">
+    <?php $cssVer = @filemtime(__DIR__ . '/../assets/css/style.css') ?: '20261119'; ?>
+    <link rel="stylesheet" href="<?= $root_url ?>/assets/css/style.css?v=<?= $cssVer ?>">
 </head>
 <body>
 
