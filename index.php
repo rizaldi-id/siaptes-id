@@ -47,9 +47,12 @@ require_once __DIR__ . '/includes/header.php';
     </p>
     <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
         <a href="tryout.php" class="btn btn-primary" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
-            🚀 Mulai Simulasi Tryout (Ada Trial Gratis)
+            🚀 Mulai Simulasi Tryout
         </a>
-        <a href="latihan.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
+        <a href="tes-potensi.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.55rem; background: #eaf7f2; color: #196b52; border-color: #b7e3d4;">
+            ✨ Tes Kemampuan &amp; Potensi (Gratis)
+        </a>
+        <a href="latihan.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.55rem;">
             📚 Jelajahi Bank Soal
         </a>
     </div>
@@ -74,6 +77,44 @@ require_once __DIR__ . '/includes/header.php';
         </p>
     </div>
 </div>
+
+<!-- FITUR GRATIS TANPA LOGIN: TES KEMAMPUAN & POTENSI -->
+<section class="tp-home-strip">
+    <div class="tp-home-head">
+        <div>
+            <span class="tp-badge-emerald">✨ 100% GRATIS · TANPA LOGIN · LANGSUNG COBA</span>
+            <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
+            <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
+        </div>
+        <a href="tes-potensi.php" class="btn btn-primary btn-sm">Buka Semua Tes Gratis →</a>
+    </div>
+    <div class="tp-home-grid">
+        <a href="tes-potensi.php?tes=buta-warna" class="tp-home-card">
+            <span class="tp-hc-ico">🎨</span>
+            <strong>Tes Buta Warna</strong>
+            <span>18 pelat pseudoisokromatik SVG orisinal dengan hasil &amp; review instan.</span>
+            <em>Coba Gratis →</em>
+        </a>
+        <a href="tes-potensi.php?tes=iq" class="tp-home-card">
+            <span class="tp-hc-ico">🧠</span>
+            <strong>Tes IQ Online (30 Soal)</strong>
+            <span>Figural, Numerik, Verbal, Logis &amp; Spasial (25 menit) dengan pembahasan langsung.</span>
+            <em>Coba Gratis →</em>
+        </a>
+        <a href="tes-potensi.php?tes=minat-karier" class="tp-home-card">
+            <span class="tp-hc-ico">🧭</span>
+            <strong>Minat Karier (RIASEC)</strong>
+            <span>Temukan Top-3 Holland Code &amp; rekomendasi jalur karier/seleksi yang cocok.</span>
+            <em>Coba Gratis →</em>
+        </a>
+        <a href="tes-potensi.php?tes=game-kognitif" class="tp-home-card">
+            <span class="tp-hc-ico">🎮</span>
+            <strong>10 Game Kognitif</strong>
+            <span>Kejar Angka, Memori Grid, Sprint Pola, Balon Risiko, Sinyal Berhenti &amp; lainnya.</span>
+            <em>Main Gratis →</em>
+        </a>
+    </div>
+</section>
 
 <!-- 4 PILAR UTAMA UJIAN YANG DIDUKUNG -->
 <div style="margin-bottom: 3.5rem;">

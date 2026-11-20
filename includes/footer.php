@@ -37,6 +37,7 @@
             <div class="footer-links">
                 <h4>Layanan & Fitur</h4>
                 <ul>
+                    <li><a href="<?= $root_url ?>/tes-potensi.php">Tes Kemampuan &amp; Potensi (Gratis)</a></li>
                     <li><a href="<?= $root_url ?>/artikel.php">Artikel & Tips Lulus</a></li>
                     <li><a href="<?= $root_url ?>/upgrade.php">Paket PRO VIP All-Access</a></li>
                     <li><a href="<?= $root_url ?>/tryout.php">Coba Free Trial Gratis</a></li>

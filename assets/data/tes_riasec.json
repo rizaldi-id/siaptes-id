@@ -1,0 +1,650 @@
+{
+  "themes": {
+    "R": {
+      "name": "Realistic",
+      "tag": "Praktis & Teknis",
+      "short": "Suka kerja nyata, peralatan, teknis, lapangan, dan hasil terukur.",
+      "careers": [
+        "Teknik & Operasional BUMN",
+        "Teknisi / Engineer Lapangan",
+        "Inspektorat Teknis / BPBD",
+        "Pertanian, Kehutanan & Kelautan",
+        "Taruna Kedinasan Teknis (STTD, STMKG)"
+      ],
+      "tracks": [
+        "BUMN Teknik & Operasional",
+        "CPNS Formasi Teknis",
+        "Sekolah Kedinasan"
+      ]
+    },
+    "I": {
+      "name": "Investigative",
+      "tag": "Analitis & Riset",
+      "short": "Suka mengamati, meneliti data, menganalisis pola, dan memecahkan persoalan kompleks.",
+      "careers": [
+        "Data Analyst / Statistisi (BPS/STIS)",
+        "Peneliti / Analis Kebijakan Publik",
+        "Auditor Forensik & Risiko",
+        "Software Engineer / Cybersecurity",
+        "Analis Keuangan & Ekonomi"
+      ],
+      "tracks": [
+        "CPNS Analis / Statistisi",
+        "Kedinasan STIS & PKN STAN",
+        "BUMN Digital & Data"
+      ]
+    },
+    "A": {
+      "name": "Artistic",
+      "tag": "Kreatif & Ekspresif",
+      "short": "Suka ide orisinal, desain, komunikasi visual, penulisan, dan ruang kerja fleksibel.",
+      "careers": [
+        "UI/UX & Product Designer",
+        "Humas / Komunikasi Publik & Media",
+        "Content Strategist & Copywriter",
+        "Arsitek & Perencanaan Ruang",
+        "Creative Specialist BUMN/Korporat"
+      ],
+      "tracks": [
+        "CPNS Pranata Humas",
+        "BUMN Komunikasi & Brand",
+        "Korporat & Agensi Kreatif"
+      ]
+    },
+    "S": {
+      "name": "Social",
+      "tag": "Membantu & Kolaboratif",
+      "short": "Suka mengajar, membimbing, melayani masyarakat, dan memberdayakan orang lain.",
+      "careers": [
+        "Guru / Dosen / Widyaiswara",
+        "Tenaga Kesehatan & Psikolog",
+        "HR / People Development",
+        "Pelayanan Publik & Penyuluh",
+        "Konselor & Community Manager"
+      ],
+      "tracks": [
+        "CPNS / PPPK Pendidikan & Kesehatan",
+        "BUMN Human Capital",
+        "Pelayanan Publik"
+      ]
+    },
+    "E": {
+      "name": "Enterprising",
+      "tag": "Memimpin & Persuasif",
+      "short": "Suka memimpin tim, mengambil keputusan, bernegosiasi, dan menggerakkan target.",
+      "careers": [
+        "Management Trainee (MT) BUMN/Bank",
+        "Business Development & Account Manager",
+        "Project Manager & Leader Operasional",
+        "Diplomasi & Manajemen Pemerintahan (IPDN)",
+        "Wirausaha & Strategi Bisnis"
+      ],
+      "tracks": [
+        "Rekrutmen BUMN (MT/ODP)",
+        "Sekolah Kedinasan IPDN",
+        "Seleksi Korporat & Perbankan"
+      ]
+    },
+    "C": {
+      "name": "Conventional",
+      "tag": "Teratur & Presisi",
+      "short": "Suka sistem terstruktur, ketelitian angka, kepatuhan prosedur, dan tata kelola rapi.",
+      "careers": [
+        "Akuntan & Pemeriksa Keuangan (BPK/Kemenkeu)",
+        "Analis Perpajakan & Bea Cukai (STAN)",
+        "Compliance, Legal & Administrasi",
+        "Perbankan & Operasional Keuangan",
+        "Arsiparis & Pengelola Anggaran"
+      ],
+      "tracks": [
+        "CPNS Kemenkeu / BPK / Pemda",
+        "Kedinasan PKN STAN",
+        "BUMN Finance & Perbankan"
+      ]
+    }
+  },
+  "quick": [
+    {
+      "id": "rq-01",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Saya menikmati memperbaiki peralatan atau bekerja dengan alat praktis."
+    },
+    {
+      "id": "rq-02",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Saya menikmati menganalisis data untuk memahami mengapa sesuatu terjadi."
+    },
+    {
+      "id": "rq-03",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Saya menikmati menciptakan karya visual, tulisan, atau musik yang orisinal."
+    },
+    {
+      "id": "rq-04",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Saya menikmati membantu orang memahami ide yang sulit."
+    },
+    {
+      "id": "rq-05",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Saya menikmati meyakinkan orang lain mengenai proposal atau peluang."
+    },
+    {
+      "id": "rq-06",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Saya menyukai mengatur informasi agar lengkap dan mudah ditemukan."
+    },
+    {
+      "id": "rq-07",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Saya menyukai tugas yang menghasilkan hasil fisik yang nyata."
+    },
+    {
+      "id": "rq-08",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Saya menyukai pertanyaan riset yang tidak memiliki jawaban yang jelas."
+    },
+    {
+      "id": "rq-09",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Saya menyukai pekerjaan yang memungkinkan lebih dari satu solusi yang baik."
+    },
+    {
+      "id": "rq-10",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Saya akan menikmati membimbing, mengajar, atau mendukung orang lain."
+    },
+    {
+      "id": "rq-11",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Saya nyaman mengambil kepemimpinan ketika kelompok membutuhkan arah."
+    },
+    {
+      "id": "rq-12",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Saya nyaman mengikuti proses yang jelas ketika akurasi penting."
+    },
+    {
+      "id": "rq-13",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Saya lebih menyukai pekerjaan langsung dibanding diskusi yang sepenuhnya teoritis."
+    },
+    {
+      "id": "rq-14",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Saya menikmati menguji penjelasan terhadap bukti."
+    },
+    {
+      "id": "rq-15",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Saya tertarik pada desain, penceritaan, atau ekspresi kreatif."
+    },
+    {
+      "id": "rq-16",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Saya mendapat energi dari pekerjaan yang secara langsung membantu orang lain."
+    },
+    {
+      "id": "rq-17",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Saya menikmati negosiasi dan membangun dukungan untuk sebuah ide."
+    },
+    {
+      "id": "rq-18",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Saya menikmati menjaga catatan, jadwal, atau sistem tetap teratur."
+    }
+  ],
+  "full": [
+    {
+      "id": "intl-riasec-R-0001",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Merakit atau memperbaiki peralatan mekanik sederhana."
+    },
+    {
+      "id": "intl-riasec-I-0013",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Menganalisis data untuk menemukan pola atau penyebab suatu masalah."
+    },
+    {
+      "id": "intl-riasec-A-0025",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Menciptakan desain visual, ilustrasi, atau tata letak yang menarik."
+    },
+    {
+      "id": "intl-riasec-S-0037",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Membantu seseorang memahami materi yang sebelumnya sulit baginya."
+    },
+    {
+      "id": "intl-riasec-E-0049",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Memimpin kelompok untuk mencapai target yang menantang."
+    },
+    {
+      "id": "intl-riasec-C-0061",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Menata dokumen, data, atau arsip dengan sistem yang konsisten."
+    },
+    {
+      "id": "intl-riasec-R-0002",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Memasang perangkat, kabel, atau komponen agar sebuah sistem dapat bekerja."
+    },
+    {
+      "id": "intl-riasec-I-0014",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Melakukan eksperimen untuk menguji apakah sebuah dugaan benar."
+    },
+    {
+      "id": "intl-riasec-A-0026",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Menulis cerita, artikel, atau naskah dengan gaya yang khas."
+    },
+    {
+      "id": "intl-riasec-S-0038",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Mendengarkan orang yang sedang menghadapi masalah dan membantunya menemukan pilihan."
+    },
+    {
+      "id": "intl-riasec-E-0050",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mempersuasi orang lain agar mendukung sebuah ide atau rencana."
+    },
+    {
+      "id": "intl-riasec-C-0062",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Memeriksa apakah angka dan informasi telah dicatat dengan benar."
+    },
+    {
+      "id": "intl-riasec-R-0003",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Bekerja dengan mesin, alat, kendaraan, atau perangkat fisik."
+    },
+    {
+      "id": "intl-riasec-I-0015",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Membaca laporan ilmiah atau teknis untuk memahami suatu fenomena."
+    },
+    {
+      "id": "intl-riasec-A-0027",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mengekspresikan gagasan melalui musik, seni, foto, video, atau media kreatif."
+    },
+    {
+      "id": "intl-riasec-S-0039",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Mengajar, membimbing, atau melatih orang lain."
+    },
+    {
+      "id": "intl-riasec-E-0051",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Bernegosiasi untuk memperoleh kesepakatan yang menguntungkan."
+    },
+    {
+      "id": "intl-riasec-C-0063",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Mengikuti prosedur yang jelas untuk memastikan hasil tetap akurat."
+    },
+    {
+      "id": "intl-riasec-R-0004",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Menyelesaikan tugas yang membutuhkan koordinasi tangan dan ketelitian praktis."
+    },
+    {
+      "id": "intl-riasec-I-0016",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Memecahkan masalah yang jawabannya belum jelas sejak awal."
+    },
+    {
+      "id": "intl-riasec-A-0028",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mencari pendekatan baru yang tidak biasa untuk menyampaikan suatu pesan."
+    },
+    {
+      "id": "intl-riasec-S-0040",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Mendukung perkembangan kemampuan anggota tim."
+    },
+    {
+      "id": "intl-riasec-E-0052",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Memulai proyek atau peluang baru tanpa menunggu instruksi rinci."
+    },
+    {
+      "id": "intl-riasec-C-0064",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Membuat jadwal, daftar kontrol, atau catatan kerja yang rinci."
+    },
+    {
+      "id": "intl-riasec-R-0005",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Mengawasi pekerjaan lapangan atau proses operasional secara langsung."
+    },
+    {
+      "id": "intl-riasec-I-0017",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Membandingkan beberapa hipotesis sebelum menarik kesimpulan."
+    },
+    {
+      "id": "intl-riasec-A-0029",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mengembangkan konsep kreatif tanpa harus mengikuti pola yang kaku."
+    },
+    {
+      "id": "intl-riasec-S-0041",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Memberikan layanan langsung kepada masyarakat atau pengguna."
+    },
+    {
+      "id": "intl-riasec-E-0053",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Menyampaikan gagasan di depan banyak orang dengan percaya diri."
+    },
+    {
+      "id": "intl-riasec-C-0065",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Mengelola data administratif dalam jumlah besar."
+    },
+    {
+      "id": "intl-riasec-R-0006",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Membuat atau membangun benda yang dapat digunakan secara nyata."
+    },
+    {
+      "id": "intl-riasec-I-0018",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Mendalami topik yang kompleks meskipun membutuhkan waktu cukup lama."
+    },
+    {
+      "id": "intl-riasec-A-0030",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mengubah informasi yang rumit menjadi presentasi yang menarik."
+    },
+    {
+      "id": "intl-riasec-S-0042",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Menciptakan suasana kelompok yang membuat orang merasa diterima."
+    },
+    {
+      "id": "intl-riasec-E-0054",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mengambil keputusan ketika kelompok membutuhkan arah yang jelas."
+    },
+    {
+      "id": "intl-riasec-C-0066",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Menyusun laporan dengan format yang rapi dan konsisten."
+    },
+    {
+      "id": "intl-riasec-R-0007",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Mempelajari cara kerja mesin atau alat melalui praktik langsung."
+    },
+    {
+      "id": "intl-riasec-I-0019",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Menggunakan logika dan bukti untuk menilai kualitas suatu argumen."
+    },
+    {
+      "id": "intl-riasec-A-0031",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Menghasilkan ide orisinal untuk kampanye, acara, atau produk."
+    },
+    {
+      "id": "intl-riasec-S-0043",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Membantu menyelesaikan konflik antarorang secara konstruktif."
+    },
+    {
+      "id": "intl-riasec-E-0055",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mengembangkan jaringan relasi untuk membuka peluang kerja sama."
+    },
+    {
+      "id": "intl-riasec-C-0067",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Memastikan dokumen memenuhi persyaratan sebelum diproses."
+    },
+    {
+      "id": "intl-riasec-R-0008",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Melakukan inspeksi fisik terhadap peralatan atau fasilitas."
+    },
+    {
+      "id": "intl-riasec-I-0020",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Menyelidiki mengapa suatu sistem menghasilkan hasil yang tidak terduga."
+    },
+    {
+      "id": "intl-riasec-A-0032",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mengatur komposisi warna, bentuk, kata, atau suara agar terasa harmonis."
+    },
+    {
+      "id": "intl-riasec-S-0044",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Mendampingi orang yang membutuhkan dukungan emosional atau praktis."
+    },
+    {
+      "id": "intl-riasec-E-0056",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mendorong tim agar berani mengejar sasaran yang lebih tinggi."
+    },
+    {
+      "id": "intl-riasec-C-0068",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Mencocokkan transaksi, catatan, atau data untuk menemukan selisih."
+    },
+    {
+      "id": "intl-riasec-R-0009",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Bekerja di luar ruangan untuk menyelesaikan tugas teknis."
+    },
+    {
+      "id": "intl-riasec-I-0021",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Membuat model atau kerangka analisis untuk menjelaskan suatu masalah."
+    },
+    {
+      "id": "intl-riasec-A-0033",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Membuat karya yang memberi ruang bagi interpretasi pribadi."
+    },
+    {
+      "id": "intl-riasec-S-0045",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Menjelaskan sesuatu dengan sabar sampai orang lain memahaminya."
+    },
+    {
+      "id": "intl-riasec-E-0057",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mengidentifikasi peluang bisnis atau pengembangan organisasi."
+    },
+    {
+      "id": "intl-riasec-C-0069",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Menjaga agar pekerjaan selesai sesuai urutan dan tenggat."
+    },
+    {
+      "id": "intl-riasec-R-0010",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Menggunakan alat ukur untuk memeriksa kondisi benda atau fasilitas."
+    },
+    {
+      "id": "intl-riasec-I-0022",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Mempelajari teknologi atau konsep baru secara mendalam."
+    },
+    {
+      "id": "intl-riasec-A-0034",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mengembangkan identitas visual atau gaya komunikasi sebuah proyek."
+    },
+    {
+      "id": "intl-riasec-S-0046",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Berpartisipasi dalam kegiatan sosial yang memberi manfaat langsung bagi orang lain."
+    },
+    {
+      "id": "intl-riasec-E-0058",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mempresentasikan suatu produk, program, atau gagasan agar orang tertarik."
+    },
+    {
+      "id": "intl-riasec-C-0070",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Menggunakan spreadsheet atau sistem database untuk mengelola informasi."
+    },
+    {
+      "id": "intl-riasec-R-0011",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Mencari penyebab gangguan pada perangkat lalu memperbaikinya."
+    },
+    {
+      "id": "intl-riasec-I-0023",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Memeriksa kualitas data sebelum menggunakannya dalam keputusan."
+    },
+    {
+      "id": "intl-riasec-A-0035",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Mengimprovisasi ketika cara biasa terasa kurang menarik."
+    },
+    {
+      "id": "intl-riasec-S-0047",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Mendorong orang lain agar percaya diri mengembangkan potensinya."
+    },
+    {
+      "id": "intl-riasec-E-0059",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mengambil peran sebagai koordinator ketika banyak pihak harus bergerak bersama."
+    },
+    {
+      "id": "intl-riasec-C-0071",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Menetapkan tata cara pencatatan agar mudah diaudit kembali."
+    },
+    {
+      "id": "intl-riasec-R-0012",
+      "dimension": "R",
+      "reverse": false,
+      "prompt": "Mengikuti prosedur kerja teknis yang menghasilkan keluaran nyata."
+    },
+    {
+      "id": "intl-riasec-I-0024",
+      "dimension": "I",
+      "reverse": false,
+      "prompt": "Mengerjakan riset yang membutuhkan rasa ingin tahu dan ketelitian."
+    },
+    {
+      "id": "intl-riasec-A-0036",
+      "dimension": "A",
+      "reverse": false,
+      "prompt": "Menikmati pekerjaan yang memberi kebebasan untuk mengekspresikan diri."
+    },
+    {
+      "id": "intl-riasec-S-0048",
+      "dimension": "S",
+      "reverse": false,
+      "prompt": "Membangun hubungan kerja yang hangat dan saling mendukung."
+    },
+    {
+      "id": "intl-riasec-E-0060",
+      "dimension": "E",
+      "reverse": false,
+      "prompt": "Mengorganisasi sumber daya agar tujuan besar dapat tercapai."
+    },
+    {
+      "id": "intl-riasec-C-0072",
+      "dimension": "C",
+      "reverse": false,
+      "prompt": "Menikmati pekerjaan yang membutuhkan keteraturan dan ketepatan."
+    }
+  ]
+}

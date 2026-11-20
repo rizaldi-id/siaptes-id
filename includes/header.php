@@ -88,6 +88,7 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
 
         <ul class="nav-menu" id="mainNavMenu">
             <li><a href="<?= $root_url ?>/index.php" class="<?= $currentScript === 'index.php' ? 'active' : '' ?>">Beranda</a></li>
+            <li><a href="<?= $root_url ?>/tes-potensi.php" class="nav-free-link <?= $currentScript === 'tes-potensi.php' ? 'active' : '' ?>">Tes Kemampuan &amp; Potensi</a></li>
             <li><a href="<?= $root_url ?>/latihan.php" class="<?= $currentScript === 'latihan.php' ? 'active' : '' ?>">Bank Soal</a></li>
             <li><a href="<?= $root_url ?>/tryout.php" class="<?= $currentScript === 'tryout.php' ? 'active' : '' ?>">Tryout CAT</a></li>
             <li><a href="<?= $root_url ?>/artikel.php" class="<?= in_array($currentScript, ['artikel.php', 'baca-artikel.php']) ? 'active' : '' ?>">Artikel</a></li>

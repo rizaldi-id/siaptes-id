@@ -1,0 +1,326 @@
+[
+  {
+    "id": "colorblind-pic-001",
+    "plate_no": 1,
+    "image": "assets/img/colorblind/plate-01.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang Anda lihat?",
+    "options": [
+      "5",
+      "9",
+      "1",
+      "2",
+      "Tidak terlihat angka"
+    ],
+    "answer": 0,
+    "answer_label": "5",
+    "type": "Deuteranopia (Merah-Hijau)",
+    "caption": "Pelat skrining deuteranopia-style — latihan orisinal, bukan reproduksi pelat Ishihara resmi",
+    "explanation": "Angka pada pelat ini adalah \"5\" (Deuteranopia (Merah-Hijau))."
+  },
+  {
+    "id": "colorblind-pic-002",
+    "plate_no": 2,
+    "image": "assets/img/colorblind/plate-02.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang Anda lihat?",
+    "options": [
+      "8",
+      "1",
+      "0",
+      "9",
+      "Tidak terlihat angka"
+    ],
+    "answer": 0,
+    "answer_label": "8",
+    "type": "Deuteranopia (Merah-Hijau)",
+    "caption": "Pelat skrining deuteranopia-style — latihan orisinal, bukan reproduksi pelat Ishihara resmi",
+    "explanation": "Angka pada pelat ini adalah \"8\" (Deuteranopia (Merah-Hijau))."
+  },
+  {
+    "id": "colorblind-pic-003",
+    "plate_no": 3,
+    "image": "assets/img/colorblind/plate-03.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang Anda lihat?",
+    "options": [
+      "3",
+      "4",
+      "8",
+      "2",
+      "Tidak terlihat angka"
+    ],
+    "answer": 3,
+    "answer_label": "2",
+    "type": "Protanopia (Merah-Hijau)",
+    "caption": "Pelat skrining protanopia-style — latihan orisinal, bukan reproduksi pelat Ishihara resmi",
+    "explanation": "Angka pada pelat ini adalah \"2\" (Protanopia (Merah-Hijau))."
+  },
+  {
+    "id": "colorblind-pic-004",
+    "plate_no": 4,
+    "image": "assets/img/colorblind/plate-04.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang Anda lihat?",
+    "options": [
+      "0",
+      "3",
+      "4",
+      "6",
+      "Tidak terlihat angka"
+    ],
+    "answer": 3,
+    "answer_label": "6",
+    "type": "Tritan (Biru-Kuning)",
+    "caption": "Pelat skrining tritan-check-style — latihan orisinal, bukan reproduksi pelat Ishihara resmi",
+    "explanation": "Angka pada pelat ini adalah \"6\" (Tritan (Biru-Kuning))."
+  },
+  {
+    "id": "colorblind-pic-005",
+    "plate_no": 5,
+    "image": "assets/img/colorblind/plate-05.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang Anda lihat?",
+    "options": [
+      "6",
+      "9",
+      "5",
+      "4",
+      "Tidak terlihat angka"
+    ],
+    "answer": 1,
+    "answer_label": "9",
+    "type": "Deuteranopia (Merah-Hijau)",
+    "caption": "Pelat skrining deuteranopia-style — latihan orisinal, bukan reproduksi pelat Ishihara resmi",
+    "explanation": "Angka pada pelat ini adalah \"9\" (Deuteranopia (Merah-Hijau))."
+  },
+  {
+    "id": "colorblind-pic-006",
+    "plate_no": 6,
+    "image": "assets/img/colorblind/plate-06.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang Anda lihat?",
+    "options": [
+      "8",
+      "3",
+      "1",
+      "7",
+      "Tidak terlihat angka"
+    ],
+    "answer": 1,
+    "answer_label": "3",
+    "type": "Protanopia (Merah-Hijau)",
+    "caption": "Pelat skrining protanopia-style — latihan orisinal, bukan reproduksi pelat Ishihara resmi",
+    "explanation": "Angka pada pelat ini adalah \"3\" (Protanopia (Merah-Hijau))."
+  },
+  {
+    "id": "aug26-colorblind-001",
+    "plate_no": 7,
+    "image": "assets/img/colorblind/plate-07.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "4",
+      "Tidak terlihat angka",
+      "9",
+      "6",
+      "2"
+    ],
+    "answer": 0,
+    "answer_label": "4",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 7",
+    "explanation": "Angka pada pelat ini adalah \"4\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-002",
+    "plate_no": 8,
+    "image": "assets/img/colorblind/plate-08.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "7",
+      "2",
+      "5",
+      "8",
+      "Tidak terlihat angka"
+    ],
+    "answer": 0,
+    "answer_label": "7",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 8",
+    "explanation": "Angka pada pelat ini adalah \"7\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-003",
+    "plate_no": 9,
+    "image": "assets/img/colorblind/plate-09.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "7",
+      "Tidak terlihat angka",
+      "6",
+      "1",
+      "9"
+    ],
+    "answer": 3,
+    "answer_label": "1",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 9",
+    "explanation": "Angka pada pelat ini adalah \"1\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-004",
+    "plate_no": 10,
+    "image": "assets/img/colorblind/plate-10.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "8",
+      "Tidak terlihat angka",
+      "2",
+      "5",
+      "1"
+    ],
+    "answer": 3,
+    "answer_label": "5",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 10",
+    "explanation": "Angka pada pelat ini adalah \"5\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-005",
+    "plate_no": 11,
+    "image": "assets/img/colorblind/plate-11.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "7",
+      "Tidak terlihat angka",
+      "1",
+      "8",
+      "2"
+    ],
+    "answer": 3,
+    "answer_label": "8",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 11",
+    "explanation": "Angka pada pelat ini adalah \"8\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-006",
+    "plate_no": 12,
+    "image": "assets/img/colorblind/plate-12.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "2",
+      "Tidak terlihat angka",
+      "7",
+      "1",
+      "4"
+    ],
+    "answer": 0,
+    "answer_label": "2",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 12",
+    "explanation": "Angka pada pelat ini adalah \"2\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-007",
+    "plate_no": 13,
+    "image": "assets/img/colorblind/plate-13.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "Tidak terlihat angka",
+      "4",
+      "6",
+      "8",
+      "9"
+    ],
+    "answer": 2,
+    "answer_label": "6",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 13",
+    "explanation": "Angka pada pelat ini adalah \"6\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-008",
+    "plate_no": 14,
+    "image": "assets/img/colorblind/plate-14.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "9",
+      "3",
+      "Tidak terlihat angka",
+      "5",
+      "7"
+    ],
+    "answer": 0,
+    "answer_label": "9",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 14",
+    "explanation": "Angka pada pelat ini adalah \"9\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-009",
+    "plate_no": 15,
+    "image": "assets/img/colorblind/plate-15.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "3",
+      "9",
+      "5",
+      "Tidak terlihat angka",
+      "2"
+    ],
+    "answer": 0,
+    "answer_label": "3",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 15",
+    "explanation": "Angka pada pelat ini adalah \"3\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-010",
+    "plate_no": 16,
+    "image": "assets/img/colorblind/plate-16.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "1",
+      "9",
+      "0",
+      "Tidak terlihat angka",
+      "4"
+    ],
+    "answer": 2,
+    "answer_label": "0",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 16",
+    "explanation": "Angka pada pelat ini adalah \"0\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-011",
+    "plate_no": 17,
+    "image": "assets/img/colorblind/plate-17.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "0",
+      "Tidak terlihat angka",
+      "7",
+      "9",
+      "2"
+    ],
+    "answer": 2,
+    "answer_label": "7",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 17",
+    "explanation": "Angka pada pelat ini adalah \"7\" (Pseudoisokromatik Umum)."
+  },
+  {
+    "id": "aug26-colorblind-012",
+    "plate_no": 18,
+    "image": "assets/img/colorblind/plate-18.svg",
+    "prompt": "Perhatikan pola titik berwarna berikut. Angka apa yang paling jelas Anda lihat?",
+    "options": [
+      "0",
+      "6",
+      "2",
+      "Tidak terlihat angka",
+      "4"
+    ],
+    "answer": 4,
+    "answer_label": "4",
+    "type": "Pseudoisokromatik Umum",
+    "caption": "Pelat latihan pseudoisokromatik orisinal 18",
+    "explanation": "Angka pada pelat ini adalah \"4\" (Pseudoisokromatik Umum)."
+  }
+]
