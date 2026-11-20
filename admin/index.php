@@ -133,11 +133,14 @@ require_once __DIR__ . '/../includes/header.php';
                 <div style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy);"><?= number_format($visitorSummary['month_visitors']) ?> <span style="font-size: 0.8rem; font-weight: 500; color: var(--core-text-muted);">(<?= number_format($visitorSummary['month_views']) ?> views)</span></div>
             </div>
             <div>
-                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--core-text-muted);">Total Views</div>
-                <div style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy);"><?= number_format($visitorSummary['total_views']) ?></div>
+                <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--core-text-muted);">Total Kunjungan (All-Time)</div>
+                <div style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy);"><?= number_format($visitorSummary['total_visitors']) ?> <span style="font-size: 0.8rem; font-weight: 500; color: var(--core-text-muted);">(<?= number_format($visitorSummary['total_views']) ?> views)</span></div>
             </div>
         </div>
-        <a href="statistik.php" class="btn btn-primary btn-sm">Lihat Grafik &amp; Statistik Detail →</a>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="statistik.php?mode=month" class="btn btn-outline-navy btn-sm">📅 Filter Per Bulan</a>
+            <a href="statistik.php" class="btn btn-primary btn-sm">Lihat Statistik Lengkap →</a>
+        </div>
     </div>
 </div>
 

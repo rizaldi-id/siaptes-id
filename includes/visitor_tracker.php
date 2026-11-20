@@ -105,14 +105,17 @@ function trackSiteVisit(PDO $db): void {
 
         // Normalisasi nama halaman untuk statistik populer
         $pagePath = $baseScript ?: 'index.php';
-        if ($pagePath === 'baca-artikel.php' && !empty($_GET['slug'])) {
-            $pagePath = 'baca-artikel.php?slug=' . mb_substr((string)$_GET['slug'], 0, 60);
+        if ($pagePath === 'baca-artikel.php') {
+            $articleSlug = trim((string)($GLOBALS['tracked_article_slug'] ?? ($_GET['slug'] ?? '')));
+            if ($articleSlug !== '') {
+                $pagePath = 'baca-artikel.php?slug=' . mb_substr($articleSlug, 0, 92);
+            }
         } elseif ($pagePath === 'latihan.php' && !empty($_GET['group'])) {
             $pagePath = 'latihan.php?group=' . mb_substr((string)$_GET['group'], 0, 20);
         } elseif ($pagePath === 'tryout.php' && !empty($_GET['track'])) {
             $pagePath = 'tryout.php?track=' . mb_substr((string)$_GET['track'], 0, 20);
         }
-        $pagePath = mb_substr($pagePath, 0, 115);
+        $pagePath = mb_substr($pagePath, 0, 118);
 
         // 1. Cek apakah pengunjung unik ini sudah tercatat hari ini
         $stmtCheck = $db->prepare("SELECT id, user_id FROM visitor_logs WHERE visit_date = ? AND visitor_hash = ? LIMIT 1");
@@ -203,7 +206,7 @@ function getVisitorSummaryStats(PDO $db): array {
     $today = $now->format('Y-m-d');
     $yesterday = (clone $now)->modify('-1 day')->format('Y-m-d');
     $monthPrefix = $now->format('Y-m') . '%';
-    $onlineThreshold = (clone $now)->modify('-5 minutes')->format('Y-m-d H:i:s');
+    $onlineThreshold = (clone $now)->modify('-15 minutes')->format('Y-m-d H:i:s');
 
     $summary = [
         'online_now' => 0,
@@ -363,6 +366,325 @@ function getRecentVisitorLogs(PDO $db, int $limit = 15): array {
             ORDER BY vl.last_seen DESC
             LIMIT " . intval($limit)
         );
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+/**
+ * Helper nama hari singkat Bahasa Indonesia
+ */
+function getIndonesianShortDay(string $ymd): string {
+    $map = ['Sun' => 'Min', 'Mon' => 'Sen', 'Tue' => 'Sel', 'Wed' => 'Rab', 'Thu' => 'Kam', 'Fri' => 'Jum', 'Sat' => 'Sab'];
+    $eng = date('D', strtotime($ymd));
+    return $map[$eng] ?? $eng;
+}
+
+/**
+ * Helper label bulan Bahasa Indonesia (mis. "November 2026")
+ */
+function formatIndonesianMonthLabel(string $ym): string {
+    $months = [
+        '01' => 'Januari', '02' => 'Februari', '03' => 'Maret', '04' => 'April',
+        '05' => 'Mei', '06' => 'Juni', '07' => 'Juli', '08' => 'Agustus',
+        '09' => 'September', '10' => 'Oktober', '11' => 'November', '12' => 'Desember',
+    ];
+    $parts = explode('-', $ym);
+    if (count($parts) !== 2) {
+        return $ym;
+    }
+    $mName = $months[$parts[1]] ?? $parts[1];
+    return $mName . ' ' . $parts[0];
+}
+
+/**
+ * Ambil deret waktu statistik harian untuk rentang tanggal inklusif ($startDate .. $endDate)
+ */
+function getDailyVisitorSeriesByRange(PDO $db, string $startDate, string $endDate): array {
+    ensureVisitorTables($db);
+
+    $tz = new DateTimeZone('Asia/Jakarta');
+    try {
+        $startObj = new DateTime($startDate, $tz);
+        $endObj = new DateTime($endDate, $tz);
+    } catch (Throwable $e) {
+        return getDailyVisitorSeries($db, 14);
+    }
+
+    if ($startObj > $endObj) {
+        $tmp = $startObj;
+        $startObj = $endObj;
+        $endObj = $tmp;
+    }
+
+    // Batasi maksimal 93 hari per tampilan agar performa tetap cepat
+    $diffDays = (int)$startObj->diff($endObj)->days + 1;
+    if ($diffDays > 93) {
+        $startObj = (clone $endObj)->modify('-92 days');
+        $diffDays = 93;
+    }
+
+    $startYmd = $startObj->format('Y-m-d');
+    $endYmd = $endObj->format('Y-m-d');
+
+    // Ambil juga 1 hari sebelum startYmd untuk menghitung delta % hari pertama secara akurat
+    $prevBaselineYmd = (clone $startObj)->modify('-1 day')->format('Y-m-d');
+    $prevVisitors = null;
+
+    $map = [];
+    try {
+        $stmtPrev = $db->prepare("SELECT unique_visitors FROM visitor_daily_stats WHERE visit_date = ? LIMIT 1");
+        $stmtPrev->execute([$prevBaselineYmd]);
+        $prevVal = $stmtPrev->fetchColumn();
+        if ($prevVal !== false) {
+            $prevVisitors = (int)$prevVal;
+        }
+
+        $stmt = $db->prepare("
+            SELECT visit_date, unique_visitors, page_views, logged_in_users
+            FROM visitor_daily_stats
+            WHERE visit_date >= ? AND visit_date <= ?
+            ORDER BY visit_date ASC
+        ");
+        $stmt->execute([$startYmd, $endYmd]);
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $map[$row['visit_date']] = $row;
+        }
+    } catch (Throwable $e) {}
+
+    $series = [];
+    for ($i = 0; $i < $diffDays; $i++) {
+        $cur = (clone $startObj)->modify("+$i days");
+        $dStr = $cur->format('Y-m-d');
+        $uv = isset($map[$dStr]) ? (int)$map[$dStr]['unique_visitors'] : 0;
+        $pv = isset($map[$dStr]) ? (int)$map[$dStr]['page_views'] : 0;
+        $li = isset($map[$dStr]) ? (int)$map[$dStr]['logged_in_users'] : 0;
+
+        $deltaPct = null;
+        if ($prevVisitors !== null) {
+            if ($prevVisitors > 0) {
+                $deltaPct = round((($uv - $prevVisitors) / $prevVisitors) * 100, 1);
+            } elseif ($uv > 0) {
+                $deltaPct = 100.0;
+            } else {
+                $deltaPct = 0.0;
+            }
+        }
+        $prevVisitors = $uv;
+
+        $series[] = [
+            'date' => $dStr,
+            'label' => $cur->format('d M'),
+            'day_num' => $cur->format('d'),
+            'day_name' => getIndonesianShortDay($dStr),
+            'unique_visitors' => $uv,
+            'page_views' => $pv,
+            'logged_in_users' => $li,
+            'delta_pct' => $deltaPct,
+        ];
+    }
+
+    return $series;
+}
+
+/**
+ * Ambil rekap kunjungan bulanan (kompatibel MySQL & SQLite)
+ */
+function getMonthlyVisitorSummary(PDO $db, int $limitMonths = 24): array {
+    ensureVisitorTables($db);
+
+    $buckets = [];
+    try {
+        $stmt = $db->query("
+            SELECT visit_date, unique_visitors, page_views, logged_in_users
+            FROM visitor_daily_stats
+            ORDER BY visit_date ASC
+        ");
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $ym = substr((string)$row['visit_date'], 0, 7);
+            if (strlen($ym) !== 7) {
+                continue;
+            }
+            if (!isset($buckets[$ym])) {
+                $buckets[$ym] = [
+                    'month' => $ym,
+                    'label' => formatIndonesianMonthLabel($ym),
+                    'unique_visitors' => 0,
+                    'page_views' => 0,
+                    'logged_in_users' => 0,
+                    'active_days' => 0,
+                ];
+            }
+            $uv = (int)$row['unique_visitors'];
+            $buckets[$ym]['unique_visitors'] += $uv;
+            $buckets[$ym]['page_views'] += (int)$row['page_views'];
+            $buckets[$ym]['logged_in_users'] += (int)$row['logged_in_users'];
+            if ($uv > 0 || (int)$row['page_views'] > 0) {
+                $buckets[$ym]['active_days']++;
+            }
+        }
+    } catch (Throwable $e) {}
+
+    // Pastikan bulan berjalan selalu muncul meskipun datanya masih 0
+    $tz = new DateTimeZone('Asia/Jakarta');
+    $currentYm = (new DateTime('now', $tz))->format('Y-m');
+    if (!isset($buckets[$currentYm])) {
+        $buckets[$currentYm] = [
+            'month' => $currentYm,
+            'label' => formatIndonesianMonthLabel($currentYm),
+            'unique_visitors' => 0,
+            'page_views' => 0,
+            'logged_in_users' => 0,
+            'active_days' => 0,
+        ];
+    }
+
+    ksort($buckets);
+    $prevUv = null;
+    foreach ($buckets as $ym => &$b) {
+        $b['avg_daily'] = $b['active_days'] > 0 ? round($b['unique_visitors'] / $b['active_days'], 1) : 0.0;
+        if ($prevUv === null) {
+            $b['delta_pct'] = null;
+        } elseif ($prevUv > 0) {
+            $b['delta_pct'] = round((($b['unique_visitors'] - $prevUv) / $prevUv) * 100, 1);
+        } elseif ($b['unique_visitors'] > 0) {
+            $b['delta_pct'] = 100.0;
+        } else {
+            $b['delta_pct'] = 0.0;
+        }
+        $prevUv = $b['unique_visitors'];
+    }
+    unset($b);
+
+    $result = array_reverse(array_values($buckets));
+    return array_slice($result, 0, max(1, $limitMonths));
+}
+
+/**
+ * Ambil daftar bulan (YYYY-MM) yang tersedia untuk dropdown filter bulanan
+ */
+function getAvailableVisitorMonths(PDO $db): array {
+    $tz = new DateTimeZone('Asia/Jakarta');
+    $now = new DateTime('now', $tz);
+    $months = [];
+
+    for ($i = 0; $i < 12; $i++) {
+        $ym = (clone $now)->modify("-$i months")->format('Y-m');
+        $months[$ym] = formatIndonesianMonthLabel($ym);
+    }
+
+    try {
+        $stmt = $db->query("SELECT DISTINCT substr(visit_date, 1, 7) as ym FROM visitor_daily_stats ORDER BY ym DESC");
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $ym) {
+            $ym = (string)$ym;
+            if (preg_match('/^\d{4}-\d{2}$/', $ym) && !isset($months[$ym])) {
+                $months[$ym] = formatIndonesianMonthLabel($ym);
+            }
+        }
+    } catch (Throwable $e) {}
+
+    krsort($months);
+    return $months;
+}
+
+/**
+ * Ambil halaman terpopuler berdasarkan rentang tanggal inklusif ($startDate .. $endDate)
+ */
+function getTopVisitedPagesByRange(PDO $db, string $startDate, string $endDate, int $limit = 15): array {
+    ensureVisitorTables($db);
+    try {
+        $stmt = $db->prepare("
+            SELECT page_path, SUM(views) as total_views
+            FROM visitor_page_stats
+            WHERE visit_date >= ? AND visit_date <= ?
+            GROUP BY page_path
+            ORDER BY total_views DESC
+            LIMIT " . intval($limit)
+        );
+        $stmt->execute([$startDate, $endDate]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+        return [];
+    }
+}
+
+/**
+ * Ambil statistik artikel yang dibaca dalam rentang tanggal ($startDate .. $endDate) beserta judul & total all-time
+ */
+function getTopVisitedArticlesByRange(PDO $db, string $startDate, string $endDate, int $limit = 10): array {
+    ensureVisitorTables($db);
+    $items = [];
+    try {
+        $stmt = $db->prepare("
+            SELECT page_path, SUM(views) as period_views
+            FROM visitor_page_stats
+            WHERE visit_date >= ? AND visit_date <= ? AND page_path LIKE 'baca-artikel.php?slug=%'
+            GROUP BY page_path
+            ORDER BY period_views DESC
+            LIMIT " . intval($limit)
+        );
+        $stmt->execute([$startDate, $endDate]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        // Ambil metadata artikel jika tabel articles ada
+        $articlesMap = [];
+        try {
+            $artRows = $db->query("SELECT id, title, slug, category, views FROM articles")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($artRows as $ar) {
+                $articlesMap[(string)$ar['slug']] = $ar;
+            }
+        } catch (Throwable $e) {}
+
+        foreach ($rows as $row) {
+            $rawPath = (string)$row['page_path'];
+            $slugPart = substr($rawPath, strlen('baca-artikel.php?slug='));
+            $matched = $articlesMap[$slugPart] ?? null;
+
+            // Jika slug terpotong (legacy 60 char), cari berdasarkan prefix match
+            if ($matched === null && $slugPart !== '') {
+                foreach ($articlesMap as $fullSlug => $ar) {
+                    if (strpos($fullSlug, $slugPart) === 0) {
+                        $matched = $ar;
+                        break;
+                    }
+                }
+            }
+
+            $items[] = [
+                'slug' => $matched ? $matched['slug'] : $slugPart,
+                'title' => $matched ? $matched['title'] : $slugPart,
+                'category' => $matched ? $matched['category'] : 'Artikel',
+                'period_views' => (int)$row['period_views'],
+                'total_article_views' => $matched ? (int)$matched['views'] : null,
+            ];
+        }
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    return $items;
+}
+
+/**
+ * Ambil log aktivitas pengunjung berdasarkan rentang tanggal inklusif ($startDate .. $endDate)
+ */
+function getVisitorLogsByRange(PDO $db, string $startDate, string $endDate, int $limit = 30): array {
+    ensureVisitorTables($db);
+    try {
+        $stmt = $db->prepare("
+            SELECT vl.*, u.name as user_name, u.email as user_email
+            FROM visitor_logs vl
+            LEFT JOIN users u ON vl.user_id = u.id
+            WHERE vl.visit_date >= ? AND vl.visit_date <= ?
+            ORDER BY vl.last_seen DESC
+            LIMIT " . intval($limit)
+        );
+        $stmt->execute([$startDate, $endDate]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Throwable $e) {
         return [];

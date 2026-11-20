@@ -88,7 +88,8 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
             <?php if ($user): ?>
                 <li><a href="<?= $root_url ?>/riwayat.php" class="<?= $currentScript === 'riwayat.php' ? 'active' : '' ?>">Riwayat Skor</a></li>
                 <?php if ($user['role'] === 'admin'): ?>
-                    <li><a href="<?= $root_url ?>/admin/index.php" style="color: #67e8f9; font-weight:700;">Panel Pengawas</a></li>
+                    <li><a href="<?= $root_url ?>/admin/index.php" class="<?= ($base_url === '/admin' && $currentScript !== 'statistik.php') ? 'active' : '' ?>" style="color: #67e8f9; font-weight:700;">Panel Pengawas</a></li>
+                    <li><a href="<?= $root_url ?>/admin/statistik.php" class="<?= ($base_url === '/admin' && $currentScript === 'statistik.php') ? 'active' : '' ?>" style="color: #86efac; font-weight:700;">📊 Statistik</a></li>
                 <?php endif; ?>
                 <li class="nav-user-item">
                     <div class="user-badge-nav">

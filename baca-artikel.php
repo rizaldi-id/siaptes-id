@@ -28,9 +28,14 @@ if (!$article || (!$article['is_published'] && !isAdmin())) {
     exit;
 }
 
-// Tambah jumlah tayangan (views)
-$db->prepare("UPDATE articles SET views = views + 1 WHERE id = ?")->execute([$article['id']]);
-$article['views'] = (int)$article['views'] + 1;
+// Tambah jumlah tayangan (views) hanya untuk artikel tayang & pengunjung non-bot
+$uaArticle = (string)($_SERVER['HTTP_USER_AGENT'] ?? '');
+$isBotArticle = ($uaArticle !== '' && preg_match('/bot|crawl|spider|slurp|lighthouse|headlesschrome/i', $uaArticle));
+if (!$isBotArticle && !empty($article['is_published'])) {
+    $db->prepare("UPDATE articles SET views = views + 1 WHERE id = ?")->execute([$article['id']]);
+    $article['views'] = (int)$article['views'] + 1;
+}
+$GLOBALS['tracked_article_slug'] = (string)$article['slug'];
 
 $categories = getArticleCategories();
 $catMeta = $categories[$article['category']] ?? ['icon' => '📄', 'badge_class' => 'badge-navy', 'color' => '#0b2d52'];
