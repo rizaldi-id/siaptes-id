@@ -31,6 +31,41 @@
 
   const STORAGE_KEY = 'SIAPTES_POTENSI_RECORDS_V1';
 
+  /* ---------- Fluid Vector SVG Icons (Unified Stroke System) ---------- */
+  const ICON_PATHS = {
+    eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    brain: '<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>',
+    compass: '<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+    gamepad: '<line x1="6" y1="11" x2="10" y2="11"/><line x1="8" y1="9" x2="8" y2="13"/><line x1="15" y1="12" x2="15.01" y2="12"/><line x1="18" y1="10" x2="18.01" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    chart: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+    bulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+    zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+    refresh: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+    book: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+    grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
+    shuffle: '<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>',
+    wave: '<path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/>',
+    hash: '<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    octagon: '<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>',
+    smile: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+    arrows: '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
+    balloon: '<path d="M12 2a7 7 0 0 0-7 7c0 4.5 3.5 8 7 10 3.5-2 7-5.5 7-10a7 7 0 0 0-7-7Z"/><path d="M12 19v3"/>',
+    handshake: '<path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/>',
+    layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>'
+  };
+
+  function svgIcon(name, size) {
+    const s = size || 16;
+    const p = ICON_PATHS[name] || ICON_PATHS.zap;
+    return '<svg class="ui-icon" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+  }
+
   /* ---------- Utilities ---------- */
   function esc(str) {
     return String(str ?? '').replace(/[&<>"']/g, function (c) {
@@ -212,15 +247,15 @@
       '<div class="tp-hub-grid">' +
         '<article class="tp-mod-card tp-theme-rose">' +
           '<div class="tp-mod-top">' +
-            '<span class="tp-mod-icon">🎨</span>' +
+            '<span class="tp-mod-icon">' + svgIcon('eye', 22) + '</span>' +
             '<span class="tp-free-pill">GRATIS · 18 PELAT</span>' +
           '</div>' +
           '<h3>Tes Buta Warna</h3>' +
           '<p>Skrining awal persepsi warna dengan 18 pelat pseudoisokromatik orisinal (Deuteranopia, Protanopia, Tritan &amp; Umum). Lengkap dengan review tiap pelat.</p>' +
           '<div class="tp-mod-meta">' +
-            '<span>👁️ Visual SVG Tajam</span>' +
-            '<span>⏱️ ±3 Menit</span>' +
-            '<span>📊 Hasil Instan</span>' +
+            '<span class="ui-inline">' + svgIcon('eye', 13) + ' Visual SVG Tajam</span>' +
+            '<span class="ui-inline">' + svgIcon('clock', 13) + ' ±3 Menit</span>' +
+            '<span class="ui-inline">' + svgIcon('chart', 13) + ' Hasil Instan</span>' +
           '</div>' +
           '<div class="tp-mod-foot">' +
             '<span class="tp-last-rec">' + esc(cbStat) + '</span>' +
@@ -230,15 +265,15 @@
 
         '<article class="tp-mod-card tp-theme-indigo">' +
           '<div class="tp-mod-top">' +
-            '<span class="tp-mod-icon">🧠</span>' +
+            '<span class="tp-mod-icon">' + svgIcon('brain', 22) + '</span>' +
             '<span class="tp-free-pill">GRATIS · 30 SOAL</span>' +
           '</div>' +
           '<h3>Tes IQ Online</h3>' +
           '<p>30 soal orisinal tingkat Sedang–Sulit mencakup 5 domain: Figural (matriks gambar), Numerik, Verbal, Logis, dan Spasial dengan pembahasan langsung.</p>' +
           '<div class="tp-mod-meta">' +
-            '<span>📐 5 Domain</span>' +
-            '<span>⏱️ 25 Menit</span>' +
-            '<span>💡 Pembahasan Langsung</span>' +
+            '<span class="ui-inline">' + svgIcon('layers', 13) + ' 5 Domain</span>' +
+            '<span class="ui-inline">' + svgIcon('clock', 13) + ' 25 Menit</span>' +
+            '<span class="ui-inline">' + svgIcon('bulb', 13) + ' Pembahasan Langsung</span>' +
           '</div>' +
           '<div class="tp-mod-foot">' +
             '<span class="tp-last-rec">' + esc(iqStat) + '</span>' +
@@ -248,14 +283,14 @@
 
         '<article class="tp-mod-card tp-theme-emerald">' +
           '<div class="tp-mod-top">' +
-            '<span class="tp-mod-icon">🧭</span>' +
+            '<span class="tp-mod-icon">' + svgIcon('compass', 22) + '</span>' +
             '<span class="tp-free-pill">GRATIS · RIASEC</span>' +
           '</div>' +
           '<h3>Tes Minat Karier</h3>' +
           '<p>Pemetaan minat karier Holland Code (R-I-A-S-E-C) untuk mengetahui 3 tema minat terkuat Anda lengkap dengan arah karier &amp; jalur seleksi yang cocok.</p>' +
           '<div class="tp-mod-meta">' +
-            '<span>⚡ Cepat 18 / Lengkap 72</span>' +
-            '<span>🎯 Top-3 Holland Code</span>' +
+            '<span class="ui-inline">' + svgIcon('zap', 13) + ' Cepat 18 / Lengkap 72</span>' +
+            '<span class="ui-inline">' + svgIcon('target', 13) + ' Top-3 Holland Code</span>' +
           '</div>' +
           '<div class="tp-mod-foot">' +
             '<span class="tp-last-rec">' + esc(riStat) + '</span>' +
@@ -265,14 +300,14 @@
 
         '<article class="tp-mod-card tp-theme-plum">' +
           '<div class="tp-mod-top">' +
-            '<span class="tp-mod-icon">🎮</span>' +
+            '<span class="tp-mod-icon">' + svgIcon('gamepad', 22) + '</span>' +
             '<span class="tp-free-pill">GRATIS · 10 GAME</span>' +
           '</div>' +
           '<h3>Game Kognitif &amp; Asesmen</h3>' +
           '<p>4 gim kognitif cepat (Kejar Angka, Ganti Aturan, Memori Grid, Sprint Pola) plus 6 latihan asesmen kerja berbasis gim (Balon Risiko, Sinyal Berhenti, dll).</p>' +
           '<div class="tp-mod-meta">' +
-            '<span>⚡ Interaktif</span>' +
-            '<span>🏆 Skor Terbaik Tersimpan</span>' +
+            '<span class="ui-inline">' + svgIcon('zap', 13) + ' Interaktif</span>' +
+            '<span class="ui-inline">' + svgIcon('trophy', 13) + ' Skor Terbaik Tersimpan</span>' +
           '</div>' +
           '<div class="tp-mod-foot">' +
             '<span class="tp-last-rec">' + esc(gmStat) + '</span>' +
@@ -312,8 +347,8 @@
           '<b>Tips sebelum memulai:</b> Atur kecerahan layar ke tingkat normal, nonaktifkan sementara fitur <i>Night Shift / Eye Comfort / Blue Light Filter</i> agar warna pelat tampil akurat, dan amati pelat dari jarak baca wajar (±40–50 cm).' +
         '</div>' +
         '<div class="tp-btn-row">' +
-          '<button type="button" class="btn btn-primary" onclick="TP.startColorblind(18)">🎨 Mulai Skrining Lengkap (18 Pelat) →</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.startColorblind(6)">⚡ Mulai Skrining Cepat (6 Pelat Utama)</button>' +
+          '<button type="button" class="btn btn-primary" onclick="TP.startColorblind(18)">' + svgIcon('eye', 15) + ' Mulai Skrining Lengkap (18 Pelat) →</button>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.startColorblind(6)">' + svgIcon('zap', 15) + ' Mulai Skrining Cepat (6 Pelat Utama)</button>' +
           '<button type="button" class="btn btn-outline" onclick="TP.openTab(\'hub\', false)">← Semua Tes Gratis</button>' +
         '</div>' +
         '<div class="tp-disclaimer-box" style="margin-top:1.1rem;">' +
@@ -508,8 +543,8 @@
             '<h2>' + esc(statusTitle) + '</h2>' +
             '<p>' + esc(statusDesc) + '</p>' +
             '<div class="tp-score-facts">' +
-              '<span>✓ Benar: <b>' + correct + '/' + total + '</b></span>' +
-              '<span>⏱️ Waktu: <b>' + Math.floor(sec / 60) + 'm ' + (sec % 60) + 'd</b></span>' +
+              '<span class="ui-inline">' + svgIcon('check', 14) + ' Benar: <b>' + correct + '/' + total + '</b></span>' +
+              '<span class="ui-inline">' + svgIcon('clock', 14) + ' Waktu: <b>' + Math.floor(sec / 60) + 'm ' + (sec % 60) + 'd</b></span>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -517,9 +552,9 @@
         '<div class="tp-domains-grid">' + typeBars + '</div>' +
 
         '<div class="tp-btn-row" style="margin-top:1.25rem;">' +
-          '<button type="button" class="btn btn-primary" onclick="TP.startColorblind(' + total + ')">🔄 Ulangi Tes Buta Warna</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.toggleEl(\'cbReviewBox\')">👁️ Review Semua Pelat</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.openTab(\'iq\', true)">🧠 Lanjut ke Tes IQ →</button>' +
+          '<button type="button" class="btn btn-primary" onclick="TP.startColorblind(' + total + ')">' + svgIcon('refresh', 15) + ' Ulangi Tes Buta Warna</button>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.toggleEl(\'cbReviewBox\')">' + svgIcon('eye', 15) + ' Review Semua Pelat</button>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.openTab(\'iq\', true)">' + svgIcon('brain', 15) + ' Lanjut ke Tes IQ →</button>' +
         '</div>' +
 
         '<div class="tp-disclaimer-box" style="margin-top:1.1rem;">' +
@@ -562,7 +597,7 @@
           '<span><b>Spasial (5):</b> Rotasi &amp; transformasi bentuk</span>' +
         '</div>' +
         '<div class="tp-btn-row">' +
-          '<button type="button" class="btn btn-primary" onclick="TP.startIQ()">🧠 Mulai Tes IQ Gratis (30 Soal) →</button>' +
+          '<button type="button" class="btn btn-primary" onclick="TP.startIQ()">' + svgIcon('brain', 15) + ' Mulai Tes IQ Gratis (30 Soal) →</button>' +
           '<button type="button" class="btn btn-outline" onclick="TP.openTab(\'hub\', false)">← Semua Tes Gratis</button>' +
         '</div>' +
         '<div class="tp-disclaimer-box" style="margin-top:1.1rem;">' +
@@ -813,7 +848,7 @@
 
     stage.innerHTML =
       '<div class="card tp-result-card">' +
-        (autoTimeout ? '<div class="tp-tips-box" style="margin-bottom:1rem;"><b>⏱️ Waktu 25 menit telah habis.</b> Seluruh jawaban yang sudah diisi otomatis dikalkulasi di bawah ini.</div>' : '') +
+        (autoTimeout ? '<div class="tp-tips-box" style="margin-bottom:1rem;"><b>Waktu 25 menit telah habis.</b> Seluruh jawaban yang sudah diisi otomatis dikalkulasi di bawah ini.</div>' : '') +
         '<div class="tp-score-hero">' +
           '<div class="tp-ring ' + band.cls + '" style="--p:' + pct + '">' +
             '<div class="tp-ring-inner"><b>' + pct + '</b><span>INDEKS / 100</span></div>' +
@@ -823,9 +858,9 @@
             '<h2>' + esc(band.label) + '</h2>' +
             '<p>Kekuatan relatif tertinggi Anda di domain <b>' + esc(strongest.name) + ' (' + strongest.pct + '%)</b>. Area prioritas latihan berikutnya: <b>' + esc(weakest.name) + ' (' + weakest.pct + '%)</b>.</p>' +
             '<div class="tp-score-facts">' +
-              '<span>✓ Benar: <b>' + correct + '/' + st.bank.length + '</b></span>' +
-              '<span>📝 Terjawab: <b>' + answered + '/' + st.bank.length + '</b></span>' +
-              '<span>⏱️ Waktu: <b>' + Math.floor(elapsed / 60) + 'm ' + (elapsed % 60) + 'd</b></span>' +
+              '<span class="ui-inline">' + svgIcon('check', 14) + ' Benar: <b>' + correct + '/' + st.bank.length + '</b></span>' +
+              '<span class="ui-inline">' + svgIcon('book', 14) + ' Terjawab: <b>' + answered + '/' + st.bank.length + '</b></span>' +
+              '<span class="ui-inline">' + svgIcon('clock', 14) + ' Waktu: <b>' + Math.floor(elapsed / 60) + 'm ' + (elapsed % 60) + 'd</b></span>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -833,9 +868,9 @@
         '<div class="tp-domains-grid">' + domainBars + '</div>' +
 
         '<div class="tp-btn-row" style="margin-top:1.25rem;">' +
-          '<button type="button" class="btn btn-primary" onclick="TP.toggleEl(\'iqReviewBox\')">📖 Lihat Review &amp; Pembahasan 30 Soal</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.startIQ()">🔄 Ulangi Tes IQ</button>' +
-          '<a href="tryout.php?track=psikotes" class="btn btn-outline">🚀 Lanjut Tryout Psikotes &amp; TIU →</a>' +
+          '<button type="button" class="btn btn-primary" onclick="TP.toggleEl(\'iqReviewBox\')">' + svgIcon('book', 15) + ' Lihat Review &amp; Pembahasan 30 Soal</button>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.startIQ()">' + svgIcon('refresh', 15) + ' Ulangi Tes IQ</button>' +
+          '<a href="tryout.php?track=psikotes" class="btn btn-outline">' + svgIcon('play', 15) + ' Lanjut Tryout Psikotes &amp; TIU →</a>' +
         '</div>' +
 
         '<div class="tp-disclaimer-box" style="margin-top:1.1rem;">' +
@@ -879,8 +914,8 @@
           '<span><b>C (Conventional):</b> Teratur &amp; presisi</span>' +
         '</div>' +
         '<div class="tp-btn-row">' +
-          '<button type="button" class="btn btn-primary" onclick="TP.startRiasec(\'quick\')">⚡ Mulai Mode Cepat (18 Item · ±3 Menit) →</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.startRiasec(\'full\')">🧭 Mulai Mode Lengkap (72 Item · Akurasi Lebih Dalam)</button>' +
+          '<button type="button" class="btn btn-primary" onclick="TP.startRiasec(\'quick\')">' + svgIcon('zap', 15) + ' Mulai Mode Cepat (18 Item · ±3 Menit) →</button>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.startRiasec(\'full\')">' + svgIcon('compass', 15) + ' Mulai Mode Lengkap (72 Item · Akurasi Lebih Dalam)</button>' +
           '<button type="button" class="btn btn-outline" onclick="TP.openTab(\'hub\', false)">← Semua Tes Gratis</button>' +
         '</div>' +
         '<div class="tp-disclaimer-box" style="margin-top:1.1rem;">' +
@@ -1069,10 +1104,10 @@
 
         '<div class="tp-btn-row" style="margin-top:1.35rem;">' +
           '<button type="button" class="btn btn-primary" onclick="TP.startRiasec(\'' + (st.mode === 'quick' ? 'full' : 'quick') + '\')">' +
-            (st.mode === 'quick' ? '🧭 Coba Mode Lengkap (72 Item)' : '⚡ Ulangi Mode Cepat (18 Item)') +
+            (st.mode === 'quick' ? (svgIcon('compass', 15) + ' Coba Mode Lengkap (72 Item)') : (svgIcon('zap', 15) + ' Ulangi Mode Cepat (18 Item)')) +
           '</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.startRiasec(\'' + st.mode + '\')">🔄 Ulangi Tes</button>' +
-          '<a href="tryout.php" class="btn btn-outline">🚀 Cek Paket Tryout Sesuai Minat →</a>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.startRiasec(\'' + st.mode + '\')">' + svgIcon('refresh', 15) + ' Ulangi Tes</button>' +
+          '<a href="tryout.php" class="btn btn-outline">' + svgIcon('play', 15) + ' Cek Paket Tryout Sesuai Minat →</a>' +
         '</div>' +
 
         '<div class="tp-disclaimer-box" style="margin-top:1.1rem;">' +
@@ -1086,34 +1121,36 @@
      4. GAME KOGNITIF (4 GIM UTAMA + 6 LATIHAN ASESMEN BERBASIS GIM)
      ========================================================================== */
   const CORE_GAMES = [
-    { id: 'kejar', ico: '123', name: 'Kejar Angka', tag: 'Kecepatan Numerik', desc: 'Sprint aritmetika 45 detik. Jawab sebanyak mungkin hitungan singkat dengan cepat & akurat.' },
-    { id: 'aturan', ico: '⇄', name: 'Ganti Aturan', tag: 'Fleksibilitas Kognitif', desc: '20 soal klasifikasi angka dengan aturan yang berubah otomatis setiap 5 soal.' },
-    { id: 'grid', ico: '▦', name: 'Memori Grid', tag: 'Memori Kerja Visual', desc: 'Ingat posisi kotak yang menyala di papan 4×4 lalu susun ulang polanya dari ingatan.' },
-    { id: 'pola', ico: '∿', name: 'Sprint Pola', tag: 'Pengenalan Pola', desc: 'Tebak angka berikutnya pada 15 deret aritmetika, kelipatan, dan selisih bertingkat.' }
+    { id: 'kejar', icon: 'hash', name: 'Kejar Angka', tag: 'Kecepatan Numerik', desc: 'Sprint aritmetika 45 detik. Jawab sebanyak mungkin hitungan singkat dengan cepat & akurat.' },
+    { id: 'aturan', icon: 'shuffle', name: 'Ganti Aturan', tag: 'Fleksibilitas Kognitif', desc: '20 soal klasifikasi angka dengan aturan yang berubah otomatis setiap 5 soal.' },
+    { id: 'grid', icon: 'grid', name: 'Memori Grid', tag: 'Memori Kerja Visual', desc: 'Ingat posisi kotak yang menyala di papan 4×4 lalu susun ulang polanya dari ingatan.' },
+    { id: 'pola', icon: 'wave', name: 'Sprint Pola', tag: 'Pengenalan Pola', desc: 'Tebak angka berikutnya pada 15 deret aritmetika, kelipatan, dan selisih bertingkat.' }
   ];
 
   const ASSESS_GAMES = [
-    { id: 'balon', ico: '🎈', name: 'Tantangan Balon Risiko', tag: 'Pengambilan Keputusan', desc: 'Pompa balon untuk menaikkan poin atau simpan sebelum pecah dalam 8 putaran.' },
-    { id: 'percaya', ico: '🤝', name: 'Pertukaran Kepercayaan', tag: 'Strategi Timbal Balik', desc: 'Tentukan jumlah token untuk dikirim ke mitra simulasi & amati pola pengembalian.' },
-    { id: 'digit', ico: '789', name: 'Memori Digit', tag: 'Working Memory', desc: 'Ingat deretan angka yang semakin panjang (4–7 digit) lalu ketik kembali secara tepat.' },
-    { id: 'berhenti', ico: '🛑', name: 'Sinyal Berhenti', tag: 'Kontrol Impuls (Go/No-Go)', desc: 'Tekan tombol/Spasi saat muncul JALAN, dan tahan respons saat muncul BERHENTI.' },
-    { id: 'emosi', ico: '🙂', name: 'Wajah Emosi', tag: 'Persepsi Ekspresi', desc: 'Kenali 6 ekspresi emosi dasar secara cepat dan konsisten dalam 12 putaran.' },
-    { id: 'kartu', ico: '⇅', name: 'Kartu & Panah', tag: 'Pergantian Aturan', desc: 'Pilih angka LEBIH TINGGI atau LEBIH RENDAH yang aturannya berganti tiap soal.' }
+    { id: 'balon', icon: 'balloon', name: 'Tantangan Balon Risiko', tag: 'Pengambilan Keputusan', desc: 'Pompa balon untuk menaikkan poin atau simpan sebelum pecah dalam 8 putaran.' },
+    { id: 'percaya', icon: 'handshake', name: 'Pertukaran Kepercayaan', tag: 'Strategi Timbal Balik', desc: 'Tentukan jumlah token untuk dikirim ke mitra simulasi & amati pola pengembalian.' },
+    { id: 'digit', icon: 'layers', name: 'Memori Digit', tag: 'Working Memory', desc: 'Ingat deretan angka yang semakin panjang (4–7 digit) lalu ketik kembali secara tepat.' },
+    { id: 'berhenti', icon: 'octagon', name: 'Sinyal Berhenti', tag: 'Kontrol Impuls (Go/No-Go)', desc: 'Tekan tombol/Spasi saat muncul JALAN, dan tahan respons saat muncul BERHENTI.' },
+    { id: 'emosi', icon: 'smile', name: 'Wajah Emosi', tag: 'Persepsi Ekspresi', desc: 'Kenali 6 ekspresi emosi dasar secara cepat dan konsisten dalam 12 putaran.' },
+    { id: 'kartu', icon: 'arrows', name: 'Kartu & Panah', tag: 'Pergantian Aturan', desc: 'Pilih angka LEBIH TINGGI atau LEBIH RENDAH yang aturannya berganti tiap soal.' }
   ];
 
   function renderGameCard(g) {
     const best = getBestScore(g.id);
-    const bestTxt = best ? ('🏆 Terbaik: ' + best.score + (best.max ? '/' + best.max : '')) : 'Siap dimainkan';
+    const bestHtml = best
+      ? '<span class="ui-inline">' + svgIcon('trophy', 13) + ' Terbaik: ' + best.score + (best.max ? '/' + best.max : '') + '</span>'
+      : '<span>Siap dimainkan</span>';
     return (
       '<button type="button" class="tp-game-card" onclick="TP.startGame(\'' + g.id + '\')">' +
         '<div class="tp-game-card-top">' +
-          '<span class="tp-game-ico">' + g.ico + '</span>' +
+          '<span class="tp-game-ico">' + svgIcon(g.icon, 19) + '</span>' +
           '<span class="tp-game-tag">' + esc(g.tag) + '</span>' +
         '</div>' +
         '<b>' + esc(g.name) + '</b>' +
         '<small>' + esc(g.desc) + '</small>' +
         '<div class="tp-game-card-foot">' +
-          '<span>' + esc(bestTxt) + '</span>' +
+          bestHtml +
           '<span class="tp-game-go">MULAI →</span>' +
         '</div>' +
       '</button>'
@@ -1180,11 +1217,11 @@
         '<div class="tp-game-big-score">' + score + (total ? '<span>/' + total + '</span>' : '') + '</div>' +
         '<h3>Sesi ' + esc(title) + ' Selesai!</h3>' +
         '<p class="tp-game-end-note">' + esc(note) + '</p>' +
-        (best ? '<div class="tp-best-pill">🏆 Rekor Terbaik Anda: <b>' + best.score + (best.max ? '/' + best.max : '') + '</b></div>' : '') +
+        (best ? '<div class="tp-best-pill ui-inline">' + svgIcon('trophy', 14) + ' Rekor Terbaik Anda: <b>' + best.score + (best.max ? '/' + best.max : '') + '</b></div>' : '') +
         '<div class="tp-btn-row center">' +
-          '<button type="button" class="btn btn-primary" onclick="TP.startGame(\'' + gameId + '\')">🔄 Main Lagi</button>' +
-          '<button type="button" class="btn btn-outline" onclick="TP.renderGamesHub()">🎮 Pilih Game Lain</button>' +
-          '<a href="tryout.php?track=psikotes" class="btn btn-outline">🚀 Coba Tryout Psikotes →</a>' +
+          '<button type="button" class="btn btn-primary" onclick="TP.startGame(\'' + gameId + '\')">' + svgIcon('refresh', 15) + ' Main Lagi</button>' +
+          '<button type="button" class="btn btn-outline" onclick="TP.renderGamesHub()">' + svgIcon('gamepad', 15) + ' Pilih Game Lain</button>' +
+          '<a href="tryout.php?track=psikotes" class="btn btn-outline">' + svgIcon('play', 15) + ' Coba Tryout Psikotes →</a>' +
         '</div>' +
         '<p class="tp-mini-note">Hasil hanya untuk latihan personal &amp; pemanasan kognitif, tidak dibandingkan dengan norma populasi resmi.</p>' +
       '</div>';
@@ -1228,7 +1265,7 @@
       arena.innerHTML =
         '<div class="tp-game-hud">' +
           '<span>Skor: <b>' + g.score + '</b></span>' +
-          '<span class="tp-hud-timer" id="tpKejarTimer">⏱️ ' + g.left + ' dtk</span>' +
+          '<span class="tp-hud-timer ui-inline" id="tpKejarTimer">' + svgIcon('clock', 14) + ' ' + g.left + ' dtk</span>' +
         '</div>' +
         '<div class="tp-game-stimulus">' + a + ' ' + (plus ? '+' : '−') + ' ' + b + ' = ?</div>' +
         '<div class="tp-game-choices">' +
@@ -1245,7 +1282,7 @@
       if (!g || g.id !== 'kejar') return;
       g.left--;
       const el = $('tpKejarTimer');
-      if (el) el.textContent = '⏱️ ' + g.left + ' dtk';
+      if (el) el.innerHTML = svgIcon('clock', 14) + ' ' + g.left + ' dtk';
       if (g.left <= 0) {
         const acc = g.tries ? Math.round((g.score / g.tries) * 100) : 0;
         renderGameEnd('kejar', 'Kejar Angka', g.score, null, 'Anda menjawab ' + g.score + ' benar dari ' + g.tries + ' percobaan (akurasi ' + acc + '%) dalam 45 detik.');
@@ -1477,13 +1514,21 @@
         '<span>Poin Tersimpan: <b>' + g.saved + '</b></span>' +
       '</div>' +
       '<div class="tp-balloon-wrap">' +
-        '<div class="tp-balloon-ico" style="transform:scale(' + scale + ')">🎈</div>' +
+        '<div class="tp-balloon-ico" style="transform:scale(' + scale + ')">' +
+          '<svg width="68" height="84" viewBox="0 0 68 84" fill="none" aria-hidden="true">' +
+            '<defs><radialGradient id="balG" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#f28b96"/><stop offset="100%" stop-color="#c94a5a"/></radialGradient></defs>' +
+            '<path d="M34 4C18 4 8 16 8 31C8 48 22 61 34 65C46 61 60 48 60 31C60 16 50 4 34 4Z" fill="url(#balG)"/>' +
+            '<ellipse cx="24" cy="22" rx="5" ry="9" transform="rotate(-18 24 22)" fill="rgba(255,255,255,0.32)"/>' +
+            '<path d="M31 65L37 65L34 70Z" fill="#b53a4a"/>' +
+            '<path d="M34 70C34 75 31 79 35 83" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>' +
+          '</svg>' +
+        '</div>' +
         '<div class="tp-balloon-pts">Poin potensial: <b>' + g.pumps + '</b></div>' +
       '</div>' +
       '<p class="tp-mini-note">' + esc(g.msg) + '</p>' +
       '<div class="tp-game-choices two">' +
-        '<button type="button" class="tp-choice-btn primary" onclick="TP.gBalonPompa()">💨 Pompa (+1)</button>' +
-        '<button type="button" class="tp-choice-btn" onclick="TP.gBalonSimpan()" ' + (g.pumps === 0 ? 'disabled' : '') + '>💾 Simpan ' + g.pumps + ' Poin</button>' +
+        '<button type="button" class="tp-choice-btn primary" onclick="TP.gBalonPompa()">Pompa (+1)</button>' +
+        '<button type="button" class="tp-choice-btn" onclick="TP.gBalonSimpan()" ' + (g.pumps === 0 ? 'disabled' : '') + '>Simpan ' + g.pumps + ' Poin</button>' +
       '</div>';
   }
 
@@ -1499,7 +1544,7 @@
         return renderGameEnd('balon', 'Tantangan Balon Risiko', g.saved, 80, 'Total poin tersimpan: ' + g.saved + ' (balon pecah ' + g.popped + ' kali). Latihan ini melatih keseimbangan antara potensi hadiah dan risiko.');
       }
       g.limit = 4 + Math.floor(Math.random() * 7);
-      g.msg = '💥 Balon sebelumnya pecah! Poin potensial hangus, lanjut ke balon berikutnya.';
+      g.msg = 'Balon sebelumnya pecah! Poin potensial hangus, lanjut ke balon berikutnya.';
     } else {
       g.msg = 'Balon mengembang aman. Lanjut pompa atau amankan poin sekarang?';
     }
@@ -1765,7 +1810,7 @@
         '<span>Skor: <b>' + g.score + '</b></span>' +
       '</div>' +
       '<div class="tp-rule-banner ' + (higher ? 'rule-a' : 'rule-b') + '">' +
-        '<b>Aturan:</b> Pilih nilai <b>' + (higher ? '⬆️ LEBIH TINGGI' : '⬇️ LEBIH RENDAH') + '</b>' +
+        '<b>Aturan:</b> Pilih nilai <b>' + (higher ? 'LEBIH TINGGI' : 'LEBIH RENDAH') + '</b>' +
       '</div>' +
       '<div class="tp-two-cards">' +
         '<button type="button" class="tp-num-card" onclick="TP.gKartu(0)">' + a + '</button>' +

@@ -15,11 +15,11 @@
                     Platform persiapan dan simulasi Computer Assisted Test (CAT) terpadu di Indonesia.
                     Satu portal nyaman untuk latihan soal dan tryout seleksi <b>CPNS / PPPK</b>, <b>Rekrutmen Bersama BUMN</b>, <b>Sekolah Kedinasan</b>, serta <b>Psikotes Kerja & Asesmen Perusahaan</b>.
                 </p>
-                <div style="margin-top: 1rem; display: flex; gap: 0.75rem; align-items: center; font-size: 0.78rem; color: #cbd5e1; flex-wrap: wrap;">
-                    <span>🏛️ Standar BKN & MenPAN-RB</span>
-                    <span>🏢 Standar FHCI BUMN</span>
-                    <span>🎓 Jalur Kedinasan</span>
-                    <span>🧠 Psikotes Kerja</span>
+                <div style="margin-top: 1rem; display: flex; gap: 0.9rem; align-items: center; font-size: 0.78rem; color: #cbd5e1; flex-wrap: wrap;">
+                    <span class="ui-inline"><?= ui_icon('landmark', 14) ?> Standar BKN &amp; MenPAN-RB</span>
+                    <span class="ui-inline"><?= ui_icon('building', 14) ?> Standar FHCI BUMN</span>
+                    <span class="ui-inline"><?= ui_icon('graduation-cap', 14) ?> Jalur Kedinasan</span>
+                    <span class="ui-inline"><?= ui_icon('brain', 14) ?> Psikotes Kerja</span>
                 </div>
             </div>
 

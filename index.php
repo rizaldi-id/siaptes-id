@@ -38,7 +38,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Hero Section SIAP TES (siaptes.id) -->
 <div class="hero">
     <div class="hero-pill">
-        🇮🇩 SATU PLATFORM, SIAP SEMUA SELEKSI NASIONAL &amp; KARIER &bull; <b>SIAPTES.ID</b>
+        <?= ui_icon('shield-check', 14) ?> SATU PLATFORM, SIAP SEMUA SELEKSI NASIONAL &amp; KARIER &bull; <b>SIAPTES.ID</b>
     </div>
     <h1>Belajar Lebih Tenang &amp; Terarah Bersama <span>SIAP TES</span></h1>
     <p>
@@ -47,28 +47,28 @@ require_once __DIR__ . '/includes/header.php';
     </p>
     <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
         <a href="tryout.php" class="btn btn-primary" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
-            🚀 Mulai Simulasi Tryout
+            <?= ui_icon('play', 16) ?> Mulai Simulasi Tryout
         </a>
         <a href="tes-potensi.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.55rem; background: #eaf7f2; color: #196b52; border-color: #b7e3d4;">
-            ✨ Tes Kemampuan &amp; Potensi (Gratis)
+            <?= ui_icon('sparkles', 16) ?> Tes Kemampuan &amp; Potensi (Gratis)
         </a>
         <a href="latihan.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.55rem;">
-            📚 Jelajahi Bank Soal
+            <?= ui_icon('book-open', 16) ?> Jelajahi Bank Soal
         </a>
     </div>
 
     <!-- Calm Trust Pills -->
     <div class="hero-trust-row">
-        <span class="hero-trust-item"><b>✓</b> Standar BKN &amp; MenPAN-RB</span>
-        <span class="hero-trust-item"><b>✓</b> Standar BUMN (FHCI)</span>
-        <span class="hero-trust-item"><b>✓</b> Kisi-kisi Kedinasan &amp; Psikotes</span>
-        <span class="hero-trust-item"><b>✓</b> Pembahasan Trik Cepat</span>
+        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Standar BKN &amp; MenPAN-RB</span>
+        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Standar BUMN (FHCI)</span>
+        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Kisi-kisi Kedinasan &amp; Psikotes</span>
+        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Pembahasan Trik Cepat</span>
     </div>
 </div>
 
 <!-- Official Announcement Notice -->
 <div class="gov-notice">
-    <div class="gov-notice-icon">📢</div>
+    <div class="gov-notice-icon"><?= ui_icon('bell', 18) ?></div>
     <div class="gov-notice-content">
         <h4>Pemberitahuan Sistem Seleksi Terpadu siaptes.id:</h4>
         <p>
@@ -95,11 +95,11 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card card-navy-top" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-twk">🏛️ CPNS & PPPK (ASN)</span>
+                    <span class="badge badge-twk"><?= ui_icon('landmark', 13) ?> CPNS &amp; PPPK (ASN)</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: var(--core-navy);">Standar CAT BKN</span>
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">
-                    Seleksi Kompetensi Dasar (SKD) & SKB
+                    Seleksi Kompetensi Dasar (SKD) &amp; SKB
                 </h3>
                 <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1rem;">
                     Meliputi Tes Wawasan Kebangsaan (TWK passing grade 65), Tes Intelegensia Umum (TIU passing grade 80), dan Tes Karakteristik Pribadi (TKP skala bobot 1–5, passing grade 166). Total 110 soal dalam 100 menit persis sistem asli BKN.
@@ -107,7 +107,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">110 Soal &bull; Timer 100 Menit</span>
-                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout CPNS ➔</a>
+                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout CPNS <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
             </div>
         </div>
 
@@ -115,19 +115,19 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card card-navy-top" style="border-top-color: var(--core-blue); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-tkd_bumn">🏢 REKRUTMEN BERSAMA BUMN</span>
+                    <span class="badge badge-tkd_bumn"><?= ui_icon('building', 13) ?> REKRUTMEN BERSAMA BUMN</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: var(--core-blue);">Standar RBB FHCI</span>
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">
-                    TKD, Core Values AKHLAK & Bahasa Inggris
+                    TKD, Core Values AKHLAK &amp; Bahasa Inggris
                 </h3>
                 <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1rem;">
-                    Simulasi terpadu seleksi BUMN nasional: Tes Kemampuan Dasar (TKD logika bisnis & numerik), Core Values AKHLAK (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) dengan kasus kontekstual, dan English for Business.
+                    Simulasi terpadu seleksi BUMN nasional: Tes Kemampuan Dasar (TKD logika bisnis &amp; numerik), Core Values AKHLAK (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) dengan kasus kontekstual, dan English for Business.
                 </p>
             </div>
             <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">TKD + AKHLAK + English</span>
-                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout BUMN ➔</a>
+                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout BUMN <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
             </div>
         </div>
 
@@ -135,11 +135,11 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card card-navy-top" style="border-top-color: #9c435f; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-kedinasan_tpa">🎓 SEKOLAH KEDINASAN</span>
+                    <span class="badge badge-kedinasan_tpa"><?= ui_icon('graduation-cap', 13) ?> SEKOLAH KEDINASAN</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: #9c435f;">SPMB STAN, STIS, IPDN</span>
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-text); margin-bottom: 0.5rem;">
-                    SKD Kedinasan & TPA Akademik Terapan
+                    SKD Kedinasan &amp; TPA Akademik Terapan
                 </h3>
                 <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.65; margin-bottom: 1rem;">
                     Paket khusus seleksi calon praja dan taruna kedinasan: PKN STAN, Politeknik Statistika STIS, IPDN, Poltekip, Poltekim, dan STIN. Dilengkapi modul Matematika Terapan, Aljabar Fungsi, Geometri Ruang, dan Analisis Data.
@@ -147,7 +147,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">SKD + TPA Kedinasan</span>
-                <a href="tryout.php?track=kedinasan" class="btn btn-primary btn-sm">Ikuti Tryout Kedinasan ➔</a>
+                <a href="tryout.php?track=kedinasan" class="btn btn-primary btn-sm">Ikuti Tryout Kedinasan <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
             </div>
         </div>
 
@@ -155,11 +155,11 @@ require_once __DIR__ . '/includes/header.php';
         <div class="card card-navy-top" style="border-top-color: #5b52a8; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-psiko_logika">🧠 PSIKOTES KERJA & ASESMEN</span>
+                    <span class="badge badge-psiko_logika"><?= ui_icon('brain', 13) ?> PSIKOTES KERJA &amp; ASESMEN</span>
                     <span style="font-size: 0.78rem; font-weight: 700; color: #5b52a8;">Rekrutmen Korporat</span>
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-text); margin-bottom: 0.5rem;">
-                    Logika, Spasial Gambar & Situational Judgement
+                    Logika, Spasial Gambar &amp; Situational Judgement
                 </h3>
                 <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.65; margin-bottom: 1rem;">
                     Latihan psikotes komprehensif untuk seleksi kerja perbankan (BCA, Mandiri, BRI, BNI), multinasional, startup, dan instansi. Menguji logika deduktif, visualisasi spasial 3D, rotasi gambar, dan Situational Judgement Test (SJT).
@@ -167,7 +167,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">Logika + Spasial + SJT</span>
-                <a href="tryout.php?track=psikotes" class="btn btn-primary btn-sm">Ikuti Tryout Psikotes ➔</a>
+                <a href="tryout.php?track=psikotes" class="btn btn-primary btn-sm">Ikuti Tryout Psikotes <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
             </div>
         </div>
     </div>
@@ -177,33 +177,33 @@ require_once __DIR__ . '/includes/header.php';
 <section class="tp-home-strip">
     <div class="tp-home-head">
         <div>
-            <span class="tp-badge-emerald">✨ 100% GRATIS · TANPA LOGIN · LANGSUNG COBA</span>
+            <span class="tp-badge-emerald"><?= ui_icon('sparkles', 13) ?> 100% GRATIS · TANPA LOGIN · LANGSUNG COBA</span>
             <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
             <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
         </div>
-        <a href="tes-potensi.php" class="btn btn-primary btn-sm">Buka Semua Tes Gratis →</a>
+        <a href="tes-potensi.php" class="btn btn-primary btn-sm">Buka Semua Tes Gratis <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
     </div>
     <div class="tp-home-grid">
         <a href="tes-potensi.php?tes=buta-warna" class="tp-home-card">
-            <span class="tp-hc-ico">🎨</span>
+            <?= ui_icon_box('eye', 'rose', 20) ?>
             <strong>Tes Buta Warna</strong>
             <span>18 pelat pseudoisokromatik SVG orisinal dengan hasil &amp; review instan.</span>
             <em>Coba Gratis →</em>
         </a>
         <a href="tes-potensi.php?tes=iq" class="tp-home-card">
-            <span class="tp-hc-ico">🧠</span>
+            <?= ui_icon_box('brain', 'navy', 20) ?>
             <strong>Tes IQ Online (30 Soal)</strong>
             <span>Figural, Numerik, Verbal, Logis &amp; Spasial (25 menit) dengan pembahasan langsung.</span>
             <em>Coba Gratis →</em>
         </a>
         <a href="tes-potensi.php?tes=minat-karier" class="tp-home-card">
-            <span class="tp-hc-ico">🧭</span>
+            <?= ui_icon_box('compass', 'emerald', 20) ?>
             <strong>Minat Karier (RIASEC)</strong>
             <span>Temukan Top-3 Holland Code &amp; rekomendasi jalur karier/seleksi yang cocok.</span>
             <em>Coba Gratis →</em>
         </a>
         <a href="tes-potensi.php?tes=game-kognitif" class="tp-home-card">
-            <span class="tp-hc-ico">🎮</span>
+            <?= ui_icon_box('gamepad', 'plum', 20) ?>
             <strong>10 Game Kognitif</strong>
             <span>Kejar Angka, Memori Grid, Sprint Pola, Balon Risiko, Sinyal Berhenti &amp; lainnya.</span>
             <em>Main Gratis →</em>
@@ -245,7 +245,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="grid-3">
         <!-- Benefit 1 -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">🎯</div>
+            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('layers', 'navy', 20) ?></div>
             <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">4 Jalur Seleksi dalam 1 Akun</h3>
             <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
                 Hemat hingga jutaan rupiah! Anda tidak perlu membeli paket langganan terpisah untuk CPNS, BUMN, STAN, atau psikotes perbankan. Semuanya ada di dalam satu platform <b>siaptes.id</b>.
@@ -254,7 +254,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Benefit 2 -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">🖥️</div>
+            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('monitor', 'blue', 20) ?></div>
             <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Simulasi CAT 99% Presisi Ujian Asli</h3>
             <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
                 Navigasi nomor soal, penanda ragu-ragu kuning, timer hitung mundur akurat, serta fitur autosave instan ke cloud server. Membiasakan mental Anda agar tidak kaget di hari ujian resmi.
@@ -263,7 +263,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Benefit 3 -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">🎁</div>
+            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('gift', 'emerald', 20) ?></div>
             <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Tersedia Paket Percobaan Gratis (Trial)</h3>
             <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
                 Kami percaya pada kualitas sistem kami. Pengguna baru dapat langsung mengerjakan <b>Mini Tryout All-in-One</b> gratis tanpa syarat kartu kredit untuk merasakan pengalaman ujian CAT.
@@ -272,7 +272,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Benefit 4 -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">⚖️</div>
+            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('scale', 'plum', 20) ?></div>
             <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Evaluasi Passing Grade Real-Time</h3>
             <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
                 Formula kalkulasi skor resmi: pembobotan TKP (1–5), AKHLAK BUMN, dan penalti/poin standar. Begitu ujian selesai, sistem langsung menampilkan status kelulusan Anda.
@@ -281,8 +281,8 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Benefit 5 -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">💡</div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Kunci & Pembahasan Trik Cepat</h3>
+            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('lightbulb', 'gold', 20) ?></div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Kunci &amp; Pembahasan Trik Cepat</h3>
             <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
                 Bukan sekadar memberi tahu pilihan mana yang benar! Setiap butir soal dilengkapi analisis konsep, trik matematika cepat tanpa rumus berbelit-belit, dan dasar hukum regulasi.
             </p>
@@ -290,8 +290,8 @@ require_once __DIR__ . '/includes/header.php';
 
         <!-- Benefit 6 -->
         <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="font-size: 2.2rem; margin-bottom: 0.75rem;">📱</div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Fleksibel di Smartphone, Tablet & Laptop</h3>
+            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('smartphone', 'rose', 20) ?></div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Fleksibel di Smartphone, Tablet &amp; Laptop</h3>
             <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
                 Antarmuka modern berbasis web responsif berkecepatan tinggi yang dapat diakses kapan saja melalui smartphone di sela-sela aktivitas harian atau di laptop saat tryout intensif.
             </p>
@@ -322,14 +322,14 @@ require_once __DIR__ . '/includes/header.php';
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem; flex-wrap: wrap;">
                         <div>
                             <?php if ($isPkgPrem): ?>
-                                <span class="badge badge-gold" style="margin-bottom: 0.25rem;">⭐ PRO VIP</span>
+                                <span class="badge badge-gold" style="margin-bottom: 0.25rem;"><?= ui_icon('crown', 12) ?> PRO VIP</span>
                             <?php else: ?>
-                                <span class="badge badge-success" style="margin-bottom: 0.25rem;">🎁 TRIAL PERCOBAAN GRATIS</span>
+                                <span class="badge badge-success" style="margin-bottom: 0.25rem;"><?= ui_icon('gift', 12) ?> TRIAL PERCOBAAN GRATIS</span>
                             <?php endif; ?>
                             <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--core-navy);"><?= htmlspecialchars($pkg['title']) ?></h3>
                         </div>
                         <span class="badge badge-navy" style="font-size: 0.8rem; padding: 0.35rem 0.65rem; white-space: nowrap;">
-                            ⏱️ <?= $pkg['duration_minutes'] ?> Menit
+                            <?= ui_icon('clock', 13) ?> <?= $pkg['duration_minutes'] ?> Menit
                         </span>
                     </div>
                     <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1.25rem;">
@@ -345,11 +345,11 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
                     <span style="font-size: 0.85rem; font-weight: 600;">
-                        <?= $isPkgPrem ? '<span style="color:var(--core-gold-text);">🔒 Khusus Member PRO</span>' : '<span style="color:var(--core-success);">🟢 Bebas Akses (Trial)</span>' ?>
+                        <?= $isPkgPrem ? '<span class="ui-inline" style="color:var(--core-gold-text);">' . ui_icon('lock', 14) . ' Khusus Member PRO</span>' : '<span class="ui-inline" style="color:var(--core-success);">' . ui_icon('check-circle', 14) . ' Bebas Akses (Trial)</span>' ?>
                     </span>
                     <?php if ($canPlay): ?>
                         <a href="exam.php?action=start_package&package_id=<?= $pkg['id'] ?>" class="btn btn-primary btn-sm" onclick="return confirm('Mulai sesi tryout sekarang? Timer ujian akan langsung dihitung!');">
-                            Mulai Simulasi ➔
+                            Mulai Simulasi <?= ui_icon('arrow-right', 14, 'icon-arrow') ?>
                         </a>
                     <?php else: ?>
                         <a href="upgrade.php?package_id=<?= $pkg['id'] ?>" class="btn btn-gold btn-sm">
@@ -367,22 +367,22 @@ require_once __DIR__ . '/includes/header.php';
 <div style="margin-bottom: 3.5rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-            <span class="badge badge-navy" style="margin-bottom: 0.4rem;">📰 WAWASAN & STRATEGI PEJUANG SELEKSI</span>
-            <h2 style="font-size: 1.55rem; font-weight: 800; color: var(--core-navy); margin: 0;">Artikel, Kisi-Kisi & Tips Lulus Terbaru</h2>
+            <span class="badge badge-navy" style="margin-bottom: 0.4rem;"><?= ui_icon('file-text', 12) ?> WAWASAN &amp; STRATEGI PEJUANG SELEKSI</span>
+            <h2 style="font-size: 1.55rem; font-weight: 800; color: var(--core-navy); margin: 0;">Artikel, Kisi-Kisi &amp; Tips Lulus Terbaru</h2>
             <p style="color: var(--core-text-muted); font-size: 0.925rem; margin-top: 0.25rem;">Pelajari panduan strategi menjawab soal CAT dan informasi seleksi terbaru di siaptes.id.</p>
         </div>
-        <a href="artikel.php" class="btn btn-outline-navy btn-sm">Baca Semua Artikel & Tips →</a>
+        <a href="artikel.php" class="btn btn-outline-navy btn-sm">Baca Semua Artikel &amp; Tips <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
     </div>
 
     <div class="grid-3">
         <?php foreach ($latestArticles as $art): 
-            $cMeta = $articleCats[$art['category']] ?? ['icon' => '📄', 'badge_class' => 'badge-navy', 'color' => '#0b2d52'];
+            $cMeta = $articleCats[$art['category']] ?? ['badge_class' => 'badge-navy', 'color' => '#2d4f8e'];
         ?>
             <article class="card card-navy-top" style="border-top-color: <?= $cMeta['color'] ?>; display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.4rem;">
-                        <span class="badge <?= $cMeta['badge_class'] ?>"><?= $cMeta['icon'] ?> <?= htmlspecialchars($art['category']) ?></span>
-                        <span style="font-size: 0.76rem; color: var(--core-text-muted);">⏱️ <?= (int)$art['reading_time'] ?> mnt baca</span>
+                        <span class="badge <?= $cMeta['badge_class'] ?>"><?= htmlspecialchars($art['category']) ?></span>
+                        <span class="ui-inline" style="font-size: 0.76rem; color: var(--core-text-muted);"><?= ui_icon('clock', 12) ?> <?= (int)$art['reading_time'] ?> mnt baca</span>
                     </div>
                     <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--core-navy); line-height: 1.4; margin-bottom: 0.6rem;">
                         <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="color: inherit; text-decoration: none;">
@@ -394,9 +394,9 @@ require_once __DIR__ . '/includes/header.php';
                     </p>
                 </div>
                 <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span style="color: var(--core-text-muted);">🗓️ <?= formatTanggalIndo($art['created_at']) ?></span>
-                    <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="font-weight: 700; color: var(--core-navy); text-decoration: none;">
-                        Baca Selengkapnya ➔
+                    <span class="ui-inline" style="color: var(--core-text-muted);"><?= ui_icon('calendar', 12) ?> <?= formatTanggalIndo($art['created_at']) ?></span>
+                    <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" class="ui-inline" style="font-weight: 700; color: var(--core-navy); text-decoration: none;">
+                        Baca Selengkapnya <?= ui_icon('arrow-right', 13, 'icon-arrow') ?>
                     </a>
                 </div>
             </article>
@@ -408,7 +408,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- SECTION: CALL TO ACTION (CTA BANNER) -->
 <div class="hero cta-banner" style="margin-bottom: 2rem;">
     <div class="hero-pill" style="margin-bottom: 1rem;">
-        🌟 INVESTASI KARIER TERBAIK DI SIAPTES.ID
+        <?= ui_icon('sparkles', 13) ?> INVESTASI KARIER TERBAIK DI SIAPTES.ID
     </div>
     <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem;">Siap Mengamankan Posisi Impian Anda Tahun Ini?</h2>
     <p style="font-size: 1rem; max-width: 660px; margin: 0 auto 1.85rem; line-height: 1.7;">

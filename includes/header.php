@@ -3,6 +3,7 @@
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/visitor_tracker.php';
+require_once __DIR__ . '/icons.php';
 
 try {
     trackSiteVisit(getDB());
@@ -92,13 +93,13 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
             <li><a href="<?= $root_url ?>/latihan.php" class="<?= $currentScript === 'latihan.php' ? 'active' : '' ?>">Bank Soal</a></li>
             <li><a href="<?= $root_url ?>/tryout.php" class="<?= $currentScript === 'tryout.php' ? 'active' : '' ?>">Tryout CAT</a></li>
             <li><a href="<?= $root_url ?>/artikel.php" class="<?= in_array($currentScript, ['artikel.php', 'baca-artikel.php']) ? 'active' : '' ?>">Artikel</a></li>
-            <li><a href="<?= $root_url ?>/upgrade.php" class="nav-pro-link <?= $currentScript === 'upgrade.php' ? 'active' : '' ?>">⭐ PRO VIP</a></li>
+            <li><a href="<?= $root_url ?>/upgrade.php" class="nav-pro-link <?= $currentScript === 'upgrade.php' ? 'active' : '' ?>"><?= ui_icon('crown', 14) ?> PRO VIP</a></li>
             
             <?php if ($user): ?>
                 <li><a href="<?= $root_url ?>/riwayat.php" class="<?= $currentScript === 'riwayat.php' ? 'active' : '' ?>">Riwayat</a></li>
                 <?php if ($user['role'] === 'admin'): ?>
                     <li><a href="<?= $root_url ?>/admin/index.php" class="nav-admin-link <?= ($base_url === '/admin' && $currentScript !== 'statistik.php') ? 'active' : '' ?>">Admin</a></li>
-                    <li><a href="<?= $root_url ?>/admin/statistik.php" class="nav-stats-link <?= ($base_url === '/admin' && $currentScript === 'statistik.php') ? 'active' : '' ?>">📊 Statistik</a></li>
+                    <li><a href="<?= $root_url ?>/admin/statistik.php" class="nav-stats-link <?= ($base_url === '/admin' && $currentScript === 'statistik.php') ? 'active' : '' ?>"><?= ui_icon('bar-chart', 14) ?> Statistik</a></li>
                 <?php endif; ?>
                 <li class="nav-user-item">
                     <div class="user-badge-nav">

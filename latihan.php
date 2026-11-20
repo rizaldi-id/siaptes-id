@@ -40,16 +40,16 @@ require_once __DIR__ . '/includes/header.php';
             Semua Modul (10 Kategori)
         </a>
         <a href="latihan.php?group=cpns" class="btn btn-sm <?= $selectedGroup === 'cpns' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🏛️ CPNS / ASN (TWK, TIU, TKP)
+            <?= ui_icon('landmark', 14) ?> CPNS / ASN (TWK, TIU, TKP)
         </a>
         <a href="latihan.php?group=bumn" class="btn btn-sm <?= $selectedGroup === 'bumn' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🏢 BUMN (TKD, AKHLAK, English)
+            <?= ui_icon('building', 14) ?> BUMN (TKD, AKHLAK, English)
         </a>
         <a href="latihan.php?group=kedinasan" class="btn btn-sm <?= $selectedGroup === 'kedinasan' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🎓 Kedinasan (TPA &amp; Aljabar)
+            <?= ui_icon('graduation-cap', 14) ?> Kedinasan (TPA &amp; Aljabar)
         </a>
         <a href="latihan.php?group=psikotes" class="btn btn-sm <?= $selectedGroup === 'psikotes' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🧠 Psikotes (Logika, Spasial, SJT)
+            <?= ui_icon('brain', 14) ?> Psikotes (Logika, Spasial, SJT)
         </a>
     </div>
 </div>
@@ -85,7 +85,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">
-                        Mulai Latihan <?= $cat['code'] ?> ➔
+                        Mulai Latihan <?= $cat['code'] ?> <?= ui_icon('arrow-right', 14, 'icon-arrow') ?>
                     </button>
                 </form>
             </div>
@@ -94,7 +94,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <div class="card card-navy-top" style="margin-top: 2.5rem;">
-    <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">💡 Tips Sukses Latihan Mandiri di SIAP TES:</h3>
+    <h3 class="ui-inline" style="font-size: 1.15rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;"><?= ui_icon('lightbulb', 18) ?> Tips Sukses Latihan Mandiri di SIAP TES:</h3>
     <ul style="padding-left: 1.25rem; font-size: 0.9rem; color: var(--core-text-muted); line-height: 1.8;">
         <li><b>CPNS & Kedinasan:</b> Asah kecepatan berhitung dan penalaran analitis di bagian <b>TIU</b>, serta biasakan memilih opsi berintegritas tinggi dengan poin 5 pada soal <b>TKP</b>.</li>
         <li><b>BUMN:</b> Pelajari implementasi nilai <b>AKHLAK</b> pada studi kasus riil korporat dan biasakan membaca cepat kalimat bisnis pada tes <b>Bahasa Inggris</b>.</li>

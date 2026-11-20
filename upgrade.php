@@ -83,7 +83,7 @@ require_once __DIR__ . '/includes/header.php';
     <div style="text-align: center; margin-bottom: 2.25rem;">
         <div style="display: inline-flex; align-items: center; gap: 6px; margin-bottom: 0.5rem;">
             <span class="badge badge-gold" style="font-size: 0.8rem; padding: 0.35rem 0.85rem;">
-                ⭐ ALL-ACCESS PASS SEUMUR HIDUP &bull; SIAPTES.ID
+                <?= ui_icon('crown', 14) ?> ALL-ACCESS PASS SEUMUR HIDUP &bull; SIAPTES.ID
             </span>
         </div>
         <h1 style="font-size: 2.15rem; font-weight: 800; color: var(--core-navy); margin-top: 0.25rem; margin-bottom: 0.5rem;">
@@ -98,7 +98,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php if ($pendingTx && !$isUserPremium): ?>
         <div class="gov-notice" style="border-left-color: var(--core-gold); background: #fffbeb; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
-                <div class="gov-notice-icon" style="background: #fef3c7; color: #b45309;">💳</div>
+                <div class="gov-notice-icon" style="background: #fef3c7; color: #b45309;"><?= ui_icon('credit-card', 18) ?></div>
                 <div class="gov-notice-content">
                     <h4 style="color: #92400e;">Tagihan Anda Menunggu Pembayaran</h4>
                     <p style="color: #78350f; margin: 0;">
@@ -108,10 +108,10 @@ require_once __DIR__ . '/includes/header.php';
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                 <a href="payment_checkout.php?invoice=<?= urlencode($pendingTx['invoice_number']) ?>&amp;autopay=1" class="btn btn-gold btn-sm">
-                    💳 Lanjutkan Pembayaran ➔
+                    <?= ui_icon('credit-card', 14) ?> Lanjutkan Pembayaran <?= ui_icon('arrow-right', 14, 'icon-arrow') ?>
                 </a>
                 <a href="payment_checkout.php?invoice=<?= urlencode($pendingTx['invoice_number']) ?>&amp;new_link=1" class="btn btn-secondary btn-sm">
-                    🔄 Buat Link Baru
+                    <?= ui_icon('refresh', 14) ?> Buat Link Baru
                 </a>
             </div>
         </div>
@@ -120,7 +120,7 @@ require_once __DIR__ . '/includes/header.php';
     <!-- Jika sudah menjadi Member PRO VIP -->
     <?php if ($isUserPremium): ?>
         <div class="card card-gold-top" style="text-align: center; padding: 2.25rem; margin-bottom: 2.5rem;">
-            <span style="font-size: 2.75rem;">👑</span>
+            <div style="margin-bottom: 0.65rem;"><?= ui_icon_box('crown', 'gold', 24) ?></div>
             <h3 style="color: var(--core-navy); font-size: 1.4rem; font-weight: 800; margin-top: 0.5rem; margin-bottom: 0.35rem;">
                 Status Akun Anda: Member PRO VIP All-Access Aktif
             </h3>
@@ -128,8 +128,8 @@ require_once __DIR__ . '/includes/header.php';
                 Anda telah memiliki hak akses penuh tanpa batas ke seluruh paket tryout CPNS, BUMN, Kedinasan, Psikotes, kunci jawaban, dan pembahasan materi di <b>siaptes.id</b>.
             </p>
             <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
-                <a href="tryout.php" class="btn btn-primary">🚀 Mulai Simulasi Tryout PRO ➔</a>
-                <a href="latihan.php" class="btn btn-secondary">📚 Buka Bank Soal Lengkap</a>
+                <a href="tryout.php" class="btn btn-primary"><?= ui_icon('play', 15) ?> Mulai Simulasi Tryout PRO <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
+                <a href="latihan.php" class="btn btn-secondary"><?= ui_icon('book-open', 15) ?> Buka Bank Soal Lengkap</a>
             </div>
         </div>
     <?php endif; ?>
@@ -152,8 +152,8 @@ require_once __DIR__ . '/includes/header.php';
                 </p>
 
                 <?php if ($selectedPackage): ?>
-                    <div style="background: #eef6fc; border-left: 4px solid var(--core-blue); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; color: var(--core-navy);">
-                        📦 Membuka paket: <b><?= htmlspecialchars($selectedPackage['title']) ?></b> + <b>Seluruh Konten PRO Lainnya!</b>
+                    <div class="ui-inline" style="background: #eef6fc; border-left: 4px solid var(--core-blue); padding: 0.75rem 1rem; border-radius: var(--radius-sm); margin-bottom: 1rem; font-size: 0.84rem; color: var(--core-navy);">
+                        <?= ui_icon('layers', 15) ?> <span>Membuka paket: <b><?= htmlspecialchars($selectedPackage['title']) ?></b> + <b>Seluruh Konten PRO Lainnya!</b></span>
                     </div>
                 <?php endif; ?>
 
@@ -163,24 +163,24 @@ require_once __DIR__ . '/includes/header.php';
                         <span style="font-size: 2.45rem; font-weight: 900; color: var(--core-navy);">Rp <?= number_format(PRO_VIP_BASE_PRICE, 0, ',', '.') ?></span>
                         <span style="font-size: 0.85rem; color: var(--core-text-muted);">/ sekali bayar (Seumur Hidup)</span>
                     </div>
-                    <span style="font-size: 0.8rem; color: var(--core-success); font-weight: 700;">⚡ Aktivasi Otomatis &bull; Mendukung Virtual Account Bank, E-Wallet, QRIS &amp; Retail</span>
+                    <span class="ui-inline" style="font-size: 0.8rem; color: var(--core-success); font-weight: 700; margin-top: 0.25rem;"><?= ui_icon('zap', 14) ?> Aktivasi Otomatis &bull; Mendukung Virtual Account Bank, E-Wallet, QRIS &amp; Retail</span>
                 </div>
 
-                <div style="font-size: 0.88rem; color: var(--core-text); line-height: 1.95;">
-                    <div>✅ <b>CPNS / ASN:</b> Tryout CPNS 110 Butir Acak Berstandar CAT BKN</div>
-                    <div>✅ <b>BUMN:</b> Simulasi TKD, Core Values AKHLAK & Bahasa Inggris</div>
-                    <div>✅ <b>Kedinasan:</b> Modul Khusus PKN STAN, STIS, IPDN & Poltekip</div>
-                    <div>✅ <b>Psikotes Kerja:</b> Latihan Penalaran Logika, Spasial & SJT</div>
-                    <div>✅ <b>Bank Soal Intensif:</b> Buka kuota latihan 10, 20, 30 hingga 50 soal sekaligus</div>
-                    <div>✅ <b>Pembahasan Lengkap:</b> Kunci Jawaban + Trik Cepat Menjawab</div>
+                <div style="font-size: 0.88rem; color: var(--core-text); display: flex; flex-direction: column; gap: 0.55rem;">
+                    <div class="ui-inline" style="align-items: flex-start;"><span style="color: var(--core-success); margin-top: 2px;"><?= ui_icon('check-circle', 16) ?></span><span><b>CPNS / ASN:</b> Tryout CPNS 110 Soal Acak Berstandar CAT BKN</span></div>
+                    <div class="ui-inline" style="align-items: flex-start;"><span style="color: var(--core-success); margin-top: 2px;"><?= ui_icon('check-circle', 16) ?></span><span><b>BUMN:</b> Simulasi TKD, Core Values AKHLAK &amp; Bahasa Inggris</span></div>
+                    <div class="ui-inline" style="align-items: flex-start;"><span style="color: var(--core-success); margin-top: 2px;"><?= ui_icon('check-circle', 16) ?></span><span><b>Kedinasan:</b> Modul Khusus PKN STAN, STIS, IPDN &amp; Poltekip</span></div>
+                    <div class="ui-inline" style="align-items: flex-start;"><span style="color: var(--core-success); margin-top: 2px;"><?= ui_icon('check-circle', 16) ?></span><span><b>Psikotes Kerja:</b> Latihan Penalaran Logika, Spasial &amp; SJT</span></div>
+                    <div class="ui-inline" style="align-items: flex-start;"><span style="color: var(--core-success); margin-top: 2px;"><?= ui_icon('check-circle', 16) ?></span><span><b>Bank Soal Intensif:</b> Buka kuota latihan 10, 20, 30 hingga 50 soal sekaligus</span></div>
+                    <div class="ui-inline" style="align-items: flex-start;"><span style="color: var(--core-success); margin-top: 2px;"><?= ui_icon('check-circle', 16) ?></span><span><b>Pembahasan Lengkap:</b> Kunci Jawaban + Trik Cepat Menjawab</span></div>
                 </div>
             </div>
 
             <!-- Kolom Kanan: Checkout Instan DOKU Rp 29.000 -->
             <div class="card card-navy-top">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--core-navy); margin: 0;">
-                        💳 Pembayaran Aman via DOKU
+                    <h3 class="ui-inline" style="font-size: 1.2rem; font-weight: 800; color: var(--core-navy); margin: 0;">
+                        <?= ui_icon('credit-card', 18) ?> Pembayaran Aman via DOKU
                     </h3>
                     <span class="badge badge-success">OTOMATIS AKTIF</span>
                 </div>
@@ -230,7 +230,7 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <button type="submit" class="btn btn-gold" style="width: 100%; font-size: 1.04rem; padding: 1rem; justify-content: center; box-shadow: 0 4px 14px rgba(250, 176, 5, 0.35);">
-                        ⚡ Bayar Sekarang via DOKU (Rp 29.000) ➔
+                        <?= ui_icon('zap', 16) ?> Bayar Sekarang via DOKU (Rp 29.000) <?= ui_icon('arrow-right', 16, 'icon-arrow') ?>
                     </button>
                     <p style="font-size: 0.76rem; color: var(--core-text-muted); text-align: center; margin: 0.65rem 0 0;">
                         Jendela pembayaran DOKU langsung terbuka otomatis &bull; Akun PRO VIP aktif detik itu juga setelah bayar.

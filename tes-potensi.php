@@ -43,7 +43,7 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Hero Header: Tes Kemampuan & Potensi (100% Gratis Tanpa Login) -->
 <section class="tp-hero">
     <div class="tp-hero-pill">
-        ✨ 100% GRATIS &bull; TANPA LOGIN &bull; HASIL INSTAN
+        <?= ui_icon('sparkles', 14) ?> 100% GRATIS &bull; TANPA LOGIN &bull; HASIL INSTAN
     </div>
     <h1>Tes Kemampuan &amp; Potensi</h1>
     <p>
@@ -51,29 +51,29 @@ require_once __DIR__ . '/includes/header.php';
         Dirancang interaktif, nyaman di mata, dan langsung bisa dicoba siapa saja tanpa perlu mendaftar.
     </p>
     <div class="tp-hero-stats">
-        <span>🎨 18 Pelat Buta Warna</span>
-        <span>🧠 30 Soal Tes IQ</span>
-        <span>🧭 RIASEC 18 / 72 Item</span>
-        <span>🎮 10 Game Kognitif</span>
+        <span class="ui-inline"><?= ui_icon('eye', 14) ?> 18 Pelat Buta Warna</span>
+        <span class="ui-inline"><?= ui_icon('brain', 14) ?> 30 Soal Tes IQ</span>
+        <span class="ui-inline"><?= ui_icon('compass', 14) ?> RIASEC 18 / 72 Item</span>
+        <span class="ui-inline"><?= ui_icon('gamepad', 14) ?> 10 Game Kognitif</span>
     </div>
 </section>
 
 <!-- Navigasi Tab Modul -->
 <nav class="tp-tabs-wrap" aria-label="Pilih Modul Tes Kemampuan dan Potensi" role="tablist">
     <button type="button" role="tab" class="tp-tab-btn <?= $initialTab === 'hub' ? 'active' : '' ?>" data-tab="hub" aria-selected="<?= $initialTab === 'hub' ? 'true' : 'false' ?>" onclick="TP.openTab('hub', true)">
-        <span>🏠</span> Ringkasan
+        <?= ui_icon('home', 16) ?> Ringkasan
     </button>
     <button type="button" role="tab" class="tp-tab-btn <?= $initialTab === 'buta-warna' ? 'active' : '' ?>" data-tab="buta-warna" aria-selected="<?= $initialTab === 'buta-warna' ? 'true' : 'false' ?>" onclick="TP.openTab('buta-warna', true)">
-        <span>🎨</span> Tes Buta Warna
+        <?= ui_icon('eye', 16) ?> Tes Buta Warna
     </button>
     <button type="button" role="tab" class="tp-tab-btn <?= $initialTab === 'iq' ? 'active' : '' ?>" data-tab="iq" aria-selected="<?= $initialTab === 'iq' ? 'true' : 'false' ?>" onclick="TP.openTab('iq', true)">
-        <span>🧠</span> Tes IQ Gratis
+        <?= ui_icon('brain', 16) ?> Tes IQ Gratis
     </button>
     <button type="button" role="tab" class="tp-tab-btn <?= $initialTab === 'minat-karier' ? 'active' : '' ?>" data-tab="minat-karier" aria-selected="<?= $initialTab === 'minat-karier' ? 'true' : 'false' ?>" onclick="TP.openTab('minat-karier', true)">
-        <span>🧭</span> Minat Karier
+        <?= ui_icon('compass', 16) ?> Minat Karier
     </button>
     <button type="button" role="tab" class="tp-tab-btn <?= $initialTab === 'game-kognitif' ? 'active' : '' ?>" data-tab="game-kognitif" aria-selected="<?= $initialTab === 'game-kognitif' ? 'true' : 'false' ?>" onclick="TP.openTab('game-kognitif', true)">
-        <span>🎮</span> Game Kognitif
+        <?= ui_icon('gamepad', 16) ?> Game Kognitif
     </button>
 </nav>
 
@@ -96,10 +96,10 @@ require_once __DIR__ . '/includes/header.php';
         </p>
     </div>
     <div class="tp-explore-actions">
-        <a href="tryout.php" class="btn btn-primary">🚀 Coba Simulasi Tryout CAT</a>
-        <a href="latihan.php" class="btn btn-outline">📚 Jelajahi Bank Soal</a>
+        <a href="tryout.php" class="btn btn-primary"><?= ui_icon('play', 15) ?> Coba Simulasi Tryout CAT</a>
+        <a href="latihan.php" class="btn btn-outline"><?= ui_icon('book-open', 15) ?> Jelajahi Bank Soal</a>
         <?php if (!$loggedUser): ?>
-            <a href="register.php" class="btn btn-gold">✨ Buat Akun Gratis</a>
+            <a href="register.php" class="btn btn-gold"><?= ui_icon('sparkles', 15) ?> Buat Akun Gratis</a>
         <?php endif; ?>
     </div>
 </section>

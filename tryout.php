@@ -59,26 +59,26 @@ $isUserPremium = isPremiumUser();
             Semua Tryout
         </a>
         <a href="tryout.php?track=cpns" class="btn btn-sm <?= $selectedTrack === 'cpns' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🏛️ CPNS &amp; PPPK
+            <?= ui_icon('landmark', 14) ?> CPNS &amp; PPPK
         </a>
         <a href="tryout.php?track=bumn" class="btn btn-sm <?= $selectedTrack === 'bumn' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🏢 BUMN (RBB FHCI)
+            <?= ui_icon('building', 14) ?> BUMN (RBB FHCI)
         </a>
         <a href="tryout.php?track=kedinasan" class="btn btn-sm <?= $selectedTrack === 'kedinasan' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🎓 Sekolah Kedinasan
+            <?= ui_icon('graduation-cap', 14) ?> Sekolah Kedinasan
         </a>
         <a href="tryout.php?track=psikotes" class="btn btn-sm <?= $selectedTrack === 'psikotes' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🧠 Psikotes Kerja
+            <?= ui_icon('brain', 14) ?> Psikotes Kerja
         </a>
         <a href="tryout.php?track=trial" class="btn btn-sm <?= $selectedTrack === 'trial' ? 'btn-gold' : 'btn-outline' ?>" style="border-radius: 999px;">
-            🎁 Free Trial Gratis
+            <?= ui_icon('gift', 14) ?> Free Trial Gratis
         </a>
     </div>
 </div>
 
 <?php if (!$isUserPremium): ?>
     <div class="gov-notice" style="border-left-color: var(--core-gold); margin-bottom: 2rem;">
-        <div class="gov-notice-icon">⭐</div>
+        <div class="gov-notice-icon"><?= ui_icon('crown', 18) ?></div>
         <div class="gov-notice-content" style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <h4>Status Akun Anda: Pengguna Baru (Free Trial)</h4>
@@ -87,7 +87,7 @@ $isUserPremium = isPremiumUser();
                 </p>
             </div>
             <a href="upgrade.php" class="btn btn-gold btn-sm" style="white-space: nowrap;">
-                ⭐ Upgrade ke PRO VIP
+                <?= ui_icon('crown', 14) ?> Upgrade ke PRO VIP
             </a>
         </div>
     </div>
@@ -106,16 +106,16 @@ $isUserPremium = isPremiumUser();
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
                             <?php if ($isPkgPremium): ?>
-                                <span class="badge badge-gold">⭐ AKSES PRO VIP</span>
+                                <span class="badge badge-gold"><?= ui_icon('crown', 12) ?> AKSES PRO VIP</span>
                             <?php else: ?>
-                                <span class="badge badge-success">🎁 TRIAL PERCOBAAN GRATIS</span>
+                                <span class="badge badge-success"><?= ui_icon('gift', 12) ?> TRIAL PERCOBAAN GRATIS</span>
                             <?php endif; ?>
-                            <span class="badge badge-navy" style="font-size: 0.68rem;">🔀 Soal Diacak Setiap Sesi</span>
+                            <span class="badge badge-navy" style="font-size: 0.68rem;"><?= ui_icon('shuffle', 12) ?> Soal Diacak Setiap Sesi</span>
                         </div>
                         <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy);"><?= htmlspecialchars($pkg['title']) ?></h2>
                     </div>
                     <span class="badge badge-navy" style="font-size: 0.825rem; padding: 0.35rem 0.75rem; white-space: nowrap;">
-                        ⏱️ <?= $pkg['duration_minutes'] ?> Menit
+                        <?= ui_icon('clock', 13) ?> <?= $pkg['duration_minutes'] ?> Menit
                     </span>
                 </div>
                 <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1.25rem;">
@@ -139,8 +139,8 @@ $isUserPremium = isPremiumUser();
                             <span>Soal Terstandarisasi Multi-Materi</span>
                         <?php endif; ?>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--core-text-muted); font-weight: 600;">
-                        📏 <?= htmlspecialchars($pkgMeta['passing_label']) ?>
+                    <div class="ui-inline" style="font-size: 0.75rem; color: var(--core-text-muted); font-weight: 600;">
+                        <?= ui_icon('target', 13) ?> <span><?= htmlspecialchars($pkgMeta['passing_label']) ?></span>
                     </div>
                 </div>
             </div>
@@ -148,19 +148,19 @@ $isUserPremium = isPremiumUser();
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1.25rem;">
                 <span style="font-size: 0.85rem; font-weight: 600;">
                     <?php if ($isPkgPremium): ?>
-                        <span style="color: var(--core-gold-text);">🔒 Khusus Member PRO</span>
+                        <span class="ui-inline" style="color: var(--core-gold-text);"><?= ui_icon('lock', 14) ?> Khusus Member PRO</span>
                     <?php else: ?>
-                        <span style="color: var(--core-success);">🟢 Terbuka Bebas (Trial)</span>
+                        <span class="ui-inline" style="color: var(--core-success);"><?= ui_icon('check-circle', 14) ?> Terbuka Bebas (Trial)</span>
                     <?php endif; ?>
                 </span>
 
                 <?php if ($canAccess): ?>
                     <a href="exam.php?action=start_package&package_id=<?= $pkg['id'] ?>" class="btn btn-primary" onclick="return confirm('Mulai sesi simulasi CAT sekarang? Timer ujian akan langsung dihitung!');">
-                        Masuk Ujian CAT ➔
+                        Masuk Ujian CAT <?= ui_icon('arrow-right', 15, 'icon-arrow') ?>
                     </a>
                 <?php else: ?>
                     <a href="upgrade.php?package_id=<?= $pkg['id'] ?>" class="btn btn-gold">
-                        🔒 Buka Akses PRO (Rp 29.000 via DOKU)
+                        <?= ui_icon('lock', 14) ?> Buka Akses PRO (Rp 29.000 via DOKU)
                     </a>
                 <?php endif; ?>
             </div>
@@ -170,7 +170,7 @@ $isUserPremium = isPremiumUser();
 
 <div class="card card-navy-top" style="margin-top: 2.5rem;">
     <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
-        <span>📋</span> Petunjuk Teknis Pelaksanaan Ujian CAT di SIAP TES:
+        <?= ui_icon('clipboard', 18) ?> Petunjuk Teknis Pelaksanaan Ujian CAT di SIAP TES:
     </h3>
     <ol style="padding-left: 1.25rem; font-size: 0.875rem; color: var(--core-text-muted); line-height: 1.8;">
         <li>Pastikan koneksi internet Anda stabil sebelum menekan tombol <b>Masuk Ujian CAT</b>.</li>
