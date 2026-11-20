@@ -49,17 +49,17 @@ $page_title = $selectedCategory ? "Artikel & Tips $selectedCategory" : "Artikel,
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Hero Header Artikel & Informasi Seleksi -->
-<div style="background: linear-gradient(135deg, var(--core-navy-dark) 0%, var(--core-navy) 65%, #114275 100%); color: #ffffff; border-radius: var(--radius-lg); padding: 2.75rem 2rem; margin-bottom: 2rem; border-bottom: 4px solid var(--core-gold); box-shadow: var(--shadow-lg); position: relative; overflow: hidden;">
-    <div style="max-width: 820px; margin: 0 auto; text-align: center;">
+<!-- Hero Header Artikel & Informasi Seleksi (Calm Modern Search Hub) -->
+<div class="hero" style="padding: 2.5rem 2rem; margin-bottom: 1.85rem;">
+    <div style="max-width: 780px; margin: 0 auto; text-align: center;">
         <div class="hero-pill" style="margin-bottom: 0.85rem;">
-            📰 PUSAT INFORMASI, KISI-KISI & STRATEGI LULUS SELEKSI &bull; <b>SIAPTES.ID</b>
+            📰 PUSAT INFORMASI, KISI-KISI &amp; STRATEGI LULUS SELEKSI &bull; <b>SIAPTES.ID</b>
         </div>
-        <h1 style="font-size: 2.1rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.75rem;">
-            Artikel & Panduan Pejuang <span style="color: var(--core-gold);">CPNS, BUMN, Kedinasan & Karier</span>
+        <h1 style="font-size: 2rem; font-weight: 800; line-height: 1.28; margin-bottom: 0.7rem;">
+            Artikel &amp; Panduan Pejuang <span>CPNS, BUMN, Kedinasan &amp; Karier</span>
         </h1>
-        <p style="color: #d1e2f2; font-size: 0.98rem; line-height: 1.65; margin-bottom: 1.5rem;">
-            Temukan bedah kisi-kisi terbaru, trik cepat menjawab soal CAT tanpa rumus rumit, informasi pendaftaran instansi, hingga strategi menembus passing grade tertinggi.
+        <p style="font-size: 0.96rem; line-height: 1.68; margin-bottom: 1.45rem;">
+            Temukan bedah kisi-kisi terbaru, trik cepat menjawab soal CAT tanpa rumus rumit, informasi pendaftaran instansi, hingga strategi menembus passing grade.
         </p>
 
         <!-- Search Form -->
@@ -67,13 +67,13 @@ require_once __DIR__ . '/includes/header.php';
             <?php if ($selectedCategory !== ''): ?>
                 <input type="hidden" name="kategori" value="<?= htmlspecialchars($selectedCategory) ?>">
             <?php endif; ?>
-            <input type="text" name="q" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Cari topik artikel... (misal: Passing Grade CPNS, AKHLAK BUMN, PKN STAN, TKP)" 
-                   style="flex: 1; min-width: 240px; padding: 0.8rem 1.15rem; border-radius: var(--radius-sm); border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.96); color: var(--core-text); font-size: 0.92rem; font-family: inherit;">
-            <button type="submit" class="btn btn-gold" style="padding: 0.8rem 1.5rem;">
+            <input type="text" name="q" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Cari topik artikel... (misal: Passing Grade CPNS, AKHLAK BUMN, PKN STAN)" 
+                   class="form-control" style="flex: 1; min-width: 240px; padding: 0.78rem 1.1rem; border-radius: 11px;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.78rem 1.4rem;">
                 🔍 Cari Artikel
             </button>
             <?php if ($searchQuery !== '' || $selectedCategory !== ''): ?>
-                <a href="artikel.php" class="btn btn-outline" style="padding: 0.8rem 1rem;">Reset</a>
+                <a href="artikel.php" class="btn btn-outline" style="padding: 0.78rem 1rem;">Reset</a>
             <?php endif; ?>
         </form>
     </div>
@@ -119,7 +119,7 @@ require_once __DIR__ . '/includes/header.php';
     ?>
         <div class="card card-gold-top" style="margin-bottom: 2.5rem; padding: 0; overflow: hidden; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));">
             <!-- Visual Banner Left -->
-            <div style="background: linear-gradient(135deg, <?= $fCat['color'] ?> 0%, #071d36 100%); color: #fff; padding: 2.5rem 2rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 260px;">
+            <div style="background: linear-gradient(135deg, <?= $fCat['color'] ?> 0%, #243652 100%); color: #fff; padding: 2.5rem 2rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 260px;">
                 <?php if (!empty($featuredArticle['cover_image'])): ?>
                     <img src="<?= htmlspecialchars($featuredArticle['cover_image']) ?>" alt="<?= htmlspecialchars($featuredArticle['title']) ?>" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35;">
                 <?php endif; ?>
@@ -188,7 +188,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div>
                         <!-- Card Cover / Visual Header -->
                         <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="display: block; text-decoration: none;">
-                            <div style="height: 145px; background: linear-gradient(135deg, <?= $catMeta['color'] ?> 0%, #0f172a 100%); position: relative; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; color: #fff;">
+                            <div style="height: 145px; background: linear-gradient(135deg, <?= $catMeta['color'] ?> 0%, #26364d 100%); position: relative; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; color: #fff;">
                                 <?php if (!empty($art['cover_image'])): ?>
                                     <img src="<?= htmlspecialchars($art['cover_image']) ?>" alt="<?= htmlspecialchars($art['title']) ?>" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
                                 <?php endif; ?>

@@ -248,23 +248,50 @@ $page_title = "Ujian CAT: " . ($attempt['package_title'] ?? 'Latihan Soal');
 require_once __DIR__ . '/includes/header.php';
 ?>
 
+<?php
+$initialAnsweredCount = 0;
+$initialDoubtCount = 0;
+foreach ($questions as $qInit) {
+    if (!empty($qInit['selected_option'])) $initialAnsweredCount++;
+    if (!empty($qInit['is_doubt'])) $initialDoubtCount++;
+}
+$initialProgressPct = $total_q > 0 ? round(($initialAnsweredCount / $total_q) * 100) : 0;
+?>
+
 <div class="exam-header">
-    <div>
-        <div style="font-size: 0.75rem; font-weight: 800; color: var(--core-gold); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px;">
-            LEMBAR UJIAN RESMI COMPUTER ASSISTED TEST (CAT)
+    <div style="flex: 1 1 320px; min-width: 0;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.3rem;">
+            <span class="badge badge-navy">SIMULASI CAT</span>
+            <span style="font-size: 0.8rem; color: var(--core-text-muted); font-weight: 600;">
+                Mode <?= strtoupper($attempt['mode']) ?> &bull; <?= $total_q ?> Soal
+            </span>
         </div>
-        <h1 style="font-size: 1.35rem; font-weight: 800; color: #ffffff;">
+        <h1 style="font-size: 1.28rem; font-weight: 800; color: var(--core-text); margin: 0;">
             <?= htmlspecialchars($attempt['package_title'] ?? 'Latihan Soal ' . $attempt['mode']) ?>
         </h1>
-        <span style="font-size: 0.825rem; color: #b9d3eb;">
-            Mode Ujian: <b><?= strtoupper($attempt['mode']) ?></b> &bull; Alokasi: <?= $total_q ?> Butir Soal
-        </span>
+        <div class="exam-progress-track" title="Progres Pengerjaan">
+            <div class="exam-progress-fill" id="exam-progress-fill" style="width: <?= $initialProgressPct ?>%;"></div>
+        </div>
+        <div style="font-size: 0.76rem; color: var(--core-text-muted); margin-top: 0.3rem;">
+            Progres: <b id="exam-progress-label" style="color: var(--core-navy);"><?= $initialAnsweredCount ?> / <?= $total_q ?></b> terjawab
+        </div>
     </div>
 
-    <!-- Timer Box -->
-    <div class="timer-box">
-        <span>⏱️</span>
-        <span id="exam-timer">--:--:--</span>
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+        <!-- Kontrol Kenyamanan Mata & Ukuran Teks -->
+        <div class="comfort-toolbar" aria-label="Pengaturan Kenyamanan Baca">
+            <span style="padding-left: 4px; font-weight: 600;">Teks:</span>
+            <button type="button" class="comfort-btn" onclick="adjustExamFont(-0.08)" title="Perkecil Teks">A-</button>
+            <button type="button" class="comfort-btn" onclick="resetExamFont()" title="Ukuran Normal">A</button>
+            <button type="button" class="comfort-btn" onclick="adjustExamFont(0.08)" title="Perbesar Teks">A+</button>
+            <button type="button" class="comfort-btn" id="warmModeBtn" onclick="toggleWarmReadingMode()" title="Mode Kertas Hangat (Nyaman di Mata)">📖 Hangat</button>
+        </div>
+
+        <!-- Timer Box -->
+        <div class="timer-box" id="timer-box">
+            <span>⏱️</span>
+            <span id="exam-timer">--:--:--</span>
+        </div>
     </div>
 </div>
 
@@ -349,11 +376,11 @@ require_once __DIR__ . '/includes/header.php';
                 <span id="save-status" style="font-size: 0.75rem; color: var(--success); font-weight: 600;">Semua tersimpan</span>
             </div>
 
-            <!-- Petunjuk Warna -->
-            <div style="display: flex; gap: 0.5rem; font-size: 0.75rem; margin-bottom: 0.75rem; flex-wrap: wrap;">
-                <span style="display:flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:var(--primary); border-radius:2px;"></span> Dijawab</span>
-                <span style="display:flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; background:var(--warning); border-radius:2px;"></span> Ragu</span>
-                <span style="display:flex; align-items:center; gap:4px;"><span style="width:12px; height:12px; border:1px solid var(--gray-300); background:#fff; border-radius:2px;"></span> Kosong</span>
+            <!-- Petunjuk Warna & Ringkasan Live -->
+            <div style="display: flex; gap: 0.65rem; font-size: 0.76rem; margin-bottom: 0.75rem; flex-wrap: wrap; color: var(--core-text-muted);">
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:11px; height:11px; background:var(--core-success); border-radius:3px;"></span> Dijawab (<b id="cnt-answered" style="color:var(--core-text);"><?= $initialAnsweredCount ?></b>)</span>
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:11px; height:11px; background:#f4c059; border-radius:3px;"></span> Ragu (<b id="cnt-doubt" style="color:var(--core-text);"><?= $initialDoubtCount ?></b>)</span>
+                <span style="display:flex; align-items:center; gap:5px;"><span style="width:11px; height:11px; border:1px solid var(--gray-300); background:#fff; border-radius:3px;"></span> Kosong (<b id="cnt-empty" style="color:var(--core-text);"><?= max(0, $total_q - $initialAnsweredCount) ?></b>)</span>
             </div>
 
             <div class="nav-grid">
@@ -400,6 +427,56 @@ function showQuestion(index) {
     document.getElementById('nav-btn-' + currentQuestionIndex).classList.add('active');
 }
 
+// Update Progress Bar & Live Counters
+function refreshExamCounters() {
+    const answeredCount = document.querySelectorAll('.q-number-btn.answered').length;
+    const doubtCount = document.querySelectorAll('.q-number-btn.doubt').length;
+    const emptyCount = Math.max(0, totalQuestions - answeredCount);
+    const pct = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+
+    const fill = document.getElementById('exam-progress-fill');
+    const lbl = document.getElementById('exam-progress-label');
+    const cA = document.getElementById('cnt-answered');
+    const cD = document.getElementById('cnt-doubt');
+    const cE = document.getElementById('cnt-empty');
+
+    if (fill) fill.style.width = pct + '%';
+    if (lbl) lbl.textContent = answeredCount + ' / ' + totalQuestions;
+    if (cA) cA.textContent = answeredCount;
+    if (cD) cD.textContent = doubtCount;
+    if (cE) cE.textContent = emptyCount;
+}
+
+// Reading Comfort: Font Scale & Warm Paper Mode (persisted in localStorage)
+let examFontScale = parseFloat(localStorage.getItem('siaptes_read_scale') || '1') || 1;
+function applyExamFontScale() {
+    examFontScale = Math.max(0.88, Math.min(1.28, Math.round(examFontScale * 100) / 100));
+    document.documentElement.style.setProperty('--read-scale', String(examFontScale));
+    localStorage.setItem('siaptes_read_scale', String(examFontScale));
+}
+function adjustExamFont(delta) {
+    examFontScale += delta;
+    applyExamFontScale();
+}
+function resetExamFont() {
+    examFontScale = 1;
+    applyExamFontScale();
+}
+function toggleWarmReadingMode() {
+    const isWarm = document.body.classList.toggle('warm-reading-mode');
+    localStorage.setItem('siaptes_warm_mode', isWarm ? '1' : '0');
+    const btn = document.getElementById('warmModeBtn');
+    if (btn) btn.classList.toggle('active', isWarm);
+}
+(function initExamComfort() {
+    applyExamFontScale();
+    if (localStorage.getItem('siaptes_warm_mode') === '1') {
+        document.body.classList.add('warm-reading-mode');
+        const btn = document.getElementById('warmModeBtn');
+        if (btn) btn.classList.add('active');
+    }
+})();
+
 // Select Answer & Auto-save via AJAX
 function selectAnswer(answerId, optionKey, index) {
     const card = document.getElementById('q-card-' + index);
@@ -410,9 +487,8 @@ function selectAnswer(answerId, optionKey, index) {
 
     // Update Nav grid state
     const navBtn = document.getElementById('nav-btn-' + index);
-    if (!navBtn.classList.contains('doubt')) {
-        navBtn.classList.add('answered');
-    }
+    navBtn.classList.add('answered');
+    refreshExamCounters();
 
     // Save to server
     saveAnswer(answerId, optionKey, null);
@@ -432,6 +508,7 @@ function toggleDoubt(answerId, index) {
         navBtn.classList.remove('doubt');
         doubtBtn.textContent = '⚠️ Ragu-Ragu';
     }
+    refreshExamCounters();
 
     saveAnswer(answerId, null, newDoubtState);
 }
@@ -485,6 +562,11 @@ function updateTimer() {
         String(seconds).padStart(2, '0');
 
     document.getElementById('exam-timer').textContent = timerStr;
+    const timerBox = document.getElementById('timer-box');
+    if (timerBox) {
+        timerBox.classList.toggle('timer-urgent', remainingSeconds <= 300);
+        timerBox.classList.toggle('timer-warn', remainingSeconds > 300 && remainingSeconds <= 600);
+    }
     remainingSeconds--;
 }
 

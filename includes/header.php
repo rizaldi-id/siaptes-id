@@ -61,7 +61,7 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
                 </svg>
             </div>
             <div class="brand-text">
-                <div class="brand-title">SIAP<span>TES</span><small style="font-size:0.75rem; color: #a5d8ff; font-weight:700;">.ID</small></div>
+                <div class="brand-title">SIAP<span>TES</span><small class="brand-domain">.ID</small></div>
                 <div class="brand-subtitle">Simulasi Seleksi Karier Terpadu</div>
             </div>
         </a>
@@ -80,36 +80,36 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
 
         <ul class="nav-menu" id="mainNavMenu">
             <li><a href="<?= $root_url ?>/index.php" class="<?= $currentScript === 'index.php' ? 'active' : '' ?>">Beranda</a></li>
-            <li><a href="<?= $root_url ?>/latihan.php" class="<?= $currentScript === 'latihan.php' ? 'active' : '' ?>">Bank Soal Mandiri</a></li>
-            <li><a href="<?= $root_url ?>/tryout.php" class="<?= $currentScript === 'tryout.php' ? 'active' : '' ?>">Simulasi Tryout</a></li>
-            <li><a href="<?= $root_url ?>/artikel.php" class="<?= in_array($currentScript, ['artikel.php', 'baca-artikel.php']) ? 'active' : '' ?>">Artikel & Info</a></li>
-            <li><a href="<?= $root_url ?>/upgrade.php" class="<?= $currentScript === 'upgrade.php' ? 'active' : '' ?>" style="color: var(--core-gold); font-weight: 700;">⭐ Akses PRO VIP</a></li>
+            <li><a href="<?= $root_url ?>/latihan.php" class="<?= $currentScript === 'latihan.php' ? 'active' : '' ?>">Bank Soal</a></li>
+            <li><a href="<?= $root_url ?>/tryout.php" class="<?= $currentScript === 'tryout.php' ? 'active' : '' ?>">Tryout CAT</a></li>
+            <li><a href="<?= $root_url ?>/artikel.php" class="<?= in_array($currentScript, ['artikel.php', 'baca-artikel.php']) ? 'active' : '' ?>">Artikel</a></li>
+            <li><a href="<?= $root_url ?>/upgrade.php" class="nav-pro-link <?= $currentScript === 'upgrade.php' ? 'active' : '' ?>">⭐ PRO VIP</a></li>
             
             <?php if ($user): ?>
-                <li><a href="<?= $root_url ?>/riwayat.php" class="<?= $currentScript === 'riwayat.php' ? 'active' : '' ?>">Riwayat Skor</a></li>
+                <li><a href="<?= $root_url ?>/riwayat.php" class="<?= $currentScript === 'riwayat.php' ? 'active' : '' ?>">Riwayat</a></li>
                 <?php if ($user['role'] === 'admin'): ?>
-                    <li><a href="<?= $root_url ?>/admin/index.php" class="<?= ($base_url === '/admin' && $currentScript !== 'statistik.php') ? 'active' : '' ?>" style="color: #67e8f9; font-weight:700;">Panel Pengawas</a></li>
-                    <li><a href="<?= $root_url ?>/admin/statistik.php" class="<?= ($base_url === '/admin' && $currentScript === 'statistik.php') ? 'active' : '' ?>" style="color: #86efac; font-weight:700;">📊 Statistik</a></li>
+                    <li><a href="<?= $root_url ?>/admin/index.php" class="nav-admin-link <?= ($base_url === '/admin' && $currentScript !== 'statistik.php') ? 'active' : '' ?>">Admin</a></li>
+                    <li><a href="<?= $root_url ?>/admin/statistik.php" class="nav-stats-link <?= ($base_url === '/admin' && $currentScript === 'statistik.php') ? 'active' : '' ?>">📊 Statistik</a></li>
                 <?php endif; ?>
                 <li class="nav-user-item">
                     <div class="user-badge-nav">
                         <?php if (!empty($user['avatar'])): ?>
                             <img src="<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar">
                         <?php else: ?>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: var(--core-gold);"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: var(--core-navy);"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                         <?php endif; ?>
                         <span><?= htmlspecialchars(explode(' ', $user['name'])[0]) ?></span>
                         <?php if (!empty($user['is_premium']) || $user['role'] === 'admin'): ?>
-                            <span class="badge badge-gold" style="font-size:0.65rem; padding: 2px 6px;">PRO VIP</span>
+                            <span class="badge badge-gold" style="font-size:0.64rem; padding: 2px 7px;">PRO</span>
                         <?php else: ?>
-                            <span class="badge" style="background: rgba(255,255,255,0.2); color:#ffffff; font-size:0.65rem; padding: 2px 6px;">TRIAL</span>
+                            <span class="nav-trial-badge">TRIAL</span>
                         <?php endif; ?>
                     </div>
                 </li>
-                <li><a href="<?= $root_url ?>/logout.php" class="btn btn-secondary btn-sm nav-logout-btn" style="background: rgba(255,255,255,0.15); color: #fff !important; border-color: rgba(255,255,255,0.25);">Keluar</a></li>
+                <li><a href="<?= $root_url ?>/logout.php" class="btn btn-sm nav-logout-btn">Keluar</a></li>
             <?php else: ?>
-                <li class="nav-auth-btns"><a href="<?= $root_url ?>/login.php" class="btn btn-outline btn-sm">Masuk Akun</a></li>
-                <li class="nav-auth-btns"><a href="<?= $root_url ?>/register.php" class="btn btn-gold btn-sm">Daftar Akun Gratis</a></li>
+                <li class="nav-auth-btns"><a href="<?= $root_url ?>/login.php" class="btn btn-sm nav-login-btn">Masuk</a></li>
+                <li class="nav-auth-btns"><a href="<?= $root_url ?>/register.php" class="btn btn-sm nav-register-btn">Daftar Gratis</a></li>
             <?php endif; ?>
         </ul>
     </div>

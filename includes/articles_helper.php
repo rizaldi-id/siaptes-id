@@ -83,31 +83,31 @@ function getArticleCategories(): array {
             'label' => 'CPNS & PPPK (ASN)',
             'icon'  => '🏛️',
             'badge_class' => 'badge-twk',
-            'color' => '#0b2d52'
+            'color' => '#2d4f8e'
         ],
         'Rekrutmen BUMN' => [
             'label' => 'Rekrutmen Bersama BUMN',
             'icon'  => '🏢',
             'badge_class' => 'badge-tkd_bumn',
-            'color' => '#0284c7'
+            'color' => '#357ab8'
         ],
         'Sekolah Kedinasan' => [
             'label' => 'Sekolah Kedinasan',
             'icon'  => '🎓',
             'badge_class' => 'badge-kedinasan_tpa',
-            'color' => '#be123c'
+            'color' => '#9c435f'
         ],
         'Psikotes & Karier' => [
             'label' => 'Psikotes & Karier',
             'icon'  => '🧠',
             'badge_class' => 'badge-psiko_logika',
-            'color' => '#7c3aed'
+            'color' => '#5b52a8'
         ],
         'Tips & Trik CAT' => [
             'label' => 'Tips & Strategi CAT',
             'icon'  => '💡',
             'badge_class' => 'badge-gold',
-            'color' => '#d97706'
+            'color' => '#c28326'
         ],
     ];
 }

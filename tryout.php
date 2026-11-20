@@ -54,22 +54,22 @@ $isUserPremium = isPremiumUser();
 
     <!-- Track Filter Buttons -->
     <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap;">
-        <a href="tryout.php?track=all" class="btn btn-sm <?= $selectedTrack === 'all' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedTrack !== 'all' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="tryout.php?track=all" class="btn btn-sm <?= $selectedTrack === 'all' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             Semua Tryout
         </a>
-        <a href="tryout.php?track=cpns" class="btn btn-sm <?= $selectedTrack === 'cpns' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedTrack !== 'cpns' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
-            🏛️ CPNS & PPPK
+        <a href="tryout.php?track=cpns" class="btn btn-sm <?= $selectedTrack === 'cpns' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
+            🏛️ CPNS &amp; PPPK
         </a>
-        <a href="tryout.php?track=bumn" class="btn btn-sm <?= $selectedTrack === 'bumn' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedTrack !== 'bumn' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="tryout.php?track=bumn" class="btn btn-sm <?= $selectedTrack === 'bumn' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             🏢 BUMN (RBB FHCI)
         </a>
-        <a href="tryout.php?track=kedinasan" class="btn btn-sm <?= $selectedTrack === 'kedinasan' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedTrack !== 'kedinasan' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="tryout.php?track=kedinasan" class="btn btn-sm <?= $selectedTrack === 'kedinasan' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             🎓 Sekolah Kedinasan
         </a>
-        <a href="tryout.php?track=psikotes" class="btn btn-sm <?= $selectedTrack === 'psikotes' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedTrack !== 'psikotes' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="tryout.php?track=psikotes" class="btn btn-sm <?= $selectedTrack === 'psikotes' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             🧠 Psikotes Kerja
         </a>
-        <a href="tryout.php?track=trial" class="btn btn-sm <?= $selectedTrack === 'trial' ? 'btn-gold' : 'btn-outline' ?>" style="<?= $selectedTrack !== 'trial' ? 'color: var(--core-gold-text) !important; border-color: var(--core-gold);' : '' ?>">
+        <a href="tryout.php?track=trial" class="btn btn-sm <?= $selectedTrack === 'trial' ? 'btn-gold' : 'btn-outline' ?>" style="border-radius: 999px;">
             🎁 Free Trial Gratis
         </a>
     </div>
@@ -165,7 +165,7 @@ $isUserPremium = isPremiumUser();
     <ol style="padding-left: 1.25rem; font-size: 0.875rem; color: var(--core-text-muted); line-height: 1.8;">
         <li>Pastikan koneksi internet Anda stabil sebelum menekan tombol <b>Masuk Ujian CAT</b>.</li>
         <li>Timer ujian akan langsung berjalan secara otomatis begitu lembar soal pertama ditampilkan.</li>
-        <li>Navigasi nomor soal di sebelah kanan: <b>Biru Tua (Sudah Dijawab)</b>, <b>Kuning (Ragu-ragu)</b>, dan <b>Putih (Belum Dijawab)</b>.</li>
+        <li>Navigasi nomor soal di sebelah kanan: <b>Hijau (Sudah Dijawab)</b>, <b>Kuning Hangat (Ragu-ragu)</b>, dan <b>Putih (Belum Dijawab)</b>.</li>
         <li>Semua jawaban Anda tersimpan otomatis (Cloud Auto-save) setiap kali opsi diklik tanpa perlu menekan tombol konfirmasi.</li>
         <li>Bila waktu ujian habis, formulir akan otomatis terkunci dan sistem langsung menghitung kalkulasi skor serta evaluasi Passing Grade.</li>
     </ol>

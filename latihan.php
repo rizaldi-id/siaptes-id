@@ -36,19 +36,19 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Track Filter Buttons -->
     <div style="display: flex; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap;">
-        <a href="latihan.php?group=all" class="btn btn-sm <?= $selectedGroup === 'all' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedGroup !== 'all' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="latihan.php?group=all" class="btn btn-sm <?= $selectedGroup === 'all' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             Semua Modul (10 Kategori)
         </a>
-        <a href="latihan.php?group=cpns" class="btn btn-sm <?= $selectedGroup === 'cpns' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedGroup !== 'cpns' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="latihan.php?group=cpns" class="btn btn-sm <?= $selectedGroup === 'cpns' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             🏛️ CPNS / ASN (TWK, TIU, TKP)
         </a>
-        <a href="latihan.php?group=bumn" class="btn btn-sm <?= $selectedGroup === 'bumn' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedGroup !== 'bumn' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="latihan.php?group=bumn" class="btn btn-sm <?= $selectedGroup === 'bumn' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             🏢 BUMN (TKD, AKHLAK, English)
         </a>
-        <a href="latihan.php?group=kedinasan" class="btn btn-sm <?= $selectedGroup === 'kedinasan' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedGroup !== 'kedinasan' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
-            🎓 Kedinasan (TPA & Aljabar)
+        <a href="latihan.php?group=kedinasan" class="btn btn-sm <?= $selectedGroup === 'kedinasan' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
+            🎓 Kedinasan (TPA &amp; Aljabar)
         </a>
-        <a href="latihan.php?group=psikotes" class="btn btn-sm <?= $selectedGroup === 'psikotes' ? 'btn-primary' : 'btn-outline' ?>" style="<?= $selectedGroup !== 'psikotes' ? 'color: var(--core-navy) !important; border-color: var(--core-border);' : '' ?>">
+        <a href="latihan.php?group=psikotes" class="btn btn-sm <?= $selectedGroup === 'psikotes' ? 'btn-primary' : 'btn-outline' ?>" style="border-radius: 999px;">
             🧠 Psikotes (Logika, Spasial, SJT)
         </a>
     </div>

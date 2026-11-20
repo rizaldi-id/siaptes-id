@@ -37,28 +37,28 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Hero Section SIAP TES (siaptes.id) -->
 <div class="hero">
     <div class="hero-pill">
-        🇮🇩 SATU PLATFORM, SIAP SEMUA SELEKSI NASIONAL & KARIER &bull; <b>SIAPTES.ID</b>
+        🇮🇩 SATU PLATFORM, SIAP SEMUA SELEKSI NASIONAL &amp; KARIER &bull; <b>SIAPTES.ID</b>
     </div>
-    <h1>Wujudkan Impian Lolos Seleksi Bersama <span>SIAP TES</span></h1>
+    <h1>Belajar Lebih Tenang &amp; Terarah Bersama <span>SIAP TES</span></h1>
     <p>
-        Platform persiapan dan simulasi ujian <b>Computer Assisted Test (CAT)</b> terlengkap di Indonesia.
-        Satu akun untuk latihan soal dan tryout <b>CPNS / PPPK</b>, <b>Rekrutmen Bersama BUMN</b>, <b>Sekolah Kedinasan</b>, serta <b>Psikotes Kerja & Asesmen Perusahaan</b>.
+        Platform persiapan dan simulasi ujian <b>Computer Assisted Test (CAT)</b> yang nyaman dibaca dan mudah digunakan.
+        Satu akun untuk latihan soal dan tryout <b>CPNS / PPPK</b>, <b>Rekrutmen Bersama BUMN</b>, <b>Sekolah Kedinasan</b>, serta <b>Psikotes Kerja</b>.
     </p>
-    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <a href="tryout.php" class="btn btn-gold" style="font-size: 1.05rem; padding: 0.85rem 1.85rem;">
-            🚀 Coba Simulasi Tryout (Ada Trial Gratis)
+    <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+        <a href="tryout.php" class="btn btn-primary" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
+            🚀 Mulai Simulasi Tryout (Ada Trial Gratis)
         </a>
-        <a href="latihan.php" class="btn btn-outline" style="font-size: 1.05rem; padding: 0.85rem 1.85rem;">
-            📚 Bank Soal Semua Kategori
+        <a href="latihan.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
+            📚 Jelajahi Bank Soal
         </a>
     </div>
 
-    <!-- Mini Trust Badges -->
-    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; font-size: 0.825rem; color: #d1e2f2; flex-wrap: wrap;">
-        <span><b style="color: var(--core-gold);">✓</b> Standar Resmi BKN & MenPAN-RB</span>
-        <span><b style="color: var(--core-gold);">✓</b> Standar Rekrutmen Bersama BUMN (FHCI)</span>
-        <span><b style="color: var(--core-gold);">✓</b> Kisi-kisi SPMB Kedinasan & Psikotes Kerja</span>
-        <span><b style="color: var(--core-gold);">✓</b> Pembahasan Trik Cepat & Konsep</span>
+    <!-- Calm Trust Pills -->
+    <div class="hero-trust-row">
+        <span class="hero-trust-item"><b>✓</b> Standar BKN &amp; MenPAN-RB</span>
+        <span class="hero-trust-item"><b>✓</b> Standar BUMN (FHCI)</span>
+        <span class="hero-trust-item"><b>✓</b> Kisi-kisi Kedinasan &amp; Psikotes</span>
+        <span class="hero-trust-item"><b>✓</b> Pembahasan Trik Cepat</span>
     </div>
 </div>
 
@@ -128,42 +128,42 @@ require_once __DIR__ . '/includes/header.php';
         </div>
 
         <!-- Track 3: Kedinasan -->
-        <div class="card card-navy-top" style="border-top-color: #be123c; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card card-navy-top" style="border-top-color: #9c435f; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span class="badge badge-kedinasan_tpa">🎓 SEKOLAH KEDINASAN</span>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: #be123c;">SPMB STAN, STIS, IPDN</span>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #9c435f;">SPMB STAN, STIS, IPDN</span>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-text); margin-bottom: 0.5rem;">
                     SKD Kedinasan & TPA Akademik Terapan
                 </h3>
-                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1rem;">
+                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.65; margin-bottom: 1rem;">
                     Paket khusus seleksi calon praja dan taruna kedinasan: PKN STAN, Politeknik Statistika STIS, IPDN, Poltekip, Poltekim, dan STIN. Dilengkapi modul Matematika Terapan, Aljabar Fungsi, Geometri Ruang, dan Analisis Data.
                 </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">SKD + TPA Kedinasan</span>
-                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout Kedinasan ➔</a>
+                <a href="tryout.php?track=kedinasan" class="btn btn-primary btn-sm">Ikuti Tryout Kedinasan ➔</a>
             </div>
         </div>
 
         <!-- Track 4: Psikotes Kerja -->
-        <div class="card card-navy-top" style="border-top-color: #7c3aed; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="card card-navy-top" style="border-top-color: #5b52a8; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
                     <span class="badge badge-psiko_logika">🧠 PSIKOTES KERJA & ASESMEN</span>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: #7c3aed;">Rekrutmen Korporat</span>
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #5b52a8;">Rekrutmen Korporat</span>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-text); margin-bottom: 0.5rem;">
                     Logika, Spasial Gambar & Situational Judgement
                 </h3>
-                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1rem;">
+                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.65; margin-bottom: 1rem;">
                     Latihan psikotes komprehensif untuk seleksi kerja perbankan (BCA, Mandiri, BRI, BNI), multinasional, startup, dan instansi. Menguji logika deduktif, visualisasi spasial 3D, rotasi gambar, dan Situational Judgement Test (SJT).
                 </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">Logika + Spasial + SJT</span>
-                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout Psikotes ➔</a>
+                <a href="tryout.php?track=psikotes" class="btn btn-primary btn-sm">Ikuti Tryout Psikotes ➔</a>
             </div>
         </div>
     </div>
@@ -425,19 +425,19 @@ require_once __DIR__ . '/includes/header.php';
 <?php endif; ?>
 
 <!-- SECTION: CALL TO ACTION (CTA BANNER) -->
-<div class="hero cta-banner" style="background: linear-gradient(135deg, var(--core-navy) 0%, #003a63 100%); color: #ffffff; border-radius: var(--radius-lg); text-align: center; box-shadow: var(--shadow-lg); margin-bottom: 2rem; border-top: 4px solid var(--core-gold);">
-    <div class="hero-pill" style="margin-bottom: 1rem; background: rgba(250, 176, 5, 0.2); color: var(--core-gold); border-color: rgba(250, 176, 5, 0.4);">
+<div class="hero cta-banner" style="margin-bottom: 2rem;">
+    <div class="hero-pill" style="margin-bottom: 1rem;">
         🌟 INVESTASI KARIER TERBAIK DI SIAPTES.ID
     </div>
-    <h2 style="font-size: 2.15rem; font-weight: 800; margin-bottom: 0.75rem;">Siap Mengamankan Posisi Impian Anda Tahun Ini?</h2>
-    <p style="font-size: 1.05rem; opacity: 0.9; max-width: 680px; margin: 0 auto 2rem; line-height: 1.6;">
-        Jangan tunda persiapan hingga pembukaan seleksi resmi diumumkan. Mulai uji kesiapan Anda sekarang juga bersama ribuan pejuang seleksi di seluruh Indonesia.
+    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem;">Siap Mengamankan Posisi Impian Anda Tahun Ini?</h2>
+    <p style="font-size: 1rem; max-width: 660px; margin: 0 auto 1.85rem; line-height: 1.7;">
+        Mulai latihan lebih awal dengan ritme belajar yang nyaman dan terukur bersama ribuan pejuang seleksi di seluruh Indonesia.
     </p>
-    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-        <a href="register.php" class="btn btn-gold" style="font-size: 1.05rem; padding: 0.85rem 2rem; box-shadow: 0 4px 14px rgba(250, 176, 5, 0.4);">
-            🔥 Daftar Akun Gratis Sekarang
+    <div style="display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
+        <a href="register.php" class="btn btn-gold" style="font-size: 1rem; padding: 0.85rem 1.85rem;">
+            Daftar Akun Gratis Sekarang
         </a>
-        <a href="tryout.php" class="btn btn-outline" style="font-size: 1.05rem; padding: 0.85rem 2rem;">
+        <a href="tryout.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.85rem;">
             Coba Tryout Trial Bebas Biaya
         </a>
     </div>
