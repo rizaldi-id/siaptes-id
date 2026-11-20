@@ -1,0 +1,21 @@
+{
+  "name": "SIAP TES — Portal Tryout CAT CPNS, BUMN, Kedinasan & Psikotes",
+  "short_name": "SIAP TES",
+  "description": "Platform persiapan dan simulasi Computer Assisted Test (CAT) terpadu di Indonesia.",
+  "icons": [
+    {
+      "src": "/assets/img/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#2d4f8e",
+  "background_color": "#f6f8fb",
+  "display": "standalone",
+  "start_url": "/"
+}

@@ -24,11 +24,21 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($page_title) ? htmlspecialchars($page_title) . ' - ' : '' ?>SIAP TES | Portal Tryout & Latihan CPNS, BUMN, Kedinasan & Psikotes - siaptes.id</title>
     <meta name="description" content="<?= isset($meta_description) && $meta_description !== '' ? htmlspecialchars($meta_description) : 'SIAP TES (siaptes.id) - Satu platform terpadu untuk latihan soal, info seleksi, dan simulasi CAT CPNS, Rekrutmen Bersama BUMN, Sekolah Kedinasan, dan Psikotes Kerja.' ?>">
-    <!-- Google Font: Plus Jakarta Sans for Modern Indonesian Gov-Tech Typography -->
+    <?php $logoVer = @filemtime(__DIR__ . '/../assets/img/favicon.svg') ?: '20261120'; ?>
+    <!-- Browser Toolbar / Tab Favicon & App Icons -->
+    <link rel="icon" type="image/svg+xml" href="<?= $root_url ?>/assets/img/favicon.svg?v=<?= $logoVer ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= $root_url ?>/assets/img/favicon-32x32.png?v=<?= $logoVer ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= $root_url ?>/assets/img/favicon-16x16.png?v=<?= $logoVer ?>">
+    <link rel="shortcut icon" href="<?= $root_url ?>/favicon.ico?v=<?= $logoVer ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= $root_url ?>/assets/img/apple-touch-icon.png?v=<?= $logoVer ?>">
+    <link rel="manifest" href="<?= $root_url ?>/site.webmanifest">
+    <meta name="theme-color" content="#2d4f8e">
+    <meta property="og:image" content="https://siaptes.id/assets/img/android-chrome-512x512.png">
+    <!-- Google Font: Plus Jakarta Sans for Modern Indonesian EdTech Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <?php $cssVer = @filemtime(__DIR__ . '/../assets/css/style.css') ?: '20261119'; ?>
+    <?php $cssVer = @filemtime(__DIR__ . '/../assets/css/style.css') ?: '20261120'; ?>
     <link rel="stylesheet" href="<?= $root_url ?>/assets/css/style.css?v=<?= $cssVer ?>">
 </head>
 <body>
@@ -56,9 +66,7 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
     <div class="nav-container">
         <a href="<?= $root_url ?>/index.php" class="nav-brand">
             <div class="brand-emblem" title="SIAP TES - siaptes.id">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
+                <img src="<?= $root_url ?>/assets/img/logo.svg?v=<?= $logoVer ?>" alt="Logo SIAP TES" width="42" height="42">
             </div>
             <div class="brand-text">
                 <div class="brand-title">SIAP<span>TES</span><small class="brand-domain">.ID</small></div>

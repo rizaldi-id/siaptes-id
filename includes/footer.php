@@ -8,11 +8,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
-                    <div style="background: linear-gradient(135deg, #3559a3 0%, #4e75c4 100%); color: #ffffff; width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
-                    </div>
+                    <img src="<?= $root_url ?>/assets/img/logo.svg" alt="Logo SIAP TES" width="38" height="38" style="display: block; border-radius: 9px; flex-shrink: 0;">
                     <h3 style="margin: 0; color: #f8fafc;">SIAP<span>TES</span>.ID</h3>
                 </div>
                 <p style="color: #94a3b8; line-height: 1.65; font-size: 0.85rem; max-width: 480px;">

@@ -146,10 +146,8 @@ require_once __DIR__ . '/includes/header.php';
 <div style="max-width: 500px; margin: 2.5rem auto;">
     <div class="card card-navy-top" style="padding: 2.25rem;">
         <div style="text-align: center; margin-bottom: 1.35rem;">
-            <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--core-navy) 0%, #073b64 100%); color: var(--core-gold); margin-bottom: 0.75rem; box-shadow: 0 4px 10px rgba(0, 43, 73, 0.25);">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
+            <div style="display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                <img src="assets/img/logo.svg" alt="Logo SIAP TES" width="58" height="58" style="display: block; border-radius: 14px;">
             </div>
             <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.25rem;">Portal Akun SIAP TES</h2>
             <p style="color: var(--core-text-muted); font-size: 0.84rem;">

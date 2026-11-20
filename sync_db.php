@@ -44,6 +44,9 @@ $catBreakdown = $db->query("
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sinkronisasi Database SIAP TES</title>
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
+    <link rel="shortcut icon" href="favicon.ico">
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f6f8fb; color: #1e293b; padding: 1.5rem; margin: 0; }
         .box { max-width: 780px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 16px; box-shadow: 0 6px 24px rgba(30,41,59,0.07); border: 1px solid #e3e9f2; border-top: 4px solid #2d4f8e; }
