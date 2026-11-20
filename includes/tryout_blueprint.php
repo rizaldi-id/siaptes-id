@@ -68,8 +68,8 @@ function getTryoutPackageBlueprint(array $package): ?array {
             'min_total_pct' => 65,
             'sections' => [
                 ['code' => 'PSIKO_LOGIKA',  'count' => 20, 'passing_grade' => 65],
-                ['code' => 'PSIKO_SPASIAL', 'count' => 10, 'passing_grade' => 30],
-                ['code' => 'PSIKO_SJT',     'count' => 20, 'passing_grade' => 68],
+                ['code' => 'PSIKO_SPASIAL', 'count' => 15, 'passing_grade' => 45],
+                ['code' => 'PSIKO_SJT',     'count' => 15, 'passing_grade' => 53],
             ],
         ];
     }

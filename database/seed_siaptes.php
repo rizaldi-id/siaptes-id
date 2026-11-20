@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/database.php';
 
 $db = getDB();
 @set_time_limit(300);
+@ini_set('memory_limit', '256M');
 
 $isCli = (php_sapi_name() === 'cli');
 if ($isCli) {
@@ -86,8 +87,10 @@ foreach ($data['questions'] as $q) {
     $addedQ++;
 }
 $db->commit();
+$seedAddedCount = $addedQ;
+$seedTotalCount = (int)$db->query("SELECT COUNT(*) FROM questions")->fetchColumn();
 
 if ($isCli) {
-    echo "✓ $addedQ Butir Soal Baru Berhasil Ditambahkan (Total sekarang: " . count($existingHashes) . " soal)!\n";
+    echo "✓ $addedQ Butir Soal Baru Berhasil Ditambahkan (Total sekarang: " . $seedTotalCount . " soal)!\n";
     echo "=== SELESAI SINKRONISASI SIAP TES ===\n";
 }
