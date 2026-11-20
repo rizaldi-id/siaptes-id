@@ -167,7 +167,7 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
 
                 <div style="font-size: 0.88rem; color: var(--core-text); line-height: 1.95;">
-                    <div>✅ <b>CPNS / ASN:</b> Tryout Akbar SKD 110 Butir Berstandar CAT BKN</div>
+                    <div>✅ <b>CPNS / ASN:</b> Tryout CPNS 110 Butir Acak Berstandar CAT BKN</div>
                     <div>✅ <b>BUMN:</b> Simulasi TKD, Core Values AKHLAK & Bahasa Inggris</div>
                     <div>✅ <b>Kedinasan:</b> Modul Khusus PKN STAN, STIS, IPDN & Poltekip</div>
                     <div>✅ <b>Psikotes Kerja:</b> Latihan Penalaran Logika, Spasial & SJT</div>
@@ -273,7 +273,7 @@ require_once __DIR__ . '/includes/header.php';
                         </td>
                     </tr>
                     <tr>
-                        <td><b>Tryout Akbar SKD CPNS 110 Butir (100 Menit)</b></td>
+                        <td><b>Tryout CPNS 110 Butir (100 Menit &bull; Standar BKN)</b></td>
                         <td style="text-align: center; color: #dc2626;">✖ Terkunci</td>
                         <td style="text-align: center; font-weight: 700; color: #047857; background: #fffbeb;">
                             ✔ Bebas Diakses Kapan Saja

@@ -2,6 +2,7 @@
 // admin/paket.php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/tryout_blueprint.php';
 
 requireAdmin();
 $db = getDB();
@@ -125,7 +126,9 @@ require_once __DIR__ . '/../includes/header.php';
             <p style="color: var(--gray-600);">Belum ada paket tryout.</p>
         <?php else: ?>
             <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <?php foreach ($packages as $pkg): ?>
+                <?php foreach ($packages as $pkg):
+                    $pkgMeta = getPackageDisplayMeta($db, $pkg);
+                ?>
                     <div style="border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 1rem; background: var(--gray-50);">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                             <div>
@@ -136,9 +139,12 @@ require_once __DIR__ . '/../includes/header.php';
                                 <?php endif; ?>
                                 <h3 style="font-size: 1.05rem; font-weight: 700; margin-top: 0.25rem;"><?= htmlspecialchars($pkg['title']) ?></h3>
                             </div>
-                            <span class="badge" style="background: var(--primary-light); color: var(--primary);">
-                                <?= $pkg['duration_minutes'] ?> Menit
-                            </span>
+                            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: flex-end;">
+                                <span class="badge badge-navy"><?= (int)$pkgMeta['question_count'] ?> Soal Acak</span>
+                                <span class="badge" style="background: var(--primary-light); color: var(--primary);">
+                                    <?= $pkg['duration_minutes'] ?> Menit
+                                </span>
+                            </div>
                         </div>
                         <p style="font-size: 0.85rem; color: var(--gray-600); margin-bottom: 0.75rem;">
                             <?= htmlspecialchars($pkg['description']) ?>

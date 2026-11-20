@@ -2,6 +2,7 @@
 // tryout.php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/tryout_blueprint.php';
 
 $db = getDB();
 
@@ -96,18 +97,20 @@ $isUserPremium = isPremiumUser();
     <?php foreach ($packages as $pkg): 
         $isPkgPremium = !empty($pkg['is_premium']);
         $canAccess = (!$isPkgPremium || $isUserPremium);
-        $compositionList = $pkgMap[$pkg['id']] ?? [];
+        $pkgMeta = getPackageDisplayMeta($db, $pkg, $pkgMap[$pkg['id']] ?? []);
+        $compositionList = $pkgMeta['composition_labels'];
     ?>
         <div class="card <?= $isPkgPremium ? 'card-gold-top' : 'card-navy-top' ?>" style="display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; gap: 0.5rem;">
                     <div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
                             <?php if ($isPkgPremium): ?>
                                 <span class="badge badge-gold">⭐ AKSES PRO VIP</span>
                             <?php else: ?>
                                 <span class="badge badge-success">🎁 TRIAL PERCOBAAN GRATIS</span>
                             <?php endif; ?>
+                            <span class="badge badge-navy" style="font-size: 0.68rem;">🔀 Soal Diacak Setiap Sesi</span>
                         </div>
                         <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy);"><?= htmlspecialchars($pkg['title']) ?></h2>
                     </div>
@@ -119,11 +122,14 @@ $isUserPremium = isPremiumUser();
                     <?= htmlspecialchars($pkg['description']) ?>
                 </p>
 
-                <div style="background: var(--core-navy-subtle); border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
-                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.35rem; letter-spacing: 0.4px;">
-                        KOMPOSISI SOAL: <?= $pkg['question_count'] ?> BUTIR SOAL
+                <div style="background: var(--core-navy-subtle); border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 0.8rem 1rem; margin-bottom: 1.25rem;">
+                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.4rem; letter-spacing: 0.3px;">
+                        KOMPOSISI SOAL: <?= (int)$pkgMeta['question_count'] ?> BUTIR SOAL
+                        <?php if ($pkgMeta['bank_pool_count'] > $pkgMeta['question_count']): ?>
+                            <span style="font-weight: 600; color: var(--core-text-muted);">(Acak dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal)</span>
+                        <?php endif; ?>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; font-size: 0.825rem; color: var(--core-text); flex-wrap: wrap;">
+                    <div style="display: flex; gap: 0.45rem; font-size: 0.825rem; color: var(--core-text); flex-wrap: wrap; margin-bottom: 0.45rem;">
                         <?php if (!empty($compositionList)): ?>
                             <?php foreach ($compositionList as $cItem): ?>
                                 <span class="badge badge-navy" style="font-size: 0.72rem;"><?= htmlspecialchars($cItem) ?></span>
@@ -131,6 +137,9 @@ $isUserPremium = isPremiumUser();
                         <?php else: ?>
                             <span>Soal Terstandarisasi Multi-Materi</span>
                         <?php endif; ?>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--core-text-muted); font-weight: 600;">
+                        📏 <?= htmlspecialchars($pkgMeta['passing_label']) ?>
                     </div>
                 </div>
             </div>

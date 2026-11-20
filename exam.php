@@ -2,6 +2,7 @@
 // exam.php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/tryout_blueprint.php';
 
 requireLogin();
 $db = getDB();
@@ -32,12 +33,12 @@ if ($action === 'start_package') {
         $stmt->execute([$user['id'], $package_id, $now]);
         $attempt_id = $db->lastInsertId();
 
-        // Select questions assigned to this package OR general questions
-        $questions = $db->query("SELECT id FROM questions WHERE package_id = $package_id ORDER BY category_id, id")->fetchAll(PDO::FETCH_COLUMN);
-        
-        // If no questions specific to package, fallback to all questions
+        // Ambil soal secara ACAK dari seluruh bank soal sesuai blueprint resmi paket (mis. Tryout CPNS = 110 soal: 30 TWK, 35 TIU, 45 TKP)
+        $questions = generateRandomizedPackageQuestions($db, $package);
+
         if (empty($questions)) {
-            $questions = $db->query("SELECT id FROM questions ORDER BY category_id, id")->fetchAll(PDO::FETCH_COLUMN);
+            header('Location: tryout.php?msg=' . urlencode('Belum ada soal tersedia pada bank soal untuk paket ini.'));
+            exit;
         }
 
         $ansStmt = $db->prepare("INSERT INTO user_answers (attempt_id, question_id) VALUES (?, ?)");
@@ -78,12 +79,12 @@ if ($action === 'start_practice') {
         $stmt->execute([$user['id'], $now]);
         $attempt_id = $db->lastInsertId();
 
-        // Select randomized questions for practice (kompatibel penuh MySQL & SQLite)
-        $randOrder = function_exists('sqlRandomOrder') ? sqlRandomOrder($db) : 'RANDOM()';
+        // Pilih soal acak dari seluruh bank soal kategori menggunakan CSPRNG Fisher-Yates
         $safeLimit = max(1, intval($limit));
-        $qStmt = $db->prepare("SELECT id FROM questions WHERE category_id = ? ORDER BY $randOrder LIMIT " . $safeLimit);
+        $qStmt = $db->prepare("SELECT id FROM questions WHERE category_id = ?");
         $qStmt->execute([$category_id]);
-        $questions = $qStmt->fetchAll(PDO::FETCH_COLUMN);
+        $pool = $qStmt->fetchAll(PDO::FETCH_COLUMN);
+        $questions = array_slice(cryptoShuffleArray(array_map('intval', $pool)), 0, $safeLimit);
 
         if (empty($questions)) {
             header('Location: latihan.php?msg=' . urlencode('Belum ada soal pada kategori ini'));
@@ -106,7 +107,12 @@ if ($action === 'start_practice') {
 // 3. ACTION: FINISH EXAM
 if ($action === 'finish') {
     $attempt_id = intval($_GET['attempt_id'] ?? 0);
-    $attempt = $db->query("SELECT * FROM exam_attempts WHERE id = $attempt_id AND user_id = {$user['id']}")->fetch();
+    $attempt = $db->query("
+        SELECT ea.*, p.title as package_title, p.category_group
+        FROM exam_attempts ea
+        LEFT JOIN packages p ON ea.package_id = p.id
+        WHERE ea.id = $attempt_id AND ea.user_id = {$user['id']}
+    ")->fetch();
 
     if ($attempt && $attempt['status'] === 'in_progress') {
         // Calculate score
@@ -119,10 +125,8 @@ if ($action === 'finish') {
             WHERE ua.attempt_id = $attempt_id
         ")->fetchAll();
 
-        $score_twk = 0;
-        $score_tiu = 0;
-        $score_tkp = 0;
         $cat_scores = [];
+        $cat_max = [];
 
         $updAns = $db->prepare("UPDATE user_answers SET score_obtained = ? WHERE id = ?");
 
@@ -133,10 +137,12 @@ if ($action === 'finish') {
 
             if (!isset($cat_scores[$cat])) {
                 $cat_scores[$cat] = 0;
+                $cat_max[$cat] = 0;
             }
+            $cat_max[$cat] += 5;
 
             // Check if question has weighted score (TKP, AKHLAK, SJT)
-            $isWeighted = ($ans['score_a'] > 0 || $ans['score_b'] > 0);
+            $isWeighted = ((int)$ans['score_a'] + (int)$ans['score_b'] + (int)$ans['score_c'] + (int)$ans['score_d'] + (int)$ans['score_e']) > 0;
 
             if ($isWeighted) {
                 if ($sel === 'A') $pts = (int)$ans['score_a'];
@@ -146,7 +152,7 @@ if ($action === 'finish') {
                 elseif ($sel === 'E') $pts = (int)$ans['score_e'];
             } else {
                 // Standard Right/Wrong (+5 or 0)
-                if ($sel !== null && $sel !== '' && $sel === $ans['correct_option']) {
+                if ($sel !== null && $sel !== '' && strtoupper(trim((string)$sel)) === strtoupper(trim((string)$ans['correct_option']))) {
                     $pts = 5;
                 }
             }
@@ -158,39 +164,11 @@ if ($action === 'finish') {
         $score_twk = $cat_scores['TWK'] ?? 0;
         $score_tiu = $cat_scores['TIU'] ?? 0;
         $score_tkp = $cat_scores['TKP'] ?? 0;
-
         $total_score = array_sum($cat_scores);
 
-        // Passing Grade standards per package
-        $pkgId = (int)($attempt['package_id'] ?? 0);
-        $is_passed = 0;
-
-        if ($attempt['mode'] === 'tryout') {
-            if ($pkgId === 1) {
-                // Official BKN CPNS SKD
-                if ($score_twk >= 65 && $score_tiu >= 80 && $score_tkp >= 166) {
-                    $is_passed = 1;
-                }
-            } elseif ($pkgId === 2) {
-                // BUMN RBB (Min 55% score)
-                $is_passed = ($total_score >= 130) ? 1 : 0;
-            } elseif ($pkgId === 3) {
-                // Kedinasan (Min 60% score)
-                $is_passed = ($total_score >= 105) ? 1 : 0;
-            } elseif ($pkgId === 4) {
-                // Psikotes Kerja (Min 65% score)
-                $is_passed = ($total_score >= 95) ? 1 : 0;
-            } elseif ($pkgId === 5) {
-                // Mini Trial All-in-One (Min 60%)
-                $is_passed = ($total_score >= 80) ? 1 : 0;
-            } else {
-                $is_passed = ($total_score >= (count($answers) * 5 * 0.6)) ? 1 : 0;
-            }
-        } else {
-            // For single practice category (Passing grade 60% of max potential score)
-            $maxScore = count($answers) * 5;
-            $is_passed = ($total_score >= ($maxScore * 0.6)) ? 1 : 0;
-        }
+        // Evaluasi konsisten menggunakan blueprint resmi (CPNS BKN: TWK>=65, TIU>=80, TKP>=166)
+        $eval = evaluateTryoutPassing($attempt, $cat_scores, $cat_max, $total_score);
+        $is_passed = !empty($eval['is_passed']) ? 1 : 0;
 
         $end_time = date('Y-m-d H:i:s');
         $updAttempt = $db->prepare("

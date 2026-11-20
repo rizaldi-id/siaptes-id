@@ -3,6 +3,7 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/articles_helper.php';
+require_once __DIR__ . '/includes/tryout_blueprint.php';
 
 $db = getDB();
 ensureArticlesTable($db);
@@ -339,6 +340,7 @@ require_once __DIR__ . '/includes/header.php';
         foreach ($packages as $pkg): 
             $isPkgPrem = !empty($pkg['is_premium']);
             $canPlay = (!$isPkgPrem || $isUserPrem);
+            $pkgMeta = getPackageDisplayMeta($db, $pkg);
         ?>
             <div class="card <?= $isPkgPrem ? 'card-gold-top' : 'card-navy-top' ?>" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
@@ -358,8 +360,11 @@ require_once __DIR__ . '/includes/header.php';
                     <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1.25rem;">
                         <?= htmlspecialchars($pkg['description']) ?>
                     </p>
-                    <div style="background: var(--core-navy-subtle); padding: 0.5rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; color: var(--core-navy); margin-bottom: 1rem;">
-                        📊 Kuota: <?= $pkg['question_count'] ?> Butir Soal Terstandarisasi
+                    <div style="background: var(--core-navy-subtle); padding: 0.55rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; color: var(--core-navy); margin-bottom: 1rem;">
+                        📊 <?= (int)$pkgMeta['question_count'] ?> Butir Soal Acak
+                        <?php if ($pkgMeta['bank_pool_count'] > $pkgMeta['question_count']): ?>
+                            <span style="font-weight: 600; color: var(--core-text-muted);">(dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal)</span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">

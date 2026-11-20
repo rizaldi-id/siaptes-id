@@ -2,6 +2,7 @@
 // hasil.php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/tryout_blueprint.php';
 
 requireLogin();
 $db = getDB();
@@ -9,7 +10,7 @@ $user = currentUser();
 
 $attempt_id = intval($_GET['attempt_id'] ?? 0);
 $attempt = $db->query("
-    SELECT ea.*, p.title as package_title, p.duration_minutes
+    SELECT ea.*, p.title as package_title, p.duration_minutes, p.category_group
     FROM exam_attempts ea
     LEFT JOIN packages p ON ea.package_id = p.id
     WHERE ea.id = $attempt_id AND (ea.user_id = {$user['id']} OR '{$user['role']}' = 'admin')
@@ -37,6 +38,8 @@ $results = $db->query("
 
 // Dynamic category grouping
 $catSummaries = [];
+$catScoresMap = [];
+$catMaxMap = [];
 foreach ($results as $item) {
     $code = $item['cat_code'];
     if (!isset($catSummaries[$code])) {
@@ -48,10 +51,23 @@ foreach ($results as $item) {
             'total_q' => 0,
             'max_score' => 0
         ];
+        $catScoresMap[$code] = 0;
+        $catMaxMap[$code] = 0;
     }
     $catSummaries[$code]['score'] += (int)$item['score_obtained'];
     $catSummaries[$code]['total_q']++;
     $catSummaries[$code]['max_score'] += 5;
+    $catScoresMap[$code] += (int)$item['score_obtained'];
+    $catMaxMap[$code] += 5;
+}
+
+// Evaluasi passing grade konsisten dengan standar resmi BKN / blueprint paket
+$passingEval = evaluateTryoutPassing($attempt, $catScoresMap, $catMaxMap, (int)$attempt['total_score']);
+$elapsedMinutes = 0;
+if (!empty($attempt['start_time']) && !empty($attempt['end_time'])) {
+    $elapsedMinutes = max(1, (int)round((strtotime($attempt['end_time']) - strtotime($attempt['start_time'])) / 60));
+} elseif (!empty($attempt['duration_seconds'])) {
+    $elapsedMinutes = (int)round($attempt['duration_seconds'] / 60);
 }
 
 $page_title = "Hasil & Evaluasi Skor - SIAP TES";
@@ -66,10 +82,10 @@ require_once __DIR__ . '/includes/header.php';
                 <span style="font-size: 0.8rem; color: var(--core-text-muted);">Sistem Otentik siaptes.id</span>
             </div>
             <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--core-navy);">
-                Hasil & Evaluasi: <?= htmlspecialchars($attempt['package_title'] ?? 'Latihan Soal Mandiri') ?>
+                Hasil &amp; Evaluasi: <?= htmlspecialchars($attempt['package_title'] ?? 'Latihan Soal Mandiri') ?>
             </h1>
             <p style="color: var(--core-text-muted); font-size: 0.875rem;">
-                Selesai pada: <?= date('d M Y, H:i', strtotime($attempt['end_time'] ?? 'now')) ?> WIB &bull; Durasi Sesi: <?= round(($attempt['duration_seconds'] ?? 0) / 60) ?> Menit
+                Selesai pada: <?= date('d M Y, H:i', strtotime($attempt['end_time'] ?? 'now')) ?> WIB &bull; Durasi Pengerjaan: <?= $elapsedMinutes ?> Menit &bull; Total: <?= count($results) ?> Soal
             </p>
         </div>
         <div style="display: flex; gap: 0.75rem;">
@@ -79,29 +95,32 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- Kartu Ringkasan Nilai & Passing Grade Coretax Style -->
-<div class="card" style="border-top: 5px solid <?= $attempt['is_passed'] ? 'var(--core-success)' : 'var(--core-danger)' ?>; margin-bottom: 2rem;">
+<!-- Kartu Ringkasan Nilai & Passing Grade Resmi -->
+<div class="card" style="border-top: 5px solid <?= !empty($passingEval['is_passed']) ? 'var(--core-success)' : 'var(--core-danger)' ?>; margin-bottom: 2rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <div style="font-size: 0.825rem; font-weight: 700; color: var(--core-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">TOTAL AKUMULASI SKOR</div>
             <div style="font-size: 3.25rem; font-weight: 800; color: var(--core-navy); line-height: 1.1;">
-                <?= $attempt['total_score'] ?>
+                <?= $attempt['total_score'] ?> <span style="font-size: 1.1rem; font-weight: 600; color: var(--core-text-muted);">/ <?= array_sum($catMaxMap) ?></span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--core-text-muted); margin-top: 0.35rem; font-weight: 600;">
+                📏 <?= htmlspecialchars($passingEval['passing_label']) ?>
             </div>
         </div>
 
         <div>
             <?php if ($attempt['mode'] === 'tryout'): ?>
-                <?php if ($attempt['is_passed']): ?>
-                    <div style="background: #d1fae5; color: #065f46; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1.1rem; border: 1px solid #a7f3d0; text-align: right;">
-                        🎉 MEMENUHI STANDAR KELULUSAN
+                <?php if (!empty($passingEval['is_passed'])): ?>
+                    <div style="background: var(--core-success-light); color: #1a6853; padding: 0.75rem 1.4rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1.05rem; border: 1px solid #c2e8db; text-align: right;">
+                        🎉 MEMENUHI PASSING GRADE <?= !empty($passingEval['is_bkn_cpns']) ? 'RESMI BKN' : '' ?>
                     </div>
                 <?php else: ?>
-                    <div style="background: #fee2e2; color: #991b1b; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1.1rem; border: 1px solid #fecaca; text-align: right;">
-                        ⚠️ BELUM MEMENUHI PASSING GRADE
+                    <div style="background: var(--core-danger-light); color: #a63444; padding: 0.75rem 1.4rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1.05rem; border: 1px solid #f6ccd2; text-align: right;">
+                        ⚠️ BELUM MEMENUHI PASSING GRADE <?= !empty($passingEval['is_bkn_cpns']) ? 'BKN' : '' ?>
                     </div>
                 <?php endif; ?>
             <?php else: ?>
-                <div style="background: #e0f2fe; color: #0369a1; padding: 0.75rem 1.5rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem;">
+                <div style="background: var(--core-blue-light); color: var(--core-navy); padding: 0.75rem 1.4rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem;">
                     Mode Latihan Mandiri Selesai
                 </div>
             <?php endif; ?>
@@ -112,21 +131,27 @@ require_once __DIR__ . '/includes/header.php';
     <div class="grid-3">
         <?php foreach ($catSummaries as $cCode => $cData): 
             $pct = ($cData['max_score'] > 0) ? round(($cData['score'] / $cData['max_score']) * 100) : 0;
-            $passedSub = ($pct >= 60);
+            $catTargetInfo = $passingEval['category_targets'][$cCode] ?? [
+                'target' => (int)ceil($cData['max_score'] * 0.6),
+                'passed' => ($pct >= 60),
+                'label' => 'Target: 60%',
+            ];
+            $passedSub = !empty($catTargetInfo['passed']);
         ?>
-            <div style="border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 1rem; background: var(--gray-50);">
+            <div style="border: 1px solid var(--core-border); border-left: 4px solid <?= $passedSub ? 'var(--core-success)' : 'var(--core-danger)' ?>; border-radius: var(--radius-sm); padding: 1.05rem; background: var(--gray-50);">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span class="badge badge-<?= strtolower($cCode) ?>"><?= $cCode ?></span>
                     <span style="font-size: 0.78rem; color: var(--core-text-muted);"><?= $cData['total_q'] ?> Butir Soal</span>
                 </div>
-                <div style="font-size: 1.1rem; font-weight: 700; color: var(--core-navy); margin-top: 0.35rem;">
+                <div style="font-size: 1.02rem; font-weight: 700; color: var(--core-text); margin-top: 0.4rem;">
                     <?= htmlspecialchars($cData['name']) ?>
                 </div>
-                <div style="font-size: 2rem; font-weight: 800; margin-top: 0.35rem; color: var(--core-navy);">
+                <div style="font-size: 2rem; font-weight: 800; margin-top: 0.3rem; color: var(--core-navy);">
                     <?= $cData['score'] ?> <span style="font-size: 0.9rem; font-weight: 600; color: var(--core-text-muted);">/ <?= $cData['max_score'] ?></span>
                 </div>
-                <div style="font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">
-                    Akurasi: <?= $pct ?>% &bull; <?= $passedSub ? '<span style="color:var(--core-success);">Optimal ✔</span>' : '<span style="color:var(--core-danger);">Perlu Ditingkatkan ✖</span>' ?>
+                <div style="font-size: 0.82rem; font-weight: 600; margin-top: 0.25rem; color: var(--core-text-muted);">
+                    <?= htmlspecialchars($catTargetInfo['label']) ?> &bull;
+                    <?= $passedSub ? '<span style="color:var(--core-success);">Lulus PG ✔</span>' : '<span style="color:var(--core-danger);">Belum Memenuhi ✖</span>' ?>
                 </div>
             </div>
         <?php endforeach; ?>
@@ -140,8 +165,8 @@ require_once __DIR__ . '/includes/header.php';
     </h2>
 
     <?php foreach ($results as $index => $item): 
-        $isWeighted = ($item['score_a'] > 0 || $item['score_b'] > 0);
-        $isCorrect = (!$isWeighted && $item['selected_option'] !== null && $item['selected_option'] === $item['correct_option']);
+        $isWeighted = ((int)$item['score_a'] + (int)$item['score_b'] + (int)$item['score_c'] + (int)$item['score_d'] + (int)$item['score_e']) > 0;
+        $isCorrect = (!$isWeighted && $item['selected_option'] !== null && strtoupper(trim((string)$item['selected_option'])) === strtoupper(trim((string)$item['correct_option'])));
         $isSkipped = empty($item['selected_option']);
     ?>
         <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid <?= $isWeighted ? '#f59e0b' : ($isCorrect ? 'var(--core-success)' : ($isSkipped ? 'var(--gray-300)' : 'var(--core-danger)')) ?>;">
@@ -218,9 +243,9 @@ require_once __DIR__ . '/includes/header.php';
                 <div style="background: #fffbeb; border: 1px dashed #f59e0b; border-left: 4px solid #f59e0b; padding: 0.9rem 1.15rem; border-radius: var(--radius-sm); font-size: 0.88rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
                     <div style="color: #92400e;">
                         <b>🔒 Pembahasan Lengkap Khusus Member PRO VIP</b><br>
-                        <span>Buka seluruh pembahasan trik cepat dan semua paket tryout hanya dengan <b>Rp 29.000 via QRIS</b>.</span>
+                        <span>Buka seluruh pembahasan trik cepat dan semua paket tryout hanya dengan <b>Rp 29.000 via DOKU</b>.</span>
                     </div>
-                    <a href="upgrade.php" class="btn btn-gold btn-sm">📱 Buka PRO Rp 29.000 (QRIS) ➔</a>
+                    <a href="upgrade.php" class="btn btn-gold btn-sm">💳 Buka PRO Rp 29.000 via DOKU ➔</a>
                 </div>
             <?php endif; ?>
         </div>

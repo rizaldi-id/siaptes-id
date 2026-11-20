@@ -107,6 +107,23 @@ function ensureSchemaCompatibility(PDO $db) {
             $db->exec("ALTER TABLE transactions ADD COLUMN gateway_checkout_url $textCol");
         } catch (Exception $ex) {}
     }
+
+    // Sinkronisasi standar nama paket "Tryout CPNS" (110 soal) & Passing Grade resmi BKN
+    try {
+        $stmtPkg1 = $db->prepare("SELECT id, title FROM packages WHERE id = 1 LIMIT 1");
+        $stmtPkg1->execute();
+        $pkg1 = $stmtPkg1->fetch(PDO::FETCH_ASSOC);
+        if ($pkg1 && (stripos((string)$pkg1['title'], 'Tryout Akbar') !== false || strpos((string)$pkg1['title'], '2024/2025') !== false)) {
+            $newDesc = 'Simulasi resmi CAT BKN lengkap 110 butir soal acak dari bank soal: TWK (30 soal, PG 65), TIU (35 soal, PG 80), dan TKP (45 soal, PG 166) dalam 100 menit sesuai standar BKN.';
+            $db->prepare("UPDATE packages SET title = ?, description = ?, duration_minutes = 100, category_group = 'cpns' WHERE id = 1")
+               ->execute(['Tryout CPNS', $newDesc]);
+        }
+
+        // Pastikan passing grade resmi BKN selalu konsisten pada tabel categories
+        $db->exec("UPDATE categories SET passing_grade = 65 WHERE code = 'TWK' AND passing_grade != 65");
+        $db->exec("UPDATE categories SET passing_grade = 80 WHERE code = 'TIU' AND passing_grade != 80");
+        $db->exec("UPDATE categories SET passing_grade = 166 WHERE code = 'TKP' AND passing_grade != 166");
+    } catch (Throwable $e) {}
 }
 
 /**
