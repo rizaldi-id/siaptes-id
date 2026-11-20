@@ -78,46 +78,8 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- FITUR GRATIS TANPA LOGIN: TES KEMAMPUAN & POTENSI -->
-<section class="tp-home-strip">
-    <div class="tp-home-head">
-        <div>
-            <span class="tp-badge-emerald">✨ 100% GRATIS · TANPA LOGIN · LANGSUNG COBA</span>
-            <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
-            <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
-        </div>
-        <a href="tes-potensi.php" class="btn btn-primary btn-sm">Buka Semua Tes Gratis →</a>
-    </div>
-    <div class="tp-home-grid">
-        <a href="tes-potensi.php?tes=buta-warna" class="tp-home-card">
-            <span class="tp-hc-ico">🎨</span>
-            <strong>Tes Buta Warna</strong>
-            <span>18 pelat pseudoisokromatik SVG orisinal dengan hasil &amp; review instan.</span>
-            <em>Coba Gratis →</em>
-        </a>
-        <a href="tes-potensi.php?tes=iq" class="tp-home-card">
-            <span class="tp-hc-ico">🧠</span>
-            <strong>Tes IQ Online (30 Soal)</strong>
-            <span>Figural, Numerik, Verbal, Logis &amp; Spasial (25 menit) dengan pembahasan langsung.</span>
-            <em>Coba Gratis →</em>
-        </a>
-        <a href="tes-potensi.php?tes=minat-karier" class="tp-home-card">
-            <span class="tp-hc-ico">🧭</span>
-            <strong>Minat Karier (RIASEC)</strong>
-            <span>Temukan Top-3 Holland Code &amp; rekomendasi jalur karier/seleksi yang cocok.</span>
-            <em>Coba Gratis →</em>
-        </a>
-        <a href="tes-potensi.php?tes=game-kognitif" class="tp-home-card">
-            <span class="tp-hc-ico">🎮</span>
-            <strong>10 Game Kognitif</strong>
-            <span>Kejar Angka, Memori Grid, Sprint Pola, Balon Risiko, Sinyal Berhenti &amp; lainnya.</span>
-            <em>Main Gratis →</em>
-        </a>
-    </div>
-</section>
-
 <!-- 4 PILAR UTAMA UJIAN YANG DIDUKUNG -->
-<div style="margin-bottom: 3.5rem;">
+<div style="margin-bottom: 3rem;">
     <div style="text-align: center; max-width: 760px; margin: 0 auto 2rem;">
         <span class="badge badge-navy" style="margin-bottom: 0.5rem;">CAKUPAN LENGKAP DALAM 1 PLATFORM</span>
         <h2 style="font-size: 2rem; font-weight: 800; color: var(--core-navy); margin-top: 0.5rem; margin-bottom: 0.75rem;">
@@ -211,6 +173,44 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- FITUR GRATIS TANPA LOGIN: TES KEMAMPUAN & POTENSI -->
+<section class="tp-home-strip">
+    <div class="tp-home-head">
+        <div>
+            <span class="tp-badge-emerald">✨ 100% GRATIS · TANPA LOGIN · LANGSUNG COBA</span>
+            <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
+            <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
+        </div>
+        <a href="tes-potensi.php" class="btn btn-primary btn-sm">Buka Semua Tes Gratis →</a>
+    </div>
+    <div class="tp-home-grid">
+        <a href="tes-potensi.php?tes=buta-warna" class="tp-home-card">
+            <span class="tp-hc-ico">🎨</span>
+            <strong>Tes Buta Warna</strong>
+            <span>18 pelat pseudoisokromatik SVG orisinal dengan hasil &amp; review instan.</span>
+            <em>Coba Gratis →</em>
+        </a>
+        <a href="tes-potensi.php?tes=iq" class="tp-home-card">
+            <span class="tp-hc-ico">🧠</span>
+            <strong>Tes IQ Online (30 Soal)</strong>
+            <span>Figural, Numerik, Verbal, Logis &amp; Spasial (25 menit) dengan pembahasan langsung.</span>
+            <em>Coba Gratis →</em>
+        </a>
+        <a href="tes-potensi.php?tes=minat-karier" class="tp-home-card">
+            <span class="tp-hc-ico">🧭</span>
+            <strong>Minat Karier (RIASEC)</strong>
+            <span>Temukan Top-3 Holland Code &amp; rekomendasi jalur karier/seleksi yang cocok.</span>
+            <em>Coba Gratis →</em>
+        </a>
+        <a href="tes-potensi.php?tes=game-kognitif" class="tp-home-card">
+            <span class="tp-hc-ico">🎮</span>
+            <strong>10 Game Kognitif</strong>
+            <span>Kejar Angka, Memori Grid, Sprint Pola, Balon Risiko, Sinyal Berhenti &amp; lainnya.</span>
+            <em>Main Gratis →</em>
+        </a>
+    </div>
+</section>
+
 <!-- Statistik Platform -->
 <div class="grid-3" style="margin-bottom: 3.5rem;">
     <div class="stat-card twk">
@@ -299,72 +299,6 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<!-- SECTION: TESTIMONIAL & PROOF -->
-<div class="card" style="background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%); border: 1px solid var(--core-border); padding: 2.5rem 2rem; margin-bottom: 3.5rem;">
-    <div style="text-align: center; margin-bottom: 2rem;">
-        <span class="badge badge-gold" style="padding: 0.35rem 0.85rem; font-weight: 700;">TESTIMONI ALUMNI SIAP TES</span>
-        <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--core-navy); margin-top: 0.5rem;">
-            Cerita Mereka yang Berhasil Meraih Impian
-        </h2>
-    </div>
-
-    <div class="grid-3">
-        <div style="background: #ffffff; border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--core-border); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="color: var(--core-gold); margin-bottom: 0.75rem; font-size: 1.1rem;">★★★★★</div>
-                <p style="font-size: 0.925rem; color: var(--core-text); font-style: italic; line-height: 1.6; margin-bottom: 1.25rem;">
-                    "Simulasi CAT di siaptes.id bener-bener ngebantu ngatur ritme waktu ujian. Pas ujian SKD di BKN kemarin udah gak gugup karena sistemnya persis. Skor SKD saya 442 dan lolos formasi impian!"
-                </p>
-            </div>
-            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: var(--core-navy); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
-                    AN
-                </div>
-                <div>
-                    <b style="font-size: 0.9rem; color: var(--core-navy); display: block;">Anisa Nurul F.</b>
-                    <span style="font-size: 0.8rem; color: var(--core-text-muted);">Lolos CPNS Kementerian Keuangan RI</span>
-                </div>
-            </div>
-        </div>
-
-        <div style="background: #ffffff; border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--core-border); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="color: var(--core-gold); margin-bottom: 0.75rem; font-size: 1.1rem;">★★★★★</div>
-                <p style="font-size: 0.925rem; color: var(--core-text); font-style: italic; line-height: 1.6; margin-bottom: 1.25rem;">
-                    "Soal Core Values AKHLAK BUMN dan TKD-nya sangat aplikatif dengan kasus nyata dunia kerja. Pembahasan trik bahasa Inggrisnya juga praktis banget. Alhamdulillah lolos Rekrutmen Bersama BUMN di Bank Mandiri!"
-                </p>
-            </div>
-            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: var(--core-blue); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
-                    DP
-                </div>
-                <div>
-                    <b style="font-size: 0.9rem; color: var(--core-navy); display: block;">Dimas Prasetyo</b>
-                    <span style="font-size: 0.8rem; color: var(--core-text-muted);">Lolos RBB BUMN - Bank Mandiri</span>
-                </div>
-            </div>
-        </div>
-
-        <div style="background: #ffffff; border-radius: var(--radius-md); padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--core-border); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="color: var(--core-gold); margin-bottom: 0.75rem; font-size: 1.1rem;">★★★★★</div>
-                <p style="font-size: 0.925rem; color: var(--core-text); font-style: italic; line-height: 1.6; margin-bottom: 1.25rem;">
-                    "Latihan TPA Matematika Terapan dan Silogisme di sini bikin kemampuan logika analitis saya melonjak drastis. Berkat latihan rutin di SIAP TES, saya berhasil lolos SPMB PKN STAN!"
-                </p>
-            </div>
-            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: #be123c; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
-                    FR
-                </div>
-                <div>
-                    <b style="font-size: 0.9rem; color: var(--core-navy); display: block;">Fajar Ramadhan</b>
-                    <span style="font-size: 0.8rem; color: var(--core-text-muted);">Taruna PKN STAN</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Daftar Paket Tryout Pilihan -->
 <div style="margin-bottom: 3.5rem;">
     <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
@@ -401,10 +335,11 @@ require_once __DIR__ . '/includes/header.php';
                     <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1.25rem;">
                         <?= htmlspecialchars($pkg['description']) ?>
                     </p>
-                    <div style="background: var(--core-navy-subtle); padding: 0.55rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 700; color: var(--core-navy); margin-bottom: 1rem;">
-                        📊 <?= (int)$pkgMeta['question_count'] ?> Butir Soal Acak
+                    <div style="background: var(--core-navy-subtle); padding: 0.55rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 700; color: var(--core-navy); margin-bottom: 1rem;">
                         <?php if ($pkgMeta['bank_pool_count'] > $pkgMeta['question_count']): ?>
-                            <span style="font-weight: 600; color: var(--core-text-muted);">(dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal)</span>
+                            <?= (int)$pkgMeta['question_count'] ?> Soal yang diacak dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal
+                        <?php else: ?>
+                            <?= (int)$pkgMeta['question_count'] ?> Soal
                         <?php endif; ?>
                     </div>
                 </div>

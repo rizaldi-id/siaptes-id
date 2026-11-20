@@ -1,5 +1,5 @@
 <?php
-// artikel.php - Pusat Artikel, Berita Seleksi & Tips Lulus Ujian (SEO Traffic Hub)
+// artikel.php - Pusat Artikel, Info Seleksi & Panduan Belajar (Clean Editorial Layout)
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/articles_helper.php';
@@ -34,224 +34,214 @@ $stmt = $db->prepare("SELECT * FROM articles WHERE $whereSql ORDER BY is_feature
 $stmt->execute($params);
 $articles = $stmt->fetchAll();
 
-// Pisahkan artikel utama (featured) jika sedang di tampilan awal tanpa filter
+// Pisahkan artikel utama (featured) saat tampilan awal tanpa filter
 $featuredArticle = null;
-$gridArticles = $articles;
+$feedArticles = $articles;
 if ($selectedCategory === '' && $searchQuery === '' && !empty($articles)) {
     $featuredArticle = $articles[0];
-    $gridArticles = array_slice($articles, 1);
+    $feedArticles = array_slice($articles, 1);
 }
 
-// Ambil 4 artikel terpopuler untuk sidebar/info
+// 4 artikel terpopuler untuk sidebar
 $popularArticles = $db->query("SELECT id, title, slug, category, views, reading_time, created_at FROM articles WHERE is_published = 1 ORDER BY views DESC LIMIT 4")->fetchAll();
 
-$page_title = $selectedCategory ? "Artikel & Tips $selectedCategory" : "Artikel, Info Seleksi & Strategi Lulus CPNS, BUMN, Kedinasan & Psikotes";
+$page_title = $selectedCategory ? "Artikel $selectedCategory" : "Artikel & Panduan Seleksi CPNS, BUMN, Kedinasan & Psikotes";
+$meta_description = "Kumpulan panduan belajar, bedah kisi-kisi, dan strategi lulus seleksi CPNS, BUMN, Sekolah Kedinasan, dan Psikotes Kerja di SIAP TES.";
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Hero Header Artikel & Informasi Seleksi (Calm Modern Search Hub) -->
-<div class="hero" style="padding: 2.5rem 2rem; margin-bottom: 1.85rem;">
-    <div style="max-width: 780px; margin: 0 auto; text-align: center;">
-        <div class="hero-pill" style="margin-bottom: 0.85rem;">
-            📰 PUSAT INFORMASI, KISI-KISI &amp; STRATEGI LULUS SELEKSI &bull; <b>SIAPTES.ID</b>
-        </div>
-        <h1 style="font-size: 2rem; font-weight: 800; line-height: 1.28; margin-bottom: 0.7rem;">
-            Artikel &amp; Panduan Pejuang <span>CPNS, BUMN, Kedinasan &amp; Karier</span>
-        </h1>
-        <p style="font-size: 0.96rem; line-height: 1.68; margin-bottom: 1.45rem;">
-            Temukan bedah kisi-kisi terbaru, trik cepat menjawab soal CAT tanpa rumus rumit, informasi pendaftaran instansi, hingga strategi menembus passing grade.
-        </p>
-
-        <!-- Search Form -->
-        <form action="artikel.php" method="GET" style="display: flex; gap: 0.5rem; max-width: 600px; margin: 0 auto; flex-wrap: wrap;">
-            <?php if ($selectedCategory !== ''): ?>
-                <input type="hidden" name="kategori" value="<?= htmlspecialchars($selectedCategory) ?>">
-            <?php endif; ?>
-            <input type="text" name="q" value="<?= htmlspecialchars($searchQuery) ?>" placeholder="Cari topik artikel... (misal: Passing Grade CPNS, AKHLAK BUMN, PKN STAN)" 
-                   class="form-control" style="flex: 1; min-width: 240px; padding: 0.78rem 1.1rem; border-radius: 11px;">
-            <button type="submit" class="btn btn-primary" style="padding: 0.78rem 1.4rem;">
-                🔍 Cari Artikel
-            </button>
-            <?php if ($searchQuery !== '' || $selectedCategory !== ''): ?>
-                <a href="artikel.php" class="btn btn-outline" style="padding: 0.78rem 1rem;">Reset</a>
-            <?php endif; ?>
-        </form>
+<!-- Editorial Header: Bersih, Fokus, Mudah Dipindai -->
+<header class="ed-header">
+    <div class="ed-header-copy">
+        <div class="ed-eyebrow">Pustaka &amp; Panduan · siaptes.id</div>
+        <h1>Artikel &amp; Strategi Seleksi</h1>
+        <p>Bedah kisi-kisi terbaru, strategi manajemen waktu CAT, dan panduan praktis persiapan CPNS, BUMN, Kedinasan, serta Psikotes.</p>
     </div>
-</div>
 
-<!-- Bar Kategori & Tombol Admin -->
-<div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-        <a href="artikel.php" class="btn btn-sm <?= $selectedCategory === '' ? 'btn-primary' : 'btn-secondary' ?>" style="border-radius: 999px;">
-            🌐 Semua Topik
-        </a>
+    <form action="artikel.php" method="GET" class="ed-search-form" role="search">
+        <?php if ($selectedCategory !== ''): ?>
+            <input type="hidden" name="kategori" value="<?= htmlspecialchars($selectedCategory) ?>">
+        <?php endif; ?>
+        <input
+            type="search"
+            name="q"
+            value="<?= htmlspecialchars($searchQuery) ?>"
+            placeholder="Cari topik, misal: Passing Grade CPNS, AKHLAK..."
+            aria-label="Cari artikel"
+            class="ed-search-input"
+        >
+        <button type="submit" class="btn btn-primary btn-sm">Cari</button>
+        <?php if ($searchQuery !== '' || $selectedCategory !== ''): ?>
+            <a href="artikel.php" class="btn btn-outline btn-sm">Reset</a>
+        <?php endif; ?>
+    </form>
+</header>
+
+<!-- Bar Kategori Minimalis -->
+<div class="ed-filter-bar">
+    <nav class="ed-cat-nav" aria-label="Filter kategori artikel">
+        <a href="artikel.php" class="ed-cat-pill <?= $selectedCategory === '' ? 'active' : '' ?>">Semua Topik</a>
         <?php foreach ($categories as $catKey => $catMeta): ?>
-            <a href="artikel.php?kategori=<?= urlencode($catKey) ?>" 
-               class="btn btn-sm <?= $selectedCategory === $catKey ? 'btn-primary' : 'btn-secondary' ?>" 
-               style="border-radius: 999px;">
-                <?= $catMeta['icon'] ?> <?= htmlspecialchars($catKey) ?>
+            <a href="artikel.php?kategori=<?= urlencode($catKey) ?>" class="ed-cat-pill <?= $selectedCategory === $catKey ? 'active' : '' ?>">
+                <?= htmlspecialchars($catKey) ?>
             </a>
         <?php endforeach; ?>
-    </div>
+    </nav>
 
     <?php if (isAdmin()): ?>
-        <div style="display: flex; gap: 0.5rem;">
-            <a href="admin/form_artikel.php" class="btn btn-gold btn-sm">✍️ + Tulis Artikel Baru</a>
-            <a href="admin/artikel.php" class="btn btn-secondary btn-sm">⚙️ Kelola Artikel</a>
+        <div class="ed-admin-actions">
+            <a href="admin/form_artikel.php" class="btn btn-primary btn-sm">+ Tulis Artikel</a>
+            <a href="admin/artikel.php" class="btn btn-outline btn-sm">Kelola</a>
         </div>
     <?php endif; ?>
 </div>
 
 <?php if (empty($articles)): ?>
-    <div class="card" style="text-align: center; padding: 3.5rem 2rem; margin-bottom: 3rem;">
-        <div style="font-size: 3rem; margin-bottom: 0.75rem;">📭</div>
-        <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">Belum Ada Artikel yang Cocok</h3>
-        <p style="color: var(--core-text-muted); max-width: 480px; margin: 0 auto 1.5rem;">
-            Maaf, kami tidak menemukan artikel untuk pencarian <b>"<?= htmlspecialchars($searchQuery ?: $selectedCategory) ?>"</b>. Silakan coba kata kunci lain atau lihat semua topik.
-        </p>
-        <a href="artikel.php" class="btn btn-primary">Lihat Semua Artikel</a>
+    <div class="ed-empty">
+        <h3>Tidak ada artikel yang cocok</h3>
+        <p>Kami belum menemukan artikel untuk kata kunci <b>"<?= htmlspecialchars($searchQuery ?: $selectedCategory) ?>"</b>. Coba kata kunci lain atau lihat seluruh topik.</p>
+        <a href="artikel.php" class="btn btn-primary btn-sm">Lihat Semua Artikel</a>
     </div>
 <?php else: ?>
 
-    <!-- ARTIKEL PILIHAN UTAMA (FEATURED) -->
-    <?php if ($featuredArticle): 
-        $fCat = $categories[$featuredArticle['category']] ?? ['icon' => '📌', 'badge_class' => 'badge-navy', 'color' => '#0b2d52'];
+    <!-- Artikel Pilihan Utama (Editorial Feature) -->
+    <?php if ($featuredArticle):
+        $fCat = $categories[$featuredArticle['category']] ?? ['color' => '#2d4f8e'];
+        $hasCover = !empty($featuredArticle['cover_image']);
     ?>
-        <div class="card card-gold-top" style="margin-bottom: 2.5rem; padding: 0; overflow: hidden; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));">
-            <!-- Visual Banner Left -->
-            <div style="background: linear-gradient(135deg, <?= $fCat['color'] ?> 0%, #243652 100%); color: #fff; padding: 2.5rem 2rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; min-height: 260px;">
-                <?php if (!empty($featuredArticle['cover_image'])): ?>
-                    <img src="<?= htmlspecialchars($featuredArticle['cover_image']) ?>" alt="<?= htmlspecialchars($featuredArticle['title']) ?>" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35;">
-                <?php endif; ?>
-                <div style="position: relative; z-index: 1;">
-                    <span class="badge badge-gold" style="margin-bottom: 0.75rem;">⭐ ARTIKEL PILIHAN UTAMA</span>
-                    <div style="font-size: 3.2rem; margin: 0.5rem 0;"><?= $fCat['icon'] ?></div>
-                    <div style="font-size: 0.85rem; color: #dbeafe; font-weight: 600; letter-spacing: 0.3px;">
-                        <?= htmlspecialchars($featuredArticle['category']) ?> &bull; SIAPTES.ID
-                    </div>
+        <article class="ed-featured <?= $hasCover ? 'has-cover' : '' ?>">
+            <?php if ($hasCover): ?>
+                <a href="baca-artikel.php?slug=<?= urlencode($featuredArticle['slug']) ?>" class="ed-featured-cover">
+                    <img src="<?= htmlspecialchars($featuredArticle['cover_image']) ?>" alt="<?= htmlspecialchars($featuredArticle['title']) ?>">
+                </a>
+            <?php endif; ?>
+            <div class="ed-featured-body">
+                <div class="ed-meta-row">
+                    <span class="ed-kicker" style="--cat-color: <?= htmlspecialchars($fCat['color']) ?>;">Pilihan Utama</span>
+                    <span class="ed-dot">&middot;</span>
+                    <a href="artikel.php?kategori=<?= urlencode($featuredArticle['category']) ?>" class="ed-cat-link"><?= htmlspecialchars($featuredArticle['category']) ?></a>
+                    <span class="ed-dot">&middot;</span>
+                    <span><?= (int)$featuredArticle['reading_time'] ?> menit baca</span>
                 </div>
-                <div style="position: relative; z-index: 1; display: flex; gap: 1rem; font-size: 0.8rem; color: #cbd5e1; margin-top: 1.5rem; flex-wrap: wrap;">
-                    <span>🗓️ <?= formatTanggalIndo($featuredArticle['created_at']) ?></span>
-                    <span>⏱️ <?= (int)$featuredArticle['reading_time'] ?> Menit Baca</span>
-                    <span>👁️ <?= number_format((int)$featuredArticle['views']) ?>x Dibaca</span>
-                </div>
-            </div>
-
-            <!-- Content Right -->
-            <div style="padding: 2.25rem 2rem; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                        <span class="badge <?= $fCat['badge_class'] ?>"><?= $fCat['icon'] ?> <?= htmlspecialchars($featuredArticle['category']) ?></span>
-                        <span style="font-size: 0.8rem; color: var(--core-text-muted);">Oleh <b><?= htmlspecialchars($featuredArticle['author_name']) ?></b></span>
-                    </div>
-                    <h2 style="font-size: 1.55rem; font-weight: 800; color: var(--core-navy); line-height: 1.35; margin-bottom: 0.85rem;">
-                        <a href="baca-artikel.php?slug=<?= urlencode($featuredArticle['slug']) ?>" style="color: inherit; text-decoration: none;">
-                            <?= htmlspecialchars($featuredArticle['title']) ?>
-                        </a>
-                    </h2>
-                    <p style="color: var(--core-text-muted); font-size: 0.95rem; line-height: 1.65; margin-bottom: 1.25rem;">
-                        <?= htmlspecialchars($featuredArticle['excerpt']) ?>
-                    </p>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                        <?php 
-                        $tags = array_filter(array_map('trim', explode(',', (string)$featuredArticle['tags'])));
-                        foreach (array_slice($tags, 0, 3) as $t): 
-                        ?>
-                            <span style="font-size: 0.72rem; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 4px; font-weight: 600;">#<?= htmlspecialchars($t) ?></span>
-                        <?php endforeach; ?>
-                    </div>
-                    <a href="baca-artikel.php?slug=<?= urlencode($featuredArticle['slug']) ?>" class="btn btn-primary btn-sm">
-                        Baca Selengkapnya ➔
+                <h2>
+                    <a href="baca-artikel.php?slug=<?= urlencode($featuredArticle['slug']) ?>">
+                        <?= htmlspecialchars($featuredArticle['title']) ?>
                     </a>
+                </h2>
+                <p class="ed-excerpt"><?= htmlspecialchars($featuredArticle['excerpt']) ?></p>
+                <div class="ed-card-foot">
+                    <div class="ed-byline">
+                        <span><?= htmlspecialchars($featuredArticle['author_name']) ?></span>
+                        <span class="ed-dot">&middot;</span>
+                        <span><?= formatTanggalIndo($featuredArticle['created_at']) ?></span>
+                        <span class="ed-dot">&middot;</span>
+                        <span><?= number_format((int)$featuredArticle['views']) ?> dibaca</span>
+                    </div>
+                    <a href="baca-artikel.php?slug=<?= urlencode($featuredArticle['slug']) ?>" class="ed-read-link">Baca selengkapnya →</a>
                 </div>
             </div>
-        </div>
+        </article>
     <?php endif; ?>
 
-    <!-- GRID DAFTAR ARTIKEL -->
-    <?php if (!empty($gridArticles)): ?>
-        <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--core-navy); margin: 0;">
-                <?= $selectedCategory ? 'Topik: ' . htmlspecialchars($selectedCategory) : ($searchQuery ? 'Hasil Pencarian: "' . htmlspecialchars($searchQuery) . '"' : 'Artikel & Strategi Terbaru') ?>
-            </h2>
-            <span style="font-size: 0.85rem; color: var(--core-text-muted);">Menampilkan <?= count($articles) ?> artikel</span>
-        </div>
+    <!-- Main 2-Column Editorial Layout (Feed + Sidebar Terpopuler) -->
+    <div class="ed-main-grid">
+        <section class="ed-feed-col">
+            <div class="ed-section-bar">
+                <h2>
+                    <?php if ($selectedCategory !== ''): ?>
+                        Topik: <?= htmlspecialchars($selectedCategory) ?>
+                    <?php elseif ($searchQuery !== ''): ?>
+                        Hasil pencarian: "<?= htmlspecialchars($searchQuery) ?>"
+                    <?php else: ?>
+                        Artikel Terbaru
+                    <?php endif; ?>
+                </h2>
+                <span class="ed-count"><?= count($articles) ?> artikel</span>
+            </div>
 
-        <div class="grid-3" style="margin-bottom: 3rem;">
-            <?php foreach ($gridArticles as $art): 
-                $catMeta = $categories[$art['category']] ?? ['icon' => '📄', 'badge_class' => 'badge-navy', 'color' => '#0b2d52'];
-            ?>
-                <article class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s;">
-                    <div>
-                        <!-- Card Cover / Visual Header -->
-                        <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="display: block; text-decoration: none;">
-                            <div style="height: 145px; background: linear-gradient(135deg, <?= $catMeta['color'] ?> 0%, #26364d 100%); position: relative; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; color: #fff;">
-                                <?php if (!empty($art['cover_image'])): ?>
-                                    <img src="<?= htmlspecialchars($art['cover_image']) ?>" alt="<?= htmlspecialchars($art['title']) ?>" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.45;">
-                                <?php endif; ?>
-                                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center;">
-                                    <span class="badge" style="background: rgba(255,255,255,0.2); color: #fff; backdrop-filter: blur(4px); font-size: 0.72rem;">
-                                        <?= $catMeta['icon'] ?> <?= htmlspecialchars($art['category']) ?>
-                                    </span>
-                                    <span style="font-size: 0.75rem; color: #e2e8f0; font-weight: 600;">⏱️ <?= (int)$art['reading_time'] ?> mnt</span>
+            <?php if (!empty($feedArticles)): ?>
+                <div class="ed-list">
+                    <?php foreach ($feedArticles as $art):
+                        $catMeta = $categories[$art['category']] ?? ['color' => '#2d4f8e'];
+                        $artHasCover = !empty($art['cover_image']);
+                    ?>
+                        <article class="ed-card <?= $artHasCover ? 'has-thumb' : '' ?>">
+                            <div class="ed-card-content">
+                                <div class="ed-meta-row">
+                                    <a href="artikel.php?kategori=<?= urlencode($art['category']) ?>" class="ed-cat-link" style="--cat-color: <?= htmlspecialchars($catMeta['color']) ?>;">
+                                        <?= htmlspecialchars($art['category']) ?>
+                                    </a>
+                                    <span class="ed-dot">&middot;</span>
+                                    <span><?= (int)$art['reading_time'] ?> menit baca</span>
+                                    <span class="ed-dot">&middot;</span>
+                                    <span><?= formatTanggalIndo($art['created_at']) ?></span>
                                 </div>
-                                <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end;">
-                                    <span style="font-size: 2.1rem; line-height: 1;"><?= $catMeta['icon'] ?></span>
-                                    <span style="font-size: 0.72rem; color: #cbd5e1;">👁️ <?= number_format((int)$art['views']) ?>x dibaca</span>
+                                <h3>
+                                    <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>">
+                                        <?= htmlspecialchars($art['title']) ?>
+                                    </a>
+                                </h3>
+                                <p class="ed-excerpt"><?= htmlspecialchars(mb_strimwidth($art['excerpt'], 0, 175, '...')) ?></p>
+                                <div class="ed-card-foot">
+                                    <div class="ed-byline">
+                                        <span><?= htmlspecialchars($art['author_name']) ?></span>
+                                        <span class="ed-dot">&middot;</span>
+                                        <span><?= number_format((int)$art['views']) ?> dibaca</span>
+                                        <?php if (isAdmin()): ?>
+                                            <span class="ed-dot">&middot;</span>
+                                            <a href="admin/form_artikel.php?id=<?= $art['id'] ?>" class="ed-edit-link">Edit</a>
+                                        <?php endif; ?>
+                                    </div>
+                                    <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" class="ed-read-link">Baca →</a>
                                 </div>
                             </div>
-                        </a>
-
-                        <!-- Card Body -->
-                        <div style="padding: 1.35rem 1.35rem 1rem;">
-                            <div style="font-size: 0.76rem; color: var(--core-text-muted); margin-bottom: 0.45rem;">
-                                🗓️ <?= formatTanggalIndo($art['created_at']) ?> &bull; <?= htmlspecialchars($art['author_name']) ?>
-                            </div>
-                            <h3 style="font-size: 1.08rem; font-weight: 800; color: var(--core-navy); line-height: 1.4; margin-bottom: 0.65rem;">
-                                <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="color: inherit; text-decoration: none;">
-                                    <?= htmlspecialchars($art['title']) ?>
+                            <?php if ($artHasCover): ?>
+                                <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" class="ed-card-thumb">
+                                    <img src="<?= htmlspecialchars($art['cover_image']) ?>" alt="<?= htmlspecialchars($art['title']) ?>" loading="lazy">
                                 </a>
-                            </h3>
-                            <p style="font-size: 0.86rem; color: var(--core-text-muted); line-height: 1.6; margin-bottom: 1rem;">
-                                <?= htmlspecialchars(mb_strimwidth($art['excerpt'], 0, 145, '...')) ?>
-                            </p>
-                        </div>
-                    </div>
+                            <?php endif; ?>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p class="ed-single-note">Seluruh artikel yang tersedia sudah ditampilkan pada pilihan utama di atas.</p>
+            <?php endif; ?>
+        </section>
 
-                    <!-- Card Footer -->
-                    <div style="padding: 0.85rem 1.35rem; border-top: 1px solid var(--core-border-light); background: #f8fafc; display: flex; justify-content: space-between; align-items: center;">
-                        <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="font-size: 0.85rem; font-weight: 700; color: var(--core-navy); text-decoration: none;">
-                            Baca Artikel Selengkapnya →
-                        </a>
-                        <?php if (isAdmin()): ?>
-                            <a href="admin/form_artikel.php?id=<?= $art['id'] ?>" style="font-size: 0.75rem; color: var(--core-blue); font-weight: 600;">✏️ Edit</a>
-                        <?php endif; ?>
-                    </div>
-                </article>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+        <!-- Sidebar Editorial: Terpopuler & Latihan Terkait -->
+        <aside class="ed-sidebar">
+            <?php if (!empty($popularArticles)): ?>
+                <div class="ed-side-box">
+                    <h3 class="ed-side-title">Paling Banyak Dibaca</h3>
+                    <ol class="ed-popular-list">
+                        <?php foreach ($popularArticles as $idx => $pop): ?>
+                            <li>
+                                <span class="ed-pop-num"><?= sprintf('%02d', $idx + 1) ?></span>
+                                <div class="ed-pop-body">
+                                    <a href="baca-artikel.php?slug=<?= urlencode($pop['slug']) ?>">
+                                        <?= htmlspecialchars($pop['title']) ?>
+                                    </a>
+                                    <div class="ed-pop-meta">
+                                        <?= htmlspecialchars($pop['category']) ?> &middot; <?= (int)$pop['reading_time'] ?> mnt
+                                    </div>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                </div>
+            <?php endif; ?>
+
+            <div class="ed-side-box ed-side-practice">
+                <h3 class="ed-side-title">Lanjut ke Latihan</h3>
+                <p>Terapkan strategi yang Anda baca langsung di simulasi berwaktu atau coba tes potensi gratis tanpa login.</p>
+                <div class="ed-side-btns">
+                    <a href="tryout.php" class="btn btn-primary btn-sm">Simulasi Tryout CAT</a>
+                    <a href="tes-potensi.php" class="btn btn-outline btn-sm">Tes Kemampuan &amp; Potensi</a>
+                </div>
+            </div>
+        </aside>
+    </div>
 
 <?php endif; ?>
-
-<!-- Banner Konversi Pembaca Artikel ke Peserta Tryout -->
-<div class="card card-navy-top" style="background: linear-gradient(135deg, #f8fafc 0%, #eef6fc 100%); padding: 2.25rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-    <div style="max-width: 640px;">
-        <span class="badge badge-gold" style="margin-bottom: 0.5rem;">🎯 DARI TEORI LANGSUNG KE PRAKTIK</span>
-        <h3 style="font-size: 1.45rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.45rem;">
-            Sudah Baca Strateginya? Uji Kemampuan Anda di Simulasi CAT Sekarang!
-        </h3>
-        <p style="color: var(--core-text-muted); font-size: 0.92rem; line-height: 1.6; margin: 0;">
-            Membaca tips saja tidak cukup tanpa melatih kecepatan menjawab soal dengan timer asli. Coba <b>Paket Mini Tryout All-in-One (Trial Gratis)</b> atau latihan ratusan soal di <b>siaptes.id</b>.
-        </p>
-    </div>
-    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-        <a href="tryout.php" class="btn btn-primary">🚀 Mulai Simulasi Tryout Gratis</a>
-        <a href="latihan.php" class="btn btn-secondary">📚 Buka Bank Soal</a>
-    </div>
-</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

@@ -123,10 +123,11 @@ $isUserPremium = isPremiumUser();
                 </p>
 
                 <div style="background: var(--core-navy-subtle); border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 0.8rem 1rem; margin-bottom: 1.25rem;">
-                    <div style="font-size: 0.78rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.4rem; letter-spacing: 0.3px;">
-                        KOMPOSISI SOAL: <?= (int)$pkgMeta['question_count'] ?> BUTIR SOAL
+                    <div style="font-size: 0.82rem; font-weight: 700; color: var(--core-navy); margin-bottom: 0.45rem;">
                         <?php if ($pkgMeta['bank_pool_count'] > $pkgMeta['question_count']): ?>
-                            <span style="font-weight: 600; color: var(--core-text-muted);">(Acak dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal)</span>
+                            <?= (int)$pkgMeta['question_count'] ?> Soal yang diacak dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal
+                        <?php else: ?>
+                            <?= (int)$pkgMeta['question_count'] ?> Soal
                         <?php endif; ?>
                     </div>
                     <div style="display: flex; gap: 0.45rem; font-size: 0.825rem; color: var(--core-text); flex-wrap: wrap; margin-bottom: 0.45rem;">
