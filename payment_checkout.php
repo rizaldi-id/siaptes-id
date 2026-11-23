@@ -1,5 +1,5 @@
 <?php
-// payment_checkout.php - Halaman Payment Gateway QRIS Otomatis (Rp 29.000)
+// payment_checkout.php - Halaman Checkout Dual-Gateway (DOKU Checkout & Midtrans Snap)
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/payment_gateway.php';
@@ -25,19 +25,44 @@ if (isAdmin()) {
 $tx = $stmt->fetch();
 
 if (!$tx) {
-    header('Location: upgrade.php?msg=' . urlencode('Tagihan pembayaran QRIS tidak ditemukan.'));
+    header('Location: upgrade.php?msg=' . urlencode('Tagihan pembayaran tidak ditemukan.'));
     exit;
 }
 
-$channels = getPaymentChannels();
+$gateways = getAvailablePaymentGateways();
+$txProvider = detectTransactionProvider($tx);
+$gwMeta = $gateways[$txProvider] ?? $gateways['doku'];
+
+// Penanganan pindah gateway 1-klik (DOKU <-> Midtrans) saat status masih pending
+if ($tx['status'] === 'pending' && isset($_GET['switch'])) {
+    $switchTarget = strtolower(trim((string)$_GET['switch']));
+    if (
+        in_array($switchTarget, ['doku', 'midtrans'], true)
+        && $switchTarget !== $txProvider
+        && !empty($gateways[$switchTarget]['configured'])
+    ) {
+        $newInv = createFreshProVipTransaction(
+            $db,
+            (int)$tx['user_id'],
+            !empty($tx['package_id']) ? (int)$tx['package_id'] : null,
+            (int)$tx['amount'],
+            'Pengguna beralih metode ke ' . $gateways[$switchTarget]['name'],
+            $switchTarget
+        );
+        header('Location: payment_checkout.php?invoice=' . urlencode($newInv) . '&autopay=1&switched=1');
+        exit;
+    }
+}
+
+$channels = getPaymentChannels($txProvider);
 $channelMeta = $channels['QRIS'];
 $qrisPayload = generateQrisPayload($tx['invoice_number'], (int)$tx['amount']);
 
-// Inisialisasi Payment Gateway (Prioritas: DOKU -> Mayar -> Tripay -> Midtrans -> Built-in)
 $gatewayQrUrl = '';
 $gatewayCheckoutUrl = '';
 $gatewayError = '';
 $isDokuSession = false;
+$isMidtransSession = false;
 $midtransSnapToken = null;
 
 $remainingSeconds = getTransactionRemainingSeconds($tx, 86400);
@@ -47,9 +72,8 @@ $autoOpenCheckout = (isset($_GET['autopay']) && $_GET['autopay'] === '1');
 if ($tx['status'] === 'pending') {
     $invKey = $tx['invoice_number'];
 
-    // 1. Jika menggunakan DOKU CHECKOUT dan kredensial DOKU sudah diisi
-    if (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) {
-        // Selalu cek status terkini ke server DOKU agar transaksi yang sudah dibayar atau expired langsung tertangani
+    // 1. DOKU CHECKOUT
+    if ($txProvider === 'doku' && isDokuConfigured()) {
         $dokuCheck = checkDokuOrderStatus($invKey);
         if (!empty($dokuCheck['paid'])) {
             activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via DOKU (' . ($dokuCheck['channel'] ?: 'DOKU') . ')');
@@ -60,14 +84,14 @@ if ($tx['status'] === 'pending') {
         $isDokuExpiredOrFailed = isDokuTerminalFailureStatus($dokuCheck['status'] ?? '');
         $isLocalExpired = isTransactionLinkExpired($tx);
 
-        // Jika diminta link baru, atau tagihan sudah expired (> 23 jam / status EXPIRED di DOKU), buat invoice baru otomatis
         if ($forceNewLink || $isDokuExpiredOrFailed || $isLocalExpired) {
             $newInv = createFreshProVipTransaction(
                 $db,
                 (int)$tx['user_id'],
                 !empty($tx['package_id']) ? (int)$tx['package_id'] : null,
                 (int)$tx['amount'],
-                $forceNewLink ? 'Pengguna meminta link pembayaran DOKU baru' : 'Tagihan lama kedaluwarsa, diganti otomatis'
+                $forceNewLink ? 'Pengguna meminta link pembayaran DOKU baru' : 'Tagihan lama kedaluwarsa, diganti otomatis',
+                'doku'
             );
             header('Location: payment_checkout.php?invoice=' . urlencode($newInv) . '&autopay=1&refreshed=1');
             exit;
@@ -99,13 +123,66 @@ if ($tx['status'] === 'pending') {
             $qrisPayload = $gatewayCheckoutUrl;
         }
     }
-    // 2. Cadangan: Jika menggunakan MAYAR.ID
-    elseif (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) {
+    // 2. MIDTRANS SNAP
+    elseif ($txProvider === 'midtrans' && isMidtransConfigured()) {
+        $midCheck = checkMidtransOrderStatus($invKey);
+        if (!empty($midCheck['paid'])) {
+            activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Midtrans (' . ($midCheck['channel'] ?: 'Midtrans') . ')');
+            header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
+            exit;
+        }
+
+        $isMidExpiredOrFailed = isMidtransTerminalFailureStatus($midCheck['status'] ?? '');
+        $isLocalExpired = isTransactionLinkExpired($tx);
+
+        if ($forceNewLink || $isMidExpiredOrFailed || $isLocalExpired) {
+            $newInv = createFreshProVipTransaction(
+                $db,
+                (int)$tx['user_id'],
+                !empty($tx['package_id']) ? (int)$tx['package_id'] : null,
+                (int)$tx['amount'],
+                $forceNewLink ? 'Pengguna meminta link pembayaran Midtrans baru' : 'Tagihan lama kedaluwarsa, diganti otomatis',
+                'midtrans'
+            );
+            header('Location: payment_checkout.php?invoice=' . urlencode($newInv) . '&autopay=1&refreshed=1');
+            exit;
+        }
+
+        if (!empty($tx['gateway_reference'])) {
+            $midtransSnapToken = $tx['gateway_reference'];
+            $gatewayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
+            $isMidtransSession = true;
+        } else {
+            $midData = createMidtransSnapTransaction($invKey, (int)$tx['amount'], [
+                'id' => $tx['user_id'],
+                'name' => $tx['user_name'],
+                'email' => $tx['user_email']
+            ]);
+
+            if (!empty($midData['token'])) {
+                $midtransSnapToken = $midData['token'];
+                $gatewayCheckoutUrl = $midData['redirect_url'] ?? '';
+                $isMidtransSession = true;
+
+                $db->prepare("UPDATE transactions SET gateway_reference = ?, gateway_checkout_url = ? WHERE id = ?")
+                   ->execute([$midtransSnapToken, $gatewayCheckoutUrl, $tx['id']]);
+                $tx['gateway_reference'] = $midtransSnapToken;
+                $tx['gateway_checkout_url'] = $gatewayCheckoutUrl;
+            } elseif (!empty($midData['error'])) {
+                $gatewayError = $midData['error'];
+            }
+        }
+        if (!empty($gatewayCheckoutUrl)) {
+            $qrisPayload = $gatewayCheckoutUrl;
+        }
+    }
+    // 3. Cadangan: MAYAR.ID
+    elseif ($txProvider === 'mayar' && isMayarConfigured()) {
         if (!empty($tx['gateway_reference'])) {
             $gatewayQrUrl = $tx['gateway_qr_url'] ?? '';
             $gatewayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
 
-            if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'])) {
+            if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'], 'mayar')) {
                 activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Mayar.id (' . $tx['gateway_reference'] . ')');
                 header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
                 exit;
@@ -128,17 +205,14 @@ if ($tx['status'] === 'pending') {
                 $gatewayError = $mayarData['error'];
             }
         }
-        if (!empty($gatewayCheckoutUrl)) {
-            $qrisPayload = $gatewayCheckoutUrl;
-        }
     }
-    // 3. Cadangan: Jika menggunakan TRIPAY
-    elseif (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) {
+    // 4. Cadangan: TRIPAY
+    elseif ($txProvider === 'tripay' && isTripayConfigured()) {
         if (!empty($tx['gateway_reference'])) {
             $gatewayQrUrl = $tx['gateway_qr_url'] ?? '';
             $gatewayCheckoutUrl = $tx['gateway_checkout_url'] ?? '';
 
-            if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'])) {
+            if (checkGatewayPaymentPaidStatus($invKey, $tx['gateway_reference'], 'tripay')) {
                 activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Tripay QRIS (' . $tx['gateway_reference'] . ')');
                 header('Location: payment_checkout.php?invoice=' . urlencode($invKey) . '&paid=1');
                 exit;
@@ -179,12 +253,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'verify_payment' && $tx['status'] === 'pending') {
         $gatewayRef = $tx['gateway_reference'] ?? null;
-        $isPaidViaApi = checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef);
+        $isPaidViaApi = checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef, $txProvider);
         $isLiveProviderConfigured = (
-            (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) ||
-            (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured()) ||
-            (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured()) ||
-            (GATEWAY_PROVIDER === 'midtrans' && isMidtransServerKeyValid())
+            ($txProvider === 'doku' && isDokuConfigured()) ||
+            ($txProvider === 'midtrans' && isMidtransConfigured()) ||
+            ($txProvider === 'mayar' && isMayarConfigured()) ||
+            ($txProvider === 'tripay' && isTripayConfigured())
         );
         $isAdminInstant = (isAdmin() && !empty($_POST['admin_instant_verify']));
 
@@ -192,17 +266,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $refNote = $gatewayRef ?: $tx['invoice_number'];
             $notes = $isAdminInstant
                 ? 'Lunas via Verifikasi Cepat Admin (Testing)'
-                : 'Lunas Otomatis via Payment Gateway ' . strtoupper(GATEWAY_PROVIDER) . ' (' . $refNote . ')';
+                : 'Lunas Otomatis via ' . $gwMeta['name'] . ' (' . $refNote . ')';
             activateUserProFromTransaction($db, $tx, $notes);
 
             header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&paid=1');
             exit;
         } else {
-            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Pembayaran belum terkonfirmasi di server ' . strtoupper(GATEWAY_PROVIDER) . '. Pastikan Anda telah menyelesaikan transaksi Rp 29.000 pada halaman pembayaran DOKU, lalu tunggu beberapa detik.'));
+            header('Location: payment_checkout.php?invoice=' . urlencode($invoice) . '&msg=' . urlencode('Pembayaran belum terkonfirmasi di server ' . $gwMeta['short_label'] . '. Pastikan Anda telah menyelesaikan transaksi Rp 29.000 pada halaman pembayaran ' . $gwMeta['short_label'] . ', lalu tunggu beberapa detik.'));
             exit;
         }
     }
 }
+
+$otherProvider = ($txProvider === 'midtrans') ? 'doku' : 'midtrans';
+$canSwitchGateway = (!empty($gateways[$otherProvider]['configured']));
 
 $page_title = "Pembayaran #" . $tx['invoice_number'];
 require_once __DIR__ . '/includes/header.php';
@@ -235,7 +312,7 @@ require_once __DIR__ . '/includes/header.php';
     font-size: 0.85rem;
     font-weight: 800;
     color: var(--core-navy);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.45rem;
     display: flex;
     align-items: center;
     gap: 0.45rem;
@@ -253,6 +330,20 @@ require_once __DIR__ . '/includes/header.php';
     font-weight: 700;
     padding: 3px 8px;
     border-radius: 5px;
+}
+.switch-gw-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    background: #f4f7fc;
+    border: 1px solid #d7e2f1;
+    border-radius: 10px;
+    padding: 0.7rem 0.95rem;
+    margin-bottom: 1.1rem;
+    font-size: 0.81rem;
+    color: #334155;
 }
 .pulse-dot {
     width: 10px;
@@ -277,16 +368,16 @@ require_once __DIR__ . '/includes/header.php';
                 ← Kembali ke Halaman Upgrade PRO
             </a>
         </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--core-text-muted);">
-            <span>🔒 <b>DOKU Payment Gateway Resmi</b> (Aktivasi Otomatis 24 Jam)</span>
+        <div class="ui-inline" style="font-size: 0.82rem; color: var(--core-text-muted);">
+            <?= ui_icon('lock', 14) ?> <span><b><?= htmlspecialchars($gwMeta['name']) ?></b> (Aktivasi Otomatis 24 Jam)</span>
         </div>
     </div>
 
     <?php if ($tx['status'] === 'approved'): ?>
         <!-- TAMPILAN JIKA PEMBAYARAN SUDAH LUNAS / APPROVED -->
         <div class="card card-gold-top" style="text-align: center; padding: 3rem 2rem; margin-bottom: 2rem;">
-            <div style="width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #15803d; font-size: 2.4rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-weight: 800; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.2);">
-                ✓
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #dcfce7; color: #15803d; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; box-shadow: 0 8px 20px rgba(22, 163, 74, 0.2);">
+                <?= ui_icon('check', 34) ?>
             </div>
             <span class="badge badge-success" style="font-size: 0.85rem; padding: 0.4rem 1rem; margin-bottom: 0.75rem;">
                 PEMBAYARAN TERKONFIRMASI OTOMATIS
@@ -295,7 +386,7 @@ require_once __DIR__ . '/includes/header.php';
                 Selamat! Akun Anda Kini Resmi PRO VIP
             </h1>
             <p style="color: var(--core-text-muted); max-width: 600px; margin: 0 auto 1.75rem; font-size: 0.96rem; line-height: 1.65;">
-                Terima kasih <b><?= htmlspecialchars($tx['user_name']) ?></b>. Pembayaran sebesar <b>Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?></b> telah terverifikasi otomatis oleh sistem DOKU dan seluruh konten PRO di <b>siaptes.id</b> telah terbuka penuh.
+                Terima kasih <b><?= htmlspecialchars($tx['user_name']) ?></b>. Pembayaran sebesar <b>Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?></b> telah terverifikasi otomatis oleh sistem <?= htmlspecialchars($gwMeta['short_label']) ?> dan seluruh konten PRO di <b>siaptes.id</b> telah terbuka penuh.
             </p>
 
             <!-- Kwitansi Digital -->
@@ -306,11 +397,11 @@ require_once __DIR__ . '/includes/header.php';
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px dashed var(--core-border);">
                     <span style="color: var(--core-text-muted);">Status Akun</span>
-                    <span class="badge badge-gold">⭐ PRO VIP ALL-ACCESS (AKTIF)</span>
+                    <span class="badge badge-gold"><?= ui_icon('crown', 12) ?> PRO VIP ALL-ACCESS (AKTIF)</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px dashed var(--core-border);">
                     <span style="color: var(--core-text-muted);">Metode Pembayaran</span>
-                    <b>DOKU Payment Gateway (Otomatis)</b>
+                    <b><?= htmlspecialchars($gwMeta['name']) ?> (Otomatis)</b>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding: 0.45rem 0; border-bottom: 1px dashed var(--core-border);">
                     <span style="color: var(--core-text-muted);">Total Dibayar</span>
@@ -324,13 +415,13 @@ require_once __DIR__ . '/includes/header.php';
 
             <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
                 <a href="tryout.php" class="btn btn-gold" style="padding: 0.85rem 2rem; font-size: 1rem;">
-                    🚀 Mulai Simulasi Tryout PRO Sekarang ➔
+                    <?= ui_icon('play', 15) ?> Mulai Simulasi Tryout PRO <?= ui_icon('arrow-right', 15, 'icon-arrow') ?>
                 </a>
                 <a href="latihan.php" class="btn btn-primary" style="padding: 0.85rem 1.5rem;">
-                    📚 Buka Bank Soal Lengkap
+                    <?= ui_icon('book-open', 15) ?> Buka Bank Soal Lengkap
                 </a>
                 <button type="button" onclick="window.print()" class="btn btn-secondary">
-                    🖨️ Cetak Kwitansi
+                    <?= ui_icon('file-text', 15) ?> Cetak Kwitansi
                 </button>
             </div>
         </div>
@@ -338,7 +429,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php elseif ($tx['status'] === 'rejected'): ?>
         <!-- TAMPILAN JIKA DIBATALKAN / KEDALUWARSA -->
         <div class="card" style="text-align: center; padding: 3rem 2rem;">
-            <div style="font-size: 3rem; margin-bottom: 0.75rem;">⏳</div>
+            <div style="margin-bottom: 0.75rem;"><?= ui_icon_box('clock', 'gold', 24) ?></div>
             <h2 style="color: var(--core-navy); font-weight: 800; margin-bottom: 0.5rem;">Link Pembayaran Ini Sudah Tidak Aktif / Kedaluwarsa</h2>
             <p style="color: var(--core-text-muted); margin-bottom: 1.5rem; max-width: 540px; margin-left: auto; margin-right: auto;">
                 Nomor Invoice <b><?= htmlspecialchars($tx['invoice_number']) ?></b> sudah dibatalkan atau melewati batas waktu pembayaran. Klik tombol di bawah untuk langsung membuat link pembayaran baru.
@@ -346,14 +437,15 @@ require_once __DIR__ . '/includes/header.php';
             <div style="display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
                 <form method="POST" action="upgrade.php" style="margin: 0;">
                     <input type="hidden" name="force_new" value="1">
+                    <input type="hidden" name="gateway_provider" value="<?= htmlspecialchars($txProvider) ?>">
                     <?php if (!empty($tx['package_id'])): ?>
                         <input type="hidden" name="package_id" value="<?= (int)$tx['package_id'] ?>">
                     <?php endif; ?>
                     <button type="submit" class="btn btn-gold" style="padding: 0.85rem 1.75rem; font-size: 0.98rem;">
-                        ⚡ Buat Link Pembayaran DOKU Baru (Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?>) ➔
+                        <?= ui_icon('zap', 15) ?> Buat Link <?= htmlspecialchars($gwMeta['short_label']) ?> Baru (Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?>) <?= ui_icon('arrow-right', 15, 'icon-arrow') ?>
                     </button>
                 </form>
-                <a href="upgrade.php" class="btn btn-secondary">Kembali ke Upgrade PRO</a>
+                <a href="upgrade.php" class="btn btn-secondary">Pilih Metode Pembayaran Lain</a>
             </div>
         </div>
 
@@ -362,13 +454,13 @@ require_once __DIR__ . '/includes/header.php';
         $cdMins = str_pad((string)floor(($remainingSeconds % 3600) / 60), 2, '0', STR_PAD_LEFT);
         $cdSecs = str_pad((string)($remainingSeconds % 60), 2, '0', STR_PAD_LEFT);
     ?>
-        <!-- TAMPILAN MENUNGGU PEMBAYARAN DOKU (AUTO-DETECT POLLING AKTIF) -->
+        <!-- TAMPILAN MENUNGGU PEMBAYARAN (AUTO-DETECT POLLING AKTIF) -->
         <div class="card" style="background: linear-gradient(135deg, var(--core-navy-dark) 0%, var(--core-navy) 100%); color: #fff; padding: 1.35rem 1.75rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; border-left: 5px solid var(--core-gold);">
             <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <span class="pulse-dot"></span>
                 <div>
                     <div style="font-size: 0.75rem; color: #86efac; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">
-                        📡 SISTEM DETEKSI PEMBAYARAN OTOMATIS AKTIF (REAL-TIME)
+                        SISTEM DETEKSI PEMBAYARAN OTOMATIS AKTIF (<?= strtoupper(htmlspecialchars($gwMeta['short_label'])) ?>)
                     </div>
                     <div style="font-size: 1.15rem; font-weight: 800; color: #fff;">
                         Invoice #<?= htmlspecialchars($tx['invoice_number']) ?> &bull; Tagihan: <span style="color: var(--core-gold);">Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?></span>
@@ -386,7 +478,15 @@ require_once __DIR__ . '/includes/header.php';
         <?php if (!empty($_GET['refreshed'])): ?>
             <div class="gov-notice" style="border-left-color: #16a34a; background: #f0fdf4; margin-bottom: 1.25rem;">
                 <div class="gov-notice-content">
-                    <p style="margin: 0; color: #166534; font-weight: 600;">✅ Link pembayaran baru (#<?= htmlspecialchars($tx['invoice_number']) ?>) telah disiapkan otomatis karena tagihan sebelumnya sudah kedaluwarsa. Silakan selesaikan pembayaran di bawah ini.</p>
+                    <p class="ui-inline" style="margin: 0; color: #166534; font-weight: 600;"><?= ui_icon('check-circle', 16) ?> <span>Link pembayaran baru (#<?= htmlspecialchars($tx['invoice_number']) ?>) telah disiapkan otomatis. Silakan selesaikan pembayaran di bawah ini.</span></p>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($_GET['switched'])): ?>
+            <div class="gov-notice" style="border-left-color: #0284c7; background: #eff6ff; margin-bottom: 1.25rem;">
+                <div class="gov-notice-content">
+                    <p class="ui-inline" style="margin: 0; color: #1e3a8a; font-weight: 600;"><?= ui_icon('refresh', 16) ?> <span>Berhasil beralih ke <b><?= htmlspecialchars($gwMeta['name']) ?></b> dengan invoice baru #<?= htmlspecialchars($tx['invoice_number']) ?>.</span></p>
                 </div>
             </div>
         <?php endif; ?>
@@ -400,11 +500,11 @@ require_once __DIR__ . '/includes/header.php';
         <?php endif; ?>
 
         <div class="gateway-grid">
-            <!-- KOLOM KIRI: PEMBAYARAN LANGSUNG VIA DOKU -->
+            <!-- KOLOM KIRI: PEMBAYARAN LANGSUNG VIA GATEWAY AKTIF -->
             <div class="card card-navy-top" style="padding: 1.75rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <span style="background: #e11d48; color: #fff; font-weight: 900; font-size: 0.85rem; padding: 5px 12px; border-radius: 6px; letter-spacing: 0.8px;">
-                        DOKU PAYMENT GATEWAY
+                    <span style="background: <?= htmlspecialchars($gwMeta['accent']) ?>; color: #fff; font-weight: 900; font-size: 0.82rem; padding: 5px 12px; border-radius: 6px; letter-spacing: 0.8px;">
+                        <?= strtoupper(htmlspecialchars($gwMeta['name'])) ?>
                     </span>
                     <span class="badge badge-success">INSTAN &amp; AMAN</span>
                 </div>
@@ -413,73 +513,96 @@ require_once __DIR__ . '/includes/header.php';
                     Bayar Cepat Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?>
                 </h2>
                 <p style="font-size: 0.85rem; color: var(--core-text-muted); line-height: 1.6; margin-bottom: 1.1rem;">
-                    Klik tombol merah di bawah untuk langsung memilih metode pembayaran (QRIS, Transfer VA Bank, e-Wallet, atau Minimarket). Akun otomatis menjadi <b>PRO VIP</b> setelah bayar.
+                    Klik tombol di bawah untuk memilih metode pembayaran melalui <b><?= htmlspecialchars($gwMeta['name']) ?></b>. Akun langsung otomatis menjadi <b>PRO VIP</b> setelah bayar.
                 </p>
 
-                <?php if (!empty($gatewayCheckoutUrl) && $isDokuSession): ?>
+                <?php if ($txProvider === 'doku' && !empty($gatewayCheckoutUrl) && $isDokuSession): ?>
                     <script src="<?= htmlspecialchars(getDokuCheckoutJsUrl()) ?>"></script>
                     <?php if ($autoOpenCheckout): ?>
-                        <div id="dokuAutoOpenNotice" style="background: #eef6fc; border: 1px solid #bfdbfe; color: #1e3a8a; border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.9rem;">
-                            ⚡ Membuka jendela pembayaran DOKU otomatis... Jika tidak muncul, klik tombol di bawah.
+                        <div class="ui-inline" style="background: #eef6fc; border: 1px solid #bfdbfe; color: #1e3a8a; border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.9rem; width: 100%;">
+                            <?= ui_icon('zap', 15) ?> <span>Membuka jendela pembayaran DOKU otomatis... Jika tidak muncul, klik tombol di bawah.</span>
                         </div>
                     <?php endif; ?>
 
-                    <button type="button" onclick="openDokuCheckout();" class="btn btn-primary" style="width: 100%; padding: 1.05rem; justify-content: center; font-size: 1.04rem; font-weight: 800; background: #e11d48; border-color: #e11d48; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35); margin-bottom: 0.65rem;">
-                        💳 Bayar Sekarang via DOKU (Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?>) ➔
+                    <button type="button" onclick="openDokuCheckout();" class="btn btn-primary" style="width: 100%; padding: 1.02rem; justify-content: center; font-size: 1.02rem; font-weight: 800; background: #e11d48; border-color: #e11d48; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3); margin-bottom: 0.65rem;">
+                        <?= ui_icon('credit-card', 16) ?> Bayar Sekarang via DOKU (Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?>) <?= ui_icon('arrow-right', 16, 'icon-arrow') ?>
                     </button>
 
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.1rem;">
                         <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="flex: 1 1 180px; justify-content: center; text-decoration: none;">
-                            🌐 Buka di Tab Penuh DOKU ↗
+                            Buka di Tab Penuh DOKU ↗
                         </a>
                         <a href="payment_checkout.php?invoice=<?= urlencode($tx['invoice_number']) ?>&amp;new_link=1" class="btn btn-outline-navy btn-sm" style="flex: 1 1 160px; justify-content: center; text-decoration: none;">
-                            🔄 Buat Link Baru
+                            <?= ui_icon('refresh', 14) ?> Buat Link Baru
                         </a>
                     </div>
+
+                <?php elseif ($txProvider === 'midtrans' && !empty($midtransSnapToken) && $isMidtransSession): ?>
+                    <script src="<?= htmlspecialchars(getMidtransSnapJsUrl()) ?>" data-client-key="<?= htmlspecialchars(MIDTRANS_CLIENT_KEY) ?>"></script>
+                    <?php if ($autoOpenCheckout): ?>
+                        <div class="ui-inline" style="background: #eef6fc; border: 1px solid #bfdbfe; color: #1e3a8a; border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.9rem; width: 100%;">
+                            <?= ui_icon('zap', 15) ?> <span>Membuka jendela Midtrans Snap otomatis... Jika tidak muncul, klik tombol biru di bawah.</span>
+                        </div>
+                    <?php endif; ?>
+
+                    <button type="button" onclick="payViaMidtransSnap();" class="btn btn-primary" style="width: 100%; padding: 1.02rem; justify-content: center; font-size: 1.02rem; font-weight: 800; background: #0284c7; border-color: #0284c7; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3); margin-bottom: 0.65rem;">
+                        <?= ui_icon('credit-card', 16) ?> Bayar Sekarang via Midtrans (Rp <?= number_format((int)$tx['amount'], 0, ',', '.') ?>) <?= ui_icon('arrow-right', 16, 'icon-arrow') ?>
+                    </button>
+
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.1rem;">
+                        <?php if (!empty($gatewayCheckoutUrl)): ?>
+                            <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="flex: 1 1 180px; justify-content: center; text-decoration: none;">
+                                Buka di Tab Penuh Midtrans ↗
+                            </a>
+                        <?php endif; ?>
+                        <a href="payment_checkout.php?invoice=<?= urlencode($tx['invoice_number']) ?>&amp;new_link=1" class="btn btn-outline-navy btn-sm" style="flex: 1 1 160px; justify-content: center; text-decoration: none;">
+                            <?= ui_icon('refresh', 14) ?> Buat Link Baru
+                        </a>
+                    </div>
+
                 <?php elseif (!empty($gatewayCheckoutUrl)): ?>
-                    <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; padding: 1rem; justify-content: center; font-size: 1.02rem; font-weight: 800; background: #0284c7; text-decoration: none; display: flex; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35); margin-bottom: 1.25rem;">
-                        💳 Bayar Sekarang via <?= ucfirst(GATEWAY_PROVIDER) ?> ➔
+                    <a href="<?= htmlspecialchars($gatewayCheckoutUrl) ?>" target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; padding: 1rem; justify-content: center; font-size: 1.02rem; font-weight: 800; background: #0284c7; text-decoration: none; display: flex; margin-bottom: 1.1rem;">
+                        <?= ui_icon('credit-card', 16) ?> Bayar Sekarang via <?= htmlspecialchars($gwMeta['short_label']) ?> <?= ui_icon('arrow-right', 16, 'icon-arrow') ?>
                     </a>
+
                 <?php else: ?>
-                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 0.9rem; font-size: 0.84rem; color: #92400e; margin-bottom: 1.25rem;">
-                        <b>Informasi:</b> Halaman pembayaran DOKU belum berhasil dibuat<?= !empty($gatewayError) ? ' (' . htmlspecialchars($gatewayError) . ')' : '' ?>.
+                    <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--radius-sm); padding: 0.9rem; font-size: 0.84rem; color: #92400e; margin-bottom: 1.1rem;">
+                        <b>Informasi:</b> Halaman pembayaran <?= htmlspecialchars($gwMeta['short_label']) ?> belum berhasil dibuat<?= !empty($gatewayError) ? ' (' . htmlspecialchars($gatewayError) . ')' : '' ?>.
                         <div style="margin-top: 0.6rem;">
-                            <a href="payment_checkout.php?invoice=<?= urlencode($tx['invoice_number']) ?>&amp;new_link=1" class="btn btn-gold btn-sm">🔄 Coba Buat Link Pembayaran Baru</a>
+                            <a href="payment_checkout.php?invoice=<?= urlencode($tx['invoice_number']) ?>&amp;new_link=1" class="btn btn-gold btn-sm">
+                                <?= ui_icon('refresh', 14) ?> Coba Buat Link Pembayaran Baru
+                            </a>
                         </div>
                     </div>
                 <?php endif; ?>
 
-                <!-- Pilihan Saluran Pembayaran DOKU -->
-                <div class="doku-method-box">
-                    <div class="doku-method-title">🏦 Virtual Account Bank (Verifikasi Detik)</div>
-                    <div class="doku-chip-list">
-                        <span class="doku-chip">BRI (BRIVA)</span>
-                        <span class="doku-chip">BNI</span>
-                        <span class="doku-chip">BSI</span>
-                        <span class="doku-chip">CIMB Niaga</span>
-                        <span class="doku-chip">BNC (Neo)</span>
-                        <span class="doku-chip">BTN</span>
-                        <span class="doku-chip">BJB</span>
-                        <span class="doku-chip">Bank Sampoerna</span>
+                <?php if ($canSwitchGateway): ?>
+                    <div class="switch-gw-bar">
+                        <span>
+                            <?= $txProvider === 'doku'
+                                ? 'Ingin bayar pakai <b>VA BCA / Mandiri / GoPay</b>?'
+                                : 'Ingin bayar pakai <b>VA BJB / BSI / DOKU e-Wallet</b>?' ?>
+                        </span>
+                        <a href="payment_checkout.php?invoice=<?= urlencode($tx['invoice_number']) ?>&amp;switch=<?= htmlspecialchars($otherProvider) ?>" style="font-weight: 800; color: var(--core-navy); white-space: nowrap; text-decoration: none;">
+                            Ganti ke <?= htmlspecialchars($gateways[$otherProvider]['short_label']) ?> →
+                        </a>
                     </div>
-                </div>
+                <?php endif; ?>
 
-                <div class="doku-method-box">
-                    <div class="doku-method-title">📱 Dompet Digital &amp; QRIS</div>
-                    <div class="doku-chip-list">
-                        <span class="doku-chip">DOKU e-Wallet</span>
-                        <span class="doku-chip">QRIS (Semua Bank &amp; E-Wallet)</span>
+                <!-- Pilihan Saluran Pembayaran Sesuai Gateway Aktif -->
+                <?php foreach ($gwMeta['groups'] as $grpIdx => $grp): ?>
+                    <div class="doku-method-box" <?= $grpIdx === count($gwMeta['groups']) - 1 ? 'style="margin-bottom: 0;"' : '' ?>>
+                        <div class="doku-method-title">
+                            <?= ui_icon($grpIdx === 0 ? 'landmark' : ($grpIdx === 1 ? 'smartphone' : 'building'), 15) ?>
+                            <span><?= htmlspecialchars($grp['title']) ?></span>
+                        </div>
+                        <div class="doku-chip-list">
+                            <?php foreach ($grp['chips'] as $chip): ?>
+                                <span class="doku-chip"><?= htmlspecialchars($chip) ?></span>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                </div>
-
-                <div class="doku-method-box" style="margin-bottom: 0;">
-                    <div class="doku-method-title">🏪 Gerai Retail &amp; Lainnya</div>
-                    <div class="doku-chip-list">
-                        <span class="doku-chip">Indomaret</span>
-                        <span class="doku-chip">Alfamart / Alfa Group</span>
-                        <span class="doku-chip">Akulaku</span>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
 
             <!-- KOLOM KANAN: STATUS OTOMATIS, BANTUAN WA & PANDUAN -->
@@ -493,7 +616,7 @@ require_once __DIR__ . '/includes/header.php';
                         </h3>
                     </div>
                     <p style="font-size: 0.84rem; color: var(--core-text-muted); line-height: 1.6; margin-bottom: 1rem;">
-                        Sistem mengecek status pembayaran ke DOKU <b>secara otomatis setiap 3 detik</b>. Begitu pembayaran Anda berhasil, akun langsung <b>berubah menjadi PRO VIP secara otomatis</b> tanpa perlu konfirmasi manual.
+                        Sistem mengecek status pembayaran ke <b><?= htmlspecialchars($gwMeta['short_label']) ?> secara otomatis setiap 3 detik</b>. Begitu transaksi selesai, akun Anda langsung aktif menjadi <b>PRO VIP secara otomatis</b>.
                     </p>
 
                     <div style="background: #f8fafc; border: 1px solid var(--core-border); border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 1rem; font-size: 0.84rem;">
@@ -505,10 +628,18 @@ require_once __DIR__ . '/includes/header.php';
                             <span style="color: var(--core-text-muted);">Email:</span>
                             <span><?= htmlspecialchars($tx['user_email']) ?></span>
                         </div>
-                        <?php if (!empty($tx['gateway_reference'])): ?>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
-                            <span style="color: var(--core-text-muted);">Referensi DOKU:</span>
-                            <code style="font-size: 0.78rem; color: var(--core-navy); font-weight: 700;"><?= htmlspecialchars($tx['gateway_reference']) ?></code>
+                            <span style="color: var(--core-text-muted);">Gateway Aktif:</span>
+                            <b><?= htmlspecialchars($gwMeta['name']) ?></b>
+                        </div>
+                        <?php if (!empty($tx['gateway_reference'])):
+                            $refDisp = (strlen($tx['gateway_reference']) > 22)
+                                ? substr($tx['gateway_reference'], 0, 18) . '...'
+                                : $tx['gateway_reference'];
+                        ?>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                            <span style="color: var(--core-text-muted);">Referensi <?= htmlspecialchars($gwMeta['short_label']) ?>:</span>
+                            <code style="font-size: 0.78rem; color: var(--core-navy); font-weight: 700;" title="<?= htmlspecialchars($tx['gateway_reference']) ?>"><?= htmlspecialchars($refDisp) ?></code>
                         </div>
                         <?php endif; ?>
                         <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--core-border); padding-top: 0.4rem;">
@@ -519,7 +650,7 @@ require_once __DIR__ . '/includes/header.php';
 
                     <?php if (!empty($gatewayError) && isAdmin()): ?>
                         <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem; margin-bottom: 0.85rem;">
-                            <b>Catatan Admin (<?= strtoupper(GATEWAY_PROVIDER) ?> API):</b> <?= htmlspecialchars($gatewayError) ?>
+                            <b>Catatan Admin (<?= strtoupper(htmlspecialchars($txProvider)) ?> API):</b> <?= htmlspecialchars($gatewayError) ?>
                         </div>
                     <?php endif; ?>
 
@@ -528,7 +659,7 @@ require_once __DIR__ . '/includes/header.php';
 
                         <div id="gatewayCheckingBox" style="display: none; background: #eef6fc; border: 1px solid #bfd7ec; border-radius: var(--radius-sm); padding: 0.9rem; margin-bottom: 1rem; text-align: center;">
                             <div style="font-weight: 800; color: var(--core-navy); font-size: 0.88rem; margin-bottom: 0.2rem;" id="gatewayCheckingText">
-                                🔄 Mengecek Status Pembayaran ke Server DOKU...
+                                Mengecek Status Pembayaran ke Server <?= htmlspecialchars($gwMeta['short_label']) ?>...
                             </div>
                             <div style="font-size: 0.76rem; color: var(--core-text-muted);">
                                 Memverifikasi mutasi pembayaran #<?= htmlspecialchars($tx['invoice_number']) ?>
@@ -536,14 +667,13 @@ require_once __DIR__ . '/includes/header.php';
                         </div>
 
                         <button type="submit" id="btnVerifyNow" class="btn btn-gold" style="width: 100%; padding: 0.9rem; font-size: 0.96rem; justify-content: center; box-shadow: 0 4px 12px rgba(250, 176, 5, 0.35);">
-                            🔄 Saya Sudah Bayar — Cek Status &amp; Aktifkan PRO VIP
+                            <?= ui_icon('refresh', 15) ?> Saya Sudah Bayar — Cek Status &amp; Aktifkan PRO VIP
                         </button>
 
                         <?php if (isAdmin()): ?>
-                            <!-- Tombol Khusus Pengujian Admin -->
                             <div style="margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px dashed var(--core-border); text-align: center;">
                                 <button type="submit" name="admin_instant_verify" value="1" class="btn btn-secondary btn-sm" style="width: 100%; font-size: 0.76rem; padding: 6px 10px;">
-                                    ⚡ [Mode Admin] Simulasikan Lunas Langsung (Uji Coba)
+                                    <?= ui_icon('zap', 13) ?> [Mode Admin] Simulasikan Lunas Langsung (Uji Coba)
                                 </button>
                             </div>
                         <?php endif; ?>
@@ -551,6 +681,7 @@ require_once __DIR__ . '/includes/header.php';
 
                     <?php
                     $waText = "Halo Admin SIAPTES.ID, saya butuh bantuan / konfirmasi pembayaran PRO VIP:\n\n"
+                            . "• Gateway: " . $gwMeta['name'] . "\n"
                             . "• Invoice: #" . $tx['invoice_number'] . "\n"
                             . "• Nama: " . $tx['user_name'] . "\n"
                             . "• Email: " . $tx['user_email'] . "\n"
@@ -559,8 +690,8 @@ require_once __DIR__ . '/includes/header.php';
                     $waUrl = "https://api.whatsapp.com/send?phone=" . ADMIN_WHATSAPP_NUMBER . "&text=" . urlencode($waText);
                     ?>
                     <div style="margin-top: 0.65rem; text-align: center;">
-                        <a href="<?= $waUrl ?>" target="_blank" rel="noopener" class="btn btn-sm" style="width: 100%; background: #25d366; color: #fff; font-weight: 700; font-size: 0.84rem; justify-content: center; padding: 0.65rem; border: none; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
-                            💬 Bantuan Admin WhatsApp (0812-2150-0930)
+                        <a href="<?= $waUrl ?>" target="_blank" rel="noopener" class="btn btn-sm" style="width: 100%; background: #16a34a; color: #fff; font-weight: 700; font-size: 0.84rem; justify-content: center; padding: 0.65rem; border: none; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+                            <?= ui_icon('smartphone', 14) ?> Bantuan Admin WhatsApp (0812-2150-0930)
                         </a>
                     </div>
 
@@ -572,10 +703,10 @@ require_once __DIR__ . '/includes/header.php';
                     </form>
                 </div>
 
-                <!-- Panduan Cara Pembayaran via DOKU -->
+                <!-- Panduan Cara Pembayaran -->
                 <div class="card">
-                    <h4 style="font-size: 0.95rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.65rem;">
-                        📌 Cara Membayar via DOKU:
+                    <h4 class="ui-inline" style="font-size: 0.95rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.65rem;">
+                        <?= ui_icon('clipboard', 16) ?> Cara Membayar via <?= htmlspecialchars($gwMeta['short_label']) ?>:
                     </h4>
                     <ol style="font-size: 0.84rem; color: var(--core-text); line-height: 1.7; padding-left: 1.25rem; margin: 0;">
                         <?php foreach ($channelMeta['instructions'] as $step): ?>
@@ -589,6 +720,8 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
+const TX_INVOICE = <?= json_encode($tx['invoice_number']) ?>;
+
 // DOKU Jokul Checkout Helper
 function openDokuCheckout() {
     <?php if (!empty($gatewayCheckoutUrl) && $isDokuSession): ?>
@@ -601,22 +734,37 @@ function openDokuCheckout() {
     <?php endif; ?>
 }
 
-// Snap Helper (Cadangan Midtrans)
+// Midtrans Snap Helper
 function payViaMidtransSnap() {
-    <?php if (!empty($midtransSnapToken)): ?>
-    if (window.snap) {
-        window.snap.pay('<?= htmlspecialchars($midtransSnapToken) ?>', {
-            onSuccess: function(result) {
-                window.location.reload();
+    <?php if (!empty($midtransSnapToken) && $isMidtransSession): ?>
+    const snapToken = <?= json_encode($midtransSnapToken) ?>;
+    const fallbackRedirectUrl = <?= json_encode($gatewayCheckoutUrl) ?>;
+    if (window.snap && typeof window.snap.pay === 'function') {
+        window.snap.pay(snapToken, {
+            onSuccess: function() {
+                fetch('check_payment_status.php?invoice=' + encodeURIComponent(TX_INVOICE), { credentials: 'same-origin' })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.status === 'approved') {
+                            window.location.href = 'payment_checkout.php?invoice=' + encodeURIComponent(TX_INVOICE) + '&paid=1';
+                        } else {
+                            window.location.reload();
+                        }
+                    })
+                    .catch(function() { window.location.reload(); });
             },
-            onPending: function(result) {
-                window.location.reload();
+            onPending: function() {
+                // Auto-polling 3 detik di halaman ini tetap berjalan untuk mendeteksi pelunasan VA/QRIS
             },
-            onError: function(result) {
-                alert('Terjadi kendala pembayaran. Silakan coba kembali.');
+            onError: function() {
+                alert('Terjadi kendala saat memproses pembayaran di Midtrans. Silakan coba lagi atau pilih metode lain.');
             },
             onClose: function() {}
         });
+    } else if (fallbackRedirectUrl) {
+        window.open(fallbackRedirectUrl, '_blank', 'noopener');
+    } else {
+        alert('Skrip Midtrans Snap belum termuat. Silakan refresh halaman atau klik "Buat Link Baru".');
     }
     <?php endif; ?>
 }
@@ -639,11 +787,15 @@ function payViaMidtransSnap() {
     }, 1000);
 })();
 
-// 2. Auto-open Jendela DOKU Checkout bila user baru klik "Bayar Sekarang" (autopay=1)
-<?php if ($tx['status'] === 'pending' && $autoOpenCheckout && !empty($gatewayCheckoutUrl) && $isDokuSession): ?>
+// 2. Auto-open Jendela Gateway bila user baru klik "Bayar Sekarang" (autopay=1)
+<?php if ($tx['status'] === 'pending' && $autoOpenCheckout): ?>
 window.addEventListener('load', function() {
     setTimeout(function() {
-        openDokuCheckout();
+        <?php if ($isDokuSession): ?>
+            openDokuCheckout();
+        <?php elseif ($isMidtransSession): ?>
+            payViaMidtransSnap();
+        <?php endif; ?>
     }, 450);
 });
 <?php endif; ?>
@@ -651,15 +803,14 @@ window.addEventListener('load', function() {
 // 3. AUTO-POLLING: Cek status pembayaran setiap 3 detik & self-heal jika kedaluwarsa
 <?php if ($tx['status'] === 'pending'): ?>
 (function() {
-    const invoiceNum = <?= json_encode($tx['invoice_number']) ?>;
     setInterval(function() {
-        fetch('check_payment_status.php?invoice=' + encodeURIComponent(invoiceNum), { credentials: 'same-origin' })
+        fetch('check_payment_status.php?invoice=' + encodeURIComponent(TX_INVOICE), { credentials: 'same-origin' })
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data && data.status === 'approved') {
-                    window.location.href = 'payment_checkout.php?invoice=' + encodeURIComponent(invoiceNum) + '&paid=1';
+                    window.location.href = 'payment_checkout.php?invoice=' + encodeURIComponent(TX_INVOICE) + '&paid=1';
                 } else if (data && data.status === 'expired') {
-                    window.location.href = 'payment_checkout.php?invoice=' + encodeURIComponent(invoiceNum) + '&new_link=1';
+                    window.location.href = 'payment_checkout.php?invoice=' + encodeURIComponent(TX_INVOICE) + '&new_link=1';
                 }
             })
             .catch(function() {});
@@ -684,15 +835,15 @@ function handleGatewayVerification(e) {
     const btn = document.getElementById('btnVerifyNow');
 
     box.style.display = 'block';
-    txt.innerText = '🔄 Menghubungi Server Gateway untuk verifikasi pembayaran...';
+    txt.innerText = 'Menghubungi Server <?= htmlspecialchars($gwMeta['short_label'], ENT_QUOTES) ?> untuk verifikasi pembayaran...';
     btn.disabled = true;
     btn.style.opacity = '0.65';
-    btn.innerText = '⏳ Mengecek Status Pembayaran...';
+    btn.innerText = 'Mengecek Status Pembayaran...';
 
     setTimeout(function() {
         isSubmittingGateway = true;
         form.submit();
-    }, 600);
+    }, 550);
 
     return false;
 }

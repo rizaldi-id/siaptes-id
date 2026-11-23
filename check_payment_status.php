@@ -1,6 +1,6 @@
 <?php
 // check_payment_status.php
-// Endpoint JSON untuk pengecekan otomatis (Auto-Polling) setiap 3 detik di halaman QRIS Checkout
+// Endpoint JSON untuk pengecekan otomatis (Auto-Polling) setiap 3 detik di halaman Checkout (DOKU & Midtrans)
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/config/payment_gateway.php';
@@ -32,7 +32,6 @@ if (!$tx) {
 
 // Jika di database sudah approved (misal karena Webhook baru saja masuk)
 if ($tx['status'] === 'approved') {
-    // Pastikan user is_premium = 1
     $db->prepare("UPDATE users SET is_premium = 1 WHERE id = ?")->execute([$tx['user_id']]);
     echo json_encode([
         'status' => 'approved',
@@ -42,10 +41,12 @@ if ($tx['status'] === 'approved') {
     exit;
 }
 
-// Jika masih pending, cek langsung ke server Payment Gateway (DOKU / Mayar / Tripay)
+// Jika masih pending, cek langsung ke server Payment Gateway asal transaksi (DOKU / Midtrans / Cadangan)
 $gatewayRef = $tx['gateway_reference'] ?? null;
+$txProvider = detectTransactionProvider($tx);
+
 if ($tx['status'] === 'pending') {
-    if (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) {
+    if ($txProvider === 'doku' && isDokuConfigured()) {
         $dokuStatus = checkDokuOrderStatus($tx['invoice_number']);
         if (!empty($dokuStatus['paid'])) {
             activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling DOKU (' . ($dokuStatus['channel'] ?: 'DOKU') . ')');
@@ -65,7 +66,27 @@ if ($tx['status'] === 'pending') {
             ]);
             exit;
         }
-    } elseif (checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef)) {
+    } elseif ($txProvider === 'midtrans' && isMidtransServerKeyValid()) {
+        $midStatus = checkMidtransOrderStatus($tx['invoice_number']);
+        if (!empty($midStatus['paid'])) {
+            activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling Midtrans (' . ($midStatus['channel'] ?: 'Midtrans') . ')');
+            echo json_encode([
+                'status' => 'approved',
+                'invoice' => $tx['invoice_number'],
+                'amount' => (int)$tx['amount']
+            ]);
+            exit;
+        }
+        if (isMidtransTerminalFailureStatus($midStatus['status'] ?? '') || isTransactionLinkExpired($tx)) {
+            $db->prepare("UPDATE transactions SET status = 'rejected', notes = ?, updated_at = ? WHERE id = ? AND status = 'pending'")
+               ->execute(['Tagihan kedaluwarsa di Midtrans', date('Y-m-d H:i:s'), $tx['id']]);
+            echo json_encode([
+                'status' => 'expired',
+                'invoice' => $tx['invoice_number']
+            ]);
+            exit;
+        }
+    } elseif (checkGatewayPaymentPaidStatus($tx['invoice_number'], $gatewayRef, $txProvider)) {
         $refLabel = $gatewayRef ?: $tx['invoice_number'];
         activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Auto-Polling Gateway (' . $refLabel . ')');
 

@@ -25,32 +25,36 @@ $now = date('Y-m-d H:i:s');
 // 0. PENANGANAN CALLBACK HTTP NOTIFICATION DOKU (Checkout / Non-SNAP)
 // ----------------------------------------------------------------------------
 if (isset($payload['order']['invoice_number']) && isset($payload['transaction']['status'])) {
+    if (!isDokuConfigured()) {
+        http_response_code(503);
+        echo json_encode(['status' => 'error', 'message' => 'DOKU gateway credentials not configured']);
+        exit;
+    }
+
     $dokuInvoice = trim((string)$payload['order']['invoice_number']);
     $dokuStatus = strtoupper(trim((string)$payload['transaction']['status']));
     $dokuChannel = trim((string)($payload['channel']['id'] ?? ($payload['acquirer']['name'] ?? 'DOKU')));
 
-    // Verifikasi Header Signature DOKU jika konfigurasi Secret Key terisi
-    if (isDokuConfigured()) {
-        $hdrClientId = $_SERVER['HTTP_CLIENT_ID'] ?? '';
-        $hdrRequestId = $_SERVER['HTTP_REQUEST_ID'] ?? '';
-        $hdrTimestamp = $_SERVER['HTTP_REQUEST_TIMESTAMP'] ?? '';
-        $hdrSignature = $_SERVER['HTTP_SIGNATURE'] ?? '';
+    // Verifikasi Header Signature DOKU
+    $hdrClientId = $_SERVER['HTTP_CLIENT_ID'] ?? '';
+    $hdrRequestId = $_SERVER['HTTP_REQUEST_ID'] ?? '';
+    $hdrTimestamp = $_SERVER['HTTP_REQUEST_TIMESTAMP'] ?? '';
+    $hdrSignature = $_SERVER['HTTP_SIGNATURE'] ?? '';
 
-        $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/payment_webhook.php', PHP_URL_PATH) ?: '/payment_webhook.php';
-        $digest = generateDokuDigest($rawBody);
-        $expectedSigPath = generateDokuSignature(DOKU_CLIENT_ID, $hdrRequestId, $hdrTimestamp, $reqPath, $digest, DOKU_SECRET_KEY);
-        $expectedSigDefault = generateDokuSignature(DOKU_CLIENT_ID, $hdrRequestId, $hdrTimestamp, '/payment_webhook.php', $digest, DOKU_SECRET_KEY);
+    $reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/payment_webhook.php', PHP_URL_PATH) ?: '/payment_webhook.php';
+    $digest = generateDokuDigest($rawBody);
+    $expectedSigPath = generateDokuSignature(DOKU_CLIENT_ID, $hdrRequestId, $hdrTimestamp, $reqPath, $digest, DOKU_SECRET_KEY);
+    $expectedSigDefault = generateDokuSignature(DOKU_CLIENT_ID, $hdrRequestId, $hdrTimestamp, '/payment_webhook.php', $digest, DOKU_SECRET_KEY);
 
-        $sigValid = ($hdrSignature !== '' && (hash_equals($expectedSigPath, $hdrSignature) || hash_equals($expectedSigDefault, $hdrSignature)));
+    $sigValid = ($hdrSignature !== '' && (hash_equals($expectedSigPath, $hdrSignature) || hash_equals($expectedSigDefault, $hdrSignature)));
 
-        if (!$sigValid) {
-            // Double-check langsung via DOKU Check Status API jika header proxy berbeda
-            $apiCheck = checkDokuOrderStatus($dokuInvoice);
-            if (empty($apiCheck['paid']) && $dokuStatus === 'SUCCESS') {
-                http_response_code(401);
-                echo json_encode(['status' => 'error', 'message' => 'Invalid DOKU signature']);
-                exit;
-            }
+    if (!$sigValid) {
+        // Double-check langsung via DOKU Check Status API jika header proxy berbeda
+        $apiCheck = checkDokuOrderStatus($dokuInvoice);
+        if (empty($apiCheck['paid']) || $dokuStatus !== 'SUCCESS') {
+            http_response_code(401);
+            echo json_encode(['status' => 'error', 'message' => 'Invalid DOKU signature']);
+            exit;
         }
     }
 
@@ -171,24 +175,32 @@ if (isset($payload['event']) && isset($payload['data']) && is_array($payload['da
 }
 
 // ----------------------------------------------------------------------------
-// 1. PENANGANAN CALLBACK WEBHOOK MIDTRANS (QRIS / GoPay / Snap)
+// 1. PENANGANAN CALLBACK WEBHOOK MIDTRANS (QRIS / GoPay / VA / Snap)
 // ----------------------------------------------------------------------------
 if (isset($payload['order_id']) && isset($payload['transaction_status'])) {
-    $orderId = trim($payload['order_id']);
+    if (!isMidtransServerKeyValid()) {
+        http_response_code(503);
+        echo json_encode(['status' => 'error', 'message' => 'Midtrans server key not configured']);
+        exit;
+    }
+
+    $orderId = trim((string)$payload['order_id']);
     $statusCode = (string)($payload['status_code'] ?? '');
     $grossAmount = (string)($payload['gross_amount'] ?? '');
     $signatureKey = (string)($payload['signature_key'] ?? '');
-    $txStatus = $payload['transaction_status'];
-    $fraudStatus = $payload['fraud_status'] ?? 'accept';
+    $txStatus = strtolower(trim((string)$payload['transaction_status']));
+    $fraudStatus = strtolower(trim((string)($payload['fraud_status'] ?? 'accept')));
+    $paymentType = trim((string)($payload['payment_type'] ?? 'Midtrans'));
+    if ($paymentType === '') {
+        $paymentType = 'Midtrans';
+    }
 
-    // Verifikasi Signature Key Midtrans jika Server Key sudah diisi dan valid
-    if (isMidtransServerKeyValid()) {
-        $expectedSig = hash('sha512', $orderId . $statusCode . $grossAmount . MIDTRANS_SERVER_KEY);
-        if (!hash_equals($expectedSig, $signatureKey)) {
-            http_response_code(403);
-            echo json_encode(['status' => 'error', 'message' => 'Invalid Midtrans signature']);
-            exit;
-        }
+    // Verifikasi Signature Key Midtrans SHA-512 wajib lolos
+    $expectedSig = hash('sha512', $orderId . $statusCode . $grossAmount . trim(MIDTRANS_SERVER_KEY));
+    if ($signatureKey === '' || !hash_equals($expectedSig, $signatureKey)) {
+        http_response_code(403);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid Midtrans signature']);
+        exit;
     }
 
     $stmt = $db->prepare("SELECT * FROM transactions WHERE invoice_number = ? LIMIT 1");
@@ -201,20 +213,23 @@ if (isset($payload['order_id']) && isset($payload['transaction_status'])) {
         exit;
     }
 
-    if ($txStatus === 'settlement' || ($txStatus === 'capture' && $fraudStatus === 'accept')) {
-        // Pembayaran QRIS Sukses -> Update transaksi & aktifkan PRO VIP otomatis!
-        activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Webhook Midtrans QRIS');
+    if ($txStatus === 'settlement' || ($txStatus === 'capture' && ($fraudStatus === '' || $fraudStatus === 'accept'))) {
+        // Pembayaran Midtrans Sukses -> Update transaksi & aktifkan PRO VIP otomatis!
+        activateUserProFromTransaction($db, $tx, 'Lunas Otomatis via Webhook Midtrans (' . $paymentType . ')');
 
-        echo json_encode(['status' => 'ok', 'message' => 'PRO VIP activated automatically']);
+        http_response_code(200);
+        echo json_encode(['status' => 'ok', 'message' => 'PRO VIP activated automatically via Midtrans']);
         exit;
-    } elseif (in_array($txStatus, ['cancel', 'deny', 'expire'])) {
-        $db->prepare("UPDATE transactions SET status = 'rejected', updated_at = ? WHERE id = ?")
+    } elseif (in_array($txStatus, ['cancel', 'deny', 'expire', 'failure'], true)) {
+        $db->prepare("UPDATE transactions SET status = 'rejected', updated_at = ? WHERE id = ? AND status = 'pending'")
            ->execute([$now, $tx['id']]);
+        http_response_code(200);
         echo json_encode(['status' => 'ok', 'message' => 'Transaction marked as expired/cancelled']);
         exit;
     }
 
-    echo json_encode(['status' => 'ok', 'message' => 'Pending status received']);
+    http_response_code(200);
+    echo json_encode(['status' => 'ok', 'message' => 'Status received: ' . $txStatus]);
     exit;
 }
 

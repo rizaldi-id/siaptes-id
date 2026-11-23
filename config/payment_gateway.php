@@ -54,12 +54,18 @@ if (!defined('TRIPAY_API_KEY')) define('TRIPAY_API_KEY', getenv('TRIPAY_API_KEY'
 if (!defined('TRIPAY_PRIVATE_KEY')) define('TRIPAY_PRIVATE_KEY', getenv('TRIPAY_PRIVATE_KEY') ?: '');
 if (!defined('TRIPAY_QRIS_CHANNEL')) define('TRIPAY_QRIS_CHANNEL', getenv('TRIPAY_QRIS_CHANNEL') ?: '');
 
-// --- 4. KONFIGURASI MIDTRANS (Cadangan) ---
+// --- 4. KONFIGURASI MIDTRANS SNAP & CORE API (https://dashboard.midtrans.com) ---
 if (!defined('MIDTRANS_MERCHANT_ID')) define('MIDTRANS_MERCHANT_ID', getenv('MIDTRANS_MERCHANT_ID') ?: '');
 if (!defined('MIDTRANS_CLIENT_KEY')) define('MIDTRANS_CLIENT_KEY', getenv('MIDTRANS_CLIENT_KEY') ?: '');
 if (!defined('MIDTRANS_SERVER_KEY')) define('MIDTRANS_SERVER_KEY', getenv('MIDTRANS_SERVER_KEY') ?: '');
 if (!defined('MIDTRANS_IS_PRODUCTION')) {
-    define('MIDTRANS_IS_PRODUCTION', (strpos(MIDTRANS_CLIENT_KEY, 'SB-') !== 0 && strpos(MIDTRANS_SERVER_KEY, 'SB-') !== 0));
+    $envMidProd = getenv('MIDTRANS_IS_PRODUCTION');
+    if ($envMidProd !== false) {
+        define('MIDTRANS_IS_PRODUCTION', filter_var($envMidProd, FILTER_VALIDATE_BOOLEAN));
+    } else {
+        $hasSbPrefix = (strpos(MIDTRANS_CLIENT_KEY, 'SB-') === 0 || strpos(MIDTRANS_SERVER_KEY, 'SB-') === 0);
+        define('MIDTRANS_IS_PRODUCTION', !$hasSbPrefix);
+    }
 }
 
 // --- 5. IDENTITAS MERCHANT QRIS DISPLAY ---
@@ -148,6 +154,124 @@ function isMidtransServerKeyValid(): bool {
     return ($key !== '' && (strpos($key, 'Mid-server-') === 0 || strpos($key, 'SB-Mid-server-') === 0));
 }
 
+function isMidtransConfigured(): bool {
+    return (isMidtransServerKeyValid() && trim(MIDTRANS_CLIENT_KEY) !== '');
+}
+
+function getMidtransSnapBaseUrl(): string {
+    return MIDTRANS_IS_PRODUCTION ? 'https://app.midtrans.com' : 'https://app.sandbox.midtrans.com';
+}
+
+function getMidtransCoreBaseUrl(): string {
+    return MIDTRANS_IS_PRODUCTION ? 'https://api.midtrans.com' : 'https://api.sandbox.midtrans.com';
+}
+
+function getMidtransSnapJsUrl(): string {
+    return MIDTRANS_IS_PRODUCTION
+        ? 'https://app.midtrans.com/snap/snap.js'
+        : 'https://app.sandbox.midtrans.com/snap/snap.js';
+}
+
+/**
+ * Cek apakah status transaksi Midtrans menandakan gagal/kedaluwarsa permanen.
+ * Catatan: 404 / INITIATED berarti user belum memilih metode bayar di popup Snap, BUKAN expired.
+ */
+function isMidtransTerminalFailureStatus(string $status): bool {
+    return in_array(strtolower(trim($status)), ['expire', 'cancel', 'deny', 'failure'], true);
+}
+
+/**
+ * Deteksi provider gateway berdasarkan prefix invoice, payment_method, lalu fallback default.
+ */
+function detectTransactionProvider(array $tx): string {
+    $inv = strtoupper(trim((string)($tx['invoice_number'] ?? '')));
+    if (strpos($inv, 'INV-MID-') === 0) {
+        return 'midtrans';
+    }
+    if (strpos($inv, 'INV-DOKU-') === 0) {
+        return 'doku';
+    }
+
+    $pm = strtolower(trim((string)($tx['payment_method'] ?? '')));
+    if (strpos($pm, 'midtrans') !== false) {
+        return 'midtrans';
+    }
+    if (strpos($pm, 'doku') !== false) {
+        return 'doku';
+    }
+
+    $def = strtolower(trim((string)GATEWAY_PROVIDER));
+    return in_array($def, ['doku', 'midtrans', 'mayar', 'tripay'], true) ? $def : 'doku';
+}
+
+/**
+ * Metadata kedua gateway utama (DOKU Checkout + Midtrans Snap) untuk UI pilih metode & checkout.
+ */
+function getAvailablePaymentGateways(): array {
+    return [
+        'doku' => [
+            'code'        => 'doku',
+            'name'        => 'DOKU Payment Gateway',
+            'short_label' => 'DOKU',
+            'subtitle'    => 'QRIS, VA BRI / BNI / BSI / BJB / CIMB / BTN / BNC, DOKU e-Wallet, Indomaret & Alfamart',
+            'badge'       => 'AKTIVASI OTOMATIS',
+            'accent'      => '#e11d48',
+            'configured'  => isDokuConfigured(),
+            'chips'       => ['QRIS', 'VA BRI / BNI / BSI', 'VA BJB / CIMB / BTN / BNC', 'DOKU e-Wallet', 'Indomaret / Alfamart'],
+            'groups'      => [
+                [
+                    'title' => 'Virtual Account Bank (Verifikasi Detik)',
+                    'chips' => ['BRI (BRIVA)', 'BNI', 'BSI', 'CIMB Niaga', 'BNC (Neo)', 'BTN', 'BJB', 'Bank Sampoerna']
+                ],
+                [
+                    'title' => 'Dompet Digital & QRIS',
+                    'chips' => ['DOKU e-Wallet', 'QRIS (Semua Bank & E-Wallet)']
+                ],
+                [
+                    'title' => 'Gerai Retail & Lainnya',
+                    'chips' => ['Indomaret', 'Alfamart / Alfa Group', 'Akulaku']
+                ]
+            ],
+            'instructions' => [
+                'Klik tombol <b>"Bayar Sekarang via DOKU"</b> pada panel sebelah kiri.',
+                'Pilih metode pembayaran favorit Anda di halaman DOKU: <b>QRIS</b>, <b>Virtual Account (BRI, BNI, BSI, BJB, CIMB, BNC, BTN)</b>, <b>DOKU e-Wallet</b>, atau <b>Alfamart / Indomaret</b>.',
+                'Selesaikan pembayaran tepat sebesar <b>Rp 29.000</b>.',
+                '<b>Otomatis Aktif:</b> Segera setelah transaksi berstatus sukses di DOKU, akun Anda akan <b>otomatis aktif menjadi PRO VIP</b> tanpa perlu konfirmasi manual.'
+            ]
+        ],
+        'midtrans' => [
+            'code'        => 'midtrans',
+            'name'        => 'Midtrans Snap',
+            'short_label' => 'Midtrans',
+            'subtitle'    => 'QRIS, GoPay, ShopeePay, VA BCA / Mandiri / BRI / BNI / Permata, Indomaret & Alfamart',
+            'badge'       => 'SNAP INSTAN',
+            'accent'      => '#0284c7',
+            'configured'  => isMidtransConfigured(),
+            'chips'       => ['QRIS', 'GoPay / ShopeePay', 'VA BCA / Mandiri', 'VA BRI / BNI / Permata', 'Indomaret / Alfamart'],
+            'groups'      => [
+                [
+                    'title' => 'Virtual Account Bank Utama',
+                    'chips' => ['BCA Virtual Account', 'Mandiri Bill', 'BRI (BRIVA)', 'BNI', 'Permata Bank', 'CIMB Niaga']
+                ],
+                [
+                    'title' => 'Dompet Digital & QRIS Langsung',
+                    'chips' => ['QRIS (OVO, DANA, LinkAja, m-Banking)', 'GoPay', 'ShopeePay']
+                ],
+                [
+                    'title' => 'Gerai Retail & Kartu',
+                    'chips' => ['Alfamart Group', 'Indomaret', 'Kartu Kredit / Debit Online']
+                ]
+            ],
+            'instructions' => [
+                'Klik tombol <b>"Bayar Sekarang via Midtrans"</b> untuk membuka jendela pembayaran Midtrans Snap.',
+                'Pilih kanal pembayaran pilihan Anda: <b>QRIS</b>, <b>GoPay</b>, <b>ShopeePay</b>, <b>VA BCA / Mandiri / BRI / BNI / Permata</b>, atau <b>Alfamart / Indomaret</b>.',
+                'Selesaikan pembayaran tepat sebesar <b>Rp 29.000</b>.',
+                '<b>Otomatis Aktif:</b> Segera setelah status pembayaran dinyatakan lunas (settlement) di Midtrans, akun Anda akan <b>otomatis aktif menjadi PRO VIP</b>.'
+            ]
+        ]
+    ];
+}
+
 /**
  * Aktivasi Idempoten: Menandai transaksi Lunas ('approved') dan langsung mengaktifkan PRO VIP ('is_premium = 1').
  * Digunakan bersama oleh Webhook DOKU, Auto-Polling, dan Verifikasi Manual agar konsisten 100%.
@@ -217,14 +341,15 @@ function isDokuTerminalFailureStatus(string $status): bool {
 }
 
 /**
- * Batalkan tagihan pending lama milik user dan buat invoice DOKU baru yang masih fresh
+ * Batalkan tagihan pending lama milik user dan buat invoice baru sesuai provider ('doku' atau 'midtrans')
  */
 function createFreshProVipTransaction(
     PDO $db,
     int $userId,
     ?int $packageId = null,
     int $amount = PRO_VIP_BASE_PRICE,
-    string $cancelNote = 'Digantikan tagihan pembayaran baru (kedaluwarsa)'
+    string $cancelNote = 'Digantikan tagihan pembayaran baru (kedaluwarsa)',
+    string $provider = ''
 ): string {
     $now = date('Y-m-d H:i:s');
     $db->prepare("UPDATE transactions SET status = 'rejected', notes = ?, updated_at = ? WHERE user_id = ? AND status = 'pending'")
@@ -236,9 +361,20 @@ function createFreshProVipTransaction(
         $randSuffix = strtoupper(substr(uniqid('', true), -6));
     }
 
-    $invNumber = 'INV-DOKU-' . date('Ymd') . '-' . $randSuffix;
-    $paymentMethod = 'DOKU Payment Gateway';
-    $notes = 'Aktivasi PRO VIP All-Access via DOKU (VA / E-Wallet / QRIS / Retail)';
+    $chosenProvider = strtolower(trim($provider));
+    if (!in_array($chosenProvider, ['doku', 'midtrans'], true)) {
+        $chosenProvider = (strtolower((string)GATEWAY_PROVIDER) === 'midtrans') ? 'midtrans' : 'doku';
+    }
+
+    if ($chosenProvider === 'midtrans') {
+        $invNumber = 'INV-MID-' . date('Ymd') . '-' . $randSuffix;
+        $paymentMethod = 'Midtrans Payment Gateway';
+        $notes = 'Aktivasi PRO VIP All-Access via Midtrans (QRIS / GoPay / ShopeePay / VA BCA, Mandiri, BRI, BNI / Retail)';
+    } else {
+        $invNumber = 'INV-DOKU-' . date('Ymd') . '-' . $randSuffix;
+        $paymentMethod = 'DOKU Payment Gateway';
+        $notes = 'Aktivasi PRO VIP All-Access via DOKU (VA / E-Wallet / QRIS / Retail)';
+    }
 
     $stmt = $db->prepare("
         INSERT INTO transactions (invoice_number, user_id, package_id, type, amount, payment_method, status, notes, created_at, updated_at)
@@ -263,25 +399,22 @@ function getSiteBaseUrl(): string {
 }
 
 /**
- * Saluran Pembayaran: DOKU Checkout (QRIS, Virtual Account Bank, E-Wallet, Retail)
+ * Saluran Pembayaran sesuai provider aktif ('doku' atau 'midtrans')
  */
-function getPaymentChannels(): array {
+function getPaymentChannels(string $provider = 'doku'): array {
+    $gateways = getAvailablePaymentGateways();
+    $gw = $gateways[$provider] ?? $gateways['doku'];
+
     return [
         'QRIS' => [
             'code' => 'QRIS',
-            'group' => 'DOKU Payment Gateway (QRIS, VA Bank, E-Wallet)',
-            'name' => 'Pembayaran Instan DOKU (VA, E-Wallet & QRIS)',
-            'subtitle' => 'Mendukung Virtual Account (BNI, BRI, BSI, CIMB, BNC, BTN), DOKU e-Wallet, Indomaret, Alfamart & QRIS',
-            'badge' => 'AKTIVASI OTOMATIS 24 JAM',
+            'group' => $gw['name'],
+            'name' => $gw['name'],
+            'subtitle' => $gw['subtitle'],
+            'badge' => $gw['badge'],
             'badge_color' => '#16a34a',
             'fee' => 0,
-            'icon' => '💳',
-            'instructions' => [
-                'Klik tombol <b>"Bayar Sekarang via DOKU"</b> (atau scan QR Code yang tampil di layar).',
-                'Pilih metode pembayaran yang Anda inginkan di halaman DOKU: <b>QRIS</b>, <b>Virtual Account (BRI, BNI, BSI, CIMB, BNC, BTN)</b>, <b>DOKU e-Wallet</b>, atau <b>Alfamart / Indomaret</b>.',
-                'Selesaikan pembayaran tepat sebesar <b>Rp 29.000</b>.',
-                '<b>Otomatis Aktif:</b> Segera setelah transaksi berstatus sukses di DOKU, akun Anda akan <b>otomatis aktif menjadi PRO VIP</b> tanpa perlu konfirmasi manual.'
-            ]
+            'instructions' => $gw['instructions']
         ]
     ];
 }
@@ -523,31 +656,189 @@ function createTripayQrisTransaction(string $invoiceNumber, int $amount, array $
     return ['error' => $data['message'] ?? 'Gagal membuat transaksi Tripay.'];
 }
 
-function createMidtransSnapToken(string $invoiceNumber, int $amount, array $user): ?string { return null; }
-function createMidtransQrisTransaction(string $invoiceNumber, int $amount, array $user): ?array { return null; }
+/**
+ * Buat Transaksi Midtrans Snap (POST /snap/v1/transactions)
+ * Mengembalikan ['token' => ..., 'redirect_url' => ...] atau ['error' => ...]
+ */
+function createMidtransSnapTransaction(string $invoiceNumber, int $amount, array $user): ?array {
+    if (!isMidtransConfigured()) {
+        return null;
+    }
+
+    $baseUrl = getSiteBaseUrl();
+    $returnUrl = $baseUrl . '/payment_checkout.php?invoice=' . urlencode($invoiceNumber);
+
+    $payload = [
+        'transaction_details' => [
+            'order_id' => $invoiceNumber,
+            'gross_amount' => $amount
+        ],
+        'item_details' => [
+            [
+                'id' => 'PRO-VIP-29K',
+                'price' => $amount,
+                'quantity' => 1,
+                'name' => 'Akses Penuh PRO VIP All-Access SIAPTES.ID'
+            ]
+        ],
+        'customer_details' => [
+            'first_name' => mb_substr(trim((string)($user['name'] ?? 'Peserta SIAPTES')), 0, 100),
+            'email' => trim((string)($user['email'] ?? 'peserta@siaptes.id')),
+            'phone' => '081234567890'
+        ],
+        'expiry' => [
+            'unit' => 'hours',
+            'duration' => 24
+        ],
+        'callbacks' => [
+            'finish' => $returnUrl,
+            'error' => $returnUrl,
+            'pending' => $returnUrl
+        ]
+    ];
+
+    $url = getMidtransSnapBaseUrl() . '/snap/v1/transactions';
+    $auth = base64_encode(trim(MIDTRANS_SERVER_KEY) . ':');
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/json',
+            'Content-Type: application/json',
+            'Authorization: Basic ' . $auth
+        ],
+        CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+        CURLOPT_TIMEOUT => 15
+    ]);
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+
+    if (!$res) {
+        return ['error' => $err ?: 'Tidak dapat menghubungi server Midtrans.'];
+    }
+
+    $data = json_decode($res, true);
+    if (!empty($data['token'])) {
+        return [
+            'token' => (string)$data['token'],
+            'redirect_url' => (string)($data['redirect_url'] ?? '')
+        ];
+    }
+
+    $errMsg = '';
+    if (!empty($data['error_messages']) && is_array($data['error_messages'])) {
+        $errMsg = implode(', ', $data['error_messages']);
+    } elseif (!empty($data['status_message'])) {
+        $errMsg = (string)$data['status_message'];
+    }
+    return ['error' => $errMsg ?: 'Gagal membuat sesi pembayaran Midtrans Snap.'];
+}
+
+function createMidtransSnapToken(string $invoiceNumber, int $amount, array $user): ?string {
+    $res = createMidtransSnapTransaction($invoiceNumber, $amount, $user);
+    return !empty($res['token']) ? $res['token'] : null;
+}
+
+function createMidtransQrisTransaction(string $invoiceNumber, int $amount, array $user): ?array {
+    return createMidtransSnapTransaction($invoiceNumber, $amount, $user);
+}
 
 /**
- * Cek status pembayaran langsung ke Server DOKU (Prioritas utama) atau cadangan Gateway lain
+ * Cek Status Transaksi Midtrans Secara Langsung (GET /v2/{order_id}/status)
+ * Mengembalikan array ['paid' => bool, 'channel' => string, 'status' => string, 'http_code' => int]
+ */
+function checkMidtransOrderStatus(string $invoiceNumber): array {
+    if (!isMidtransServerKeyValid() || trim($invoiceNumber) === '') {
+        return ['paid' => false, 'channel' => 'Midtrans', 'status' => 'UNKNOWN', 'http_code' => 0];
+    }
+
+    $url = getMidtransCoreBaseUrl() . '/v2/' . rawurlencode($invoiceNumber) . '/status';
+    $auth = base64_encode(trim(MIDTRANS_SERVER_KEY) . ':');
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/json',
+            'Authorization: Basic ' . $auth
+        ],
+        CURLOPT_TIMEOUT => 10
+    ]);
+    $res = curl_exec($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (!$res) {
+        return ['paid' => false, 'channel' => 'Midtrans', 'status' => 'ERROR', 'http_code' => $httpCode];
+    }
+
+    $data = json_decode($res, true);
+    $statusCode = (string)($data['status_code'] ?? $httpCode);
+    if ($statusCode === '404' || $httpCode === 404) {
+        return ['paid' => false, 'channel' => 'Midtrans', 'status' => 'INITIATED', 'http_code' => 404];
+    }
+
+    $txStatus = strtolower(trim((string)($data['transaction_status'] ?? 'pending')));
+    $fraudStatus = strtolower(trim((string)($data['fraud_status'] ?? '')));
+    $paid = ($txStatus === 'settlement' || ($txStatus === 'capture' && ($fraudStatus === '' || $fraudStatus === 'accept')));
+
+    $channel = trim((string)($data['payment_type'] ?? 'Midtrans'));
+    if (!empty($data['va_numbers'][0]['bank'])) {
+        $channel .= ' (' . strtoupper((string)$data['va_numbers'][0]['bank']) . ')';
+    } elseif (!empty($data['permata_va_number'])) {
+        $channel .= ' (PERMATA)';
+    } elseif (!empty($data['biller_code'])) {
+        $channel .= ' (MANDIRI)';
+    }
+
+    return [
+        'paid' => $paid,
+        'channel' => $channel !== '' ? $channel : 'Midtrans',
+        'status' => $txStatus,
+        'http_code' => $httpCode
+    ];
+}
+
+/**
+ * Cek status pembayaran langsung ke Server DOKU / Midtrans (atau cadangan Gateway lain)
  * Mengembalikan true jika pembayaran sudah LUNAS.
  */
-function checkGatewayPaymentPaidStatus(string $invoiceNumber, ?string $gatewayRef = null): bool {
+function checkGatewayPaymentPaidStatus(string $invoiceNumber, ?string $gatewayRef = null, ?string $provider = null): bool {
+    $effectiveProvider = $provider ? strtolower(trim($provider)) : '';
+    if ($effectiveProvider === '') {
+        if (strpos($invoiceNumber, 'INV-MID-') === 0) {
+            $effectiveProvider = 'midtrans';
+        } elseif (strpos($invoiceNumber, 'INV-DOKU-') === 0) {
+            $effectiveProvider = 'doku';
+        } else {
+            $effectiveProvider = strtolower(trim((string)GATEWAY_PROVIDER));
+        }
+    }
+
     // 1. Cek via DOKU Checkout API
-    if (GATEWAY_PROVIDER === 'doku' && isDokuConfigured()) {
+    if ($effectiveProvider === 'doku' && isDokuConfigured()) {
         $dokuStatus = checkDokuOrderStatus($invoiceNumber);
         if (!empty($dokuStatus['paid'])) {
             return true;
         }
     }
 
-    // 2. Cek via Mayar.id
-    if (GATEWAY_PROVIDER === 'mayar' && isMayarConfigured() && !empty($gatewayRef)) {
+    // 2. Cek via Midtrans Core API
+    if ($effectiveProvider === 'midtrans' && isMidtransServerKeyValid()) {
+        $midStatus = checkMidtransOrderStatus($invoiceNumber);
+        if (!empty($midStatus['paid'])) {
+            return true;
+        }
+    }
+
+    // 3. Cek via Mayar.id
+    if ($effectiveProvider === 'mayar' && isMayarConfigured() && !empty($gatewayRef)) {
         if (checkMayarInvoicePaidStatus($gatewayRef)) {
             return true;
         }
     }
 
-    // 3. Cek via Tripay
-    if (GATEWAY_PROVIDER === 'tripay' && isTripayConfigured() && !empty($gatewayRef)) {
+    // 4. Cek via Tripay
+    if ($effectiveProvider === 'tripay' && isTripayConfigured() && !empty($gatewayRef)) {
         $ch = curl_init(getTripayBaseUrl() . '/transaction/detail?' . http_build_query(['reference' => $gatewayRef]));
         curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Authorization: Bearer ' . TRIPAY_API_KEY], CURLOPT_TIMEOUT => 10]);
         $res = curl_exec($ch);
