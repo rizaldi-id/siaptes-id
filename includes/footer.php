@@ -10,7 +10,7 @@
         <div class="footer-top">
             <div class="footer-brand">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;">
-                    <img src="<?= $root_url ?>/assets/img/logo.svg" alt="Logo SIAP TES" width="38" height="38" style="display: block; border-radius: 9px; flex-shrink: 0;">
+                    <img src="<?= $root_url ?>/assets/img/logo.svg?v=<?= $logoVer ?? '20261123' ?>" alt="Logo SIAP TES" width="38" height="38" style="display: block; border-radius: 9px; flex-shrink: 0;">
                     <h3 style="margin: 0; color: #f8fafc;">SIAP<span>TES</span>.ID</h3>
                 </div>
                 <p style="color: #94a3b8; line-height: 1.65; font-size: 0.85rem; max-width: 480px;">

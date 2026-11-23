@@ -147,7 +147,7 @@ require_once __DIR__ . '/includes/header.php';
     <div class="card card-navy-top" style="padding: 2.25rem;">
         <div style="text-align: center; margin-bottom: 1.35rem;">
             <div style="display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
-                <img src="assets/img/logo.svg" alt="Logo SIAP TES" width="58" height="58" style="display: block; border-radius: 14px;">
+                <img src="assets/img/logo.svg?v=<?= $logoVer ?? '20261123' ?>" alt="Logo SIAP TES" width="58" height="58" style="display: block; border-radius: 14px;">
             </div>
             <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.25rem;">Portal Akun SIAP TES</h2>
             <p style="color: var(--core-text-muted); font-size: 0.84rem;">

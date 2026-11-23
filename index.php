@@ -35,13 +35,14 @@ $totalAttempts = (int)$db->query("SELECT COUNT(*) FROM exam_attempts WHERE statu
 
 $page_title = "Tempat Belajar dan Latihan Tes Terlengkap: CPNS, BUMN, Kedinasan & Psikotes";
 $meta_description = "Tempat belajar dan latihan tes terlengkap di siaptes.id. Cobain simulasi tryout CAT, ribuan bank soal, dan panduan lolos CPNS, BUMN, Kedinasan, serta Psikotes Kerja.";
+$heroBgVer = @filemtime(__DIR__ . '/assets/img/hero-siaptes.jpg') ?: '20261123';
 $full_bleed_layout = true;
 require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- HERO PORTAL SIAP TES: Search Bar + 2x2 Frosted-Glass Track Cards (Desktop & Mobile) -->
 <section class="pjk-hero" aria-label="Pilihan Jalur Belajar SIAP TES">
-    <div class="pjk-hero-bg" style="background-image: url('assets/img/hero-siaptes.jpg');"></div>
+    <div class="pjk-hero-bg" style="background-image: url('assets/img/hero-siaptes.jpg?v=<?= $heroBgVer ?>');"></div>
     <div class="pjk-hero-overlay"></div>
 
     <div class="container pjk-hero-inner">

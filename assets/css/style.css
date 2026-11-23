@@ -4047,9 +4047,9 @@ body.warm-reading-mode .ed-next-step {
   inset: 0;
   background: linear-gradient(
     105deg,
-    rgba(13, 29, 58, 0.84) 0%,
-    rgba(16, 37, 74, 0.66) 50%,
-    rgba(13, 28, 56, 0.70) 100%
+    rgba(12, 34, 72, 0.46) 0%,
+    rgba(16, 42, 86, 0.22) 52%,
+    rgba(12, 32, 68, 0.28) 100%
   );
 }
 
@@ -4086,15 +4086,16 @@ body.warm-reading-mode .ed-next-step {
   color: #ffffff;
   line-height: 1.18;
   margin: 0 0 0.75rem;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.24);
+  text-shadow: 0 2px 14px rgba(8, 22, 48, 0.48);
 }
 
 .pjk-hero-copy p {
   font-size: 0.98rem;
-  color: rgba(241, 245, 249, 0.94);
+  color: rgba(241, 245, 249, 0.96);
   line-height: 1.62;
   margin: 0 0 1.45rem;
   max-width: 540px;
+  text-shadow: 0 1px 10px rgba(8, 22, 48, 0.44);
 }
 
 .pjk-search {
