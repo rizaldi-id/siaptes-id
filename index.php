@@ -33,15 +33,15 @@ $totalQuestions = (int)$db->query("SELECT COUNT(*) FROM questions")->fetchColumn
 $totalUsers = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $totalAttempts = (int)$db->query("SELECT COUNT(*) FROM exam_attempts WHERE status = 'completed'")->fetchColumn();
 
-$page_title = "Portal Persiapan Seleksi Indonesia: CPNS, BUMN, Kedinasan & Psikotes";
-$meta_description = "Satu platform persiapan ujian CAT terpadu siaptes.id untuk seleksi CPNS, Rekrutmen Bersama BUMN, Sekolah Kedinasan, Psikotes Kerja, serta Tes Potensi Gratis.";
+$page_title = "Tempat Belajar dan Latihan Tes Terlengkap: CPNS, BUMN, Kedinasan & Psikotes";
+$meta_description = "Tempat belajar dan latihan tes terlengkap di siaptes.id. Cobain simulasi tryout CAT, ribuan bank soal, dan panduan lolos CPNS, BUMN, Kedinasan, serta Psikotes Kerja.";
 $full_bleed_layout = true;
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- HERO PORTAL NUSANTARA: Search Bar + 2x2 Frosted-Glass Track Cards (Desktop & Mobile) -->
-<section class="pjk-hero" aria-label="Portal Pilihan Jalur Seleksi SIAP TES">
-    <div class="pjk-hero-bg" style="background-image: url('assets/img/hero-nusantara.jpg');"></div>
+<!-- HERO PORTAL SIAP TES: Search Bar + 2x2 Frosted-Glass Track Cards (Desktop & Mobile) -->
+<section class="pjk-hero" aria-label="Pilihan Jalur Belajar SIAP TES">
+    <div class="pjk-hero-bg" style="background-image: url('assets/img/hero-siaptes.jpg');"></div>
     <div class="pjk-hero-overlay"></div>
 
     <div class="container pjk-hero-inner">
@@ -49,18 +49,18 @@ require_once __DIR__ . '/includes/header.php';
             <!-- Kolom Kiri: Headline + Search Bar Berbingkai Emas -->
             <div class="pjk-hero-copy">
                 <div class="pjk-hero-eyebrow">
-                    <?= ui_icon('shield-check', 14) ?> <span>PORTAL PERSIAPAN SELEKSI TERPADU &bull; SIAPTES.ID</span>
+                    <?= ui_icon('shield-check', 14) ?> <span>SIAPTES.ID &bull; CPNS &bull; BUMN &bull; KEDINASAN &bull; PSIKOTES</span>
                 </div>
-                <h1>Portal Persiapan Seleksi Indonesia</h1>
+                <h1>Tempat Belajar dan Latihan Tes Terlengkap</h1>
                 <p>
-                    Platform resmi latihan <b>Computer Assisted Test (CAT)</b>, bank soal terstruktur, dan panduan belajar untuk pejuang <b>CPNS</b>, <b>BUMN</b>, <b>Sekolah Kedinasan</b>, dan <b>Psikotes Kerja</b>.
+                    Mau kejar NIP CPNS, tembus BUMN, lolos Kedinasan, atau taklukin psikotes kerja? Langsung latihan pakai ribuan bank soal &amp; tryout CAT rasa ujian asli — simpel, hemat, tanpa ribet.
                 </p>
 
                 <form action="index.php" method="GET" class="pjk-search" role="search">
                     <input
                         type="search"
                         name="search"
-                        placeholder="Cari tryout, bank soal, TIU, AKHLAK, STAN, psikotes..."
+                        placeholder="Lagi cari materi apa? Misal: Tryout CPNS, AKHLAK, TIU, STAN..."
                         aria-label="Cari informasi, tryout, atau bank soal"
                     >
                     <button type="submit" aria-label="Cari sekarang">
@@ -79,7 +79,7 @@ require_once __DIR__ . '/includes/header.php';
 
             <!-- Kolom Kanan: Grid 2x2 Kartu Pilihan Jenis Tes -->
             <div class="pjk-hero-tracks">
-                <div class="pjk-tracks-label">Pilih tes sesuai kebutuhan Anda:</div>
+                <div class="pjk-tracks-label">Mau fokus persiapan tes yang mana?</div>
                 <div class="pjk-cat-grid" id="pilih-jalur">
                     <?php foreach ($tracks as $slug => $cfg):
                         $cnt = $trackCounts[$slug]['questions'] ?? 0;
@@ -113,8 +113,8 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="pjk-section-title">
                         <span class="pjk-section-icon"><?= ui_icon_box('file-text', 'navy', 20) ?></span>
                         <div>
-                            <h2>Info &amp; Panduan Seleksi Terbaru</h2>
-                            <p>Kisi-kisi terbaru, ambang batas nilai, dan strategi pengerjaan CAT dari redaksi siaptes.id</p>
+                            <h2>Info &amp; Tips Lolos Terbaru</h2>
+                            <p>Kisi-kisi terbaru, aturan passing grade, dan strategi atur waktu CAT biar persiapanmu makin matang.</p>
                         </div>
                     </div>
                     <a href="artikel.php" class="pjk-link-all">
@@ -159,7 +159,7 @@ require_once __DIR__ . '/includes/header.php';
                 <div>
                     <span class="tp-badge-emerald"><?= ui_icon('sparkles', 13) ?> 100% GRATIS &bull; TANPA LOGIN &bull; LANGSUNG COBA</span>
                     <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
-                    <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
+                    <p>Mau cek buta warna, ukur skor IQ, cari tahu minat kariermu, atau pemanasan pakai game kognitif? Langsung coba gratis tanpa perlu daftar akun!</p>
                 </div>
                 <a href="tes-potensi.php" class="btn btn-primary btn-sm">
                     Buka Semua Tes Gratis <?= ui_icon('arrow-right', 14, 'icon-arrow') ?>
@@ -203,23 +203,23 @@ require_once __DIR__ . '/includes/header.php';
             <div class="stat-card tiu">
                 <div class="stat-label">SESI SIMULASI DISELESAIKAN</div>
                 <div class="stat-val"><?= number_format($totalAttempts) ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Sesi Selesai</span></div>
-                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Evaluasi skor dan ketepatan waktu otomatis</p>
+                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Peserta aktif ukur kecepatan &amp; akurasi tiap hari</p>
             </div>
             <div class="stat-card tkp">
                 <div class="stat-label">PESERTA TERDAFTAR DI SIAPTES.ID</div>
                 <div class="stat-val"><?= number_format($totalUsers) ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Member Aktif</span></div>
-                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Portal belajar terintegrasi dalam satu akun</p>
+                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Gabung belajar bareng di satu akun praktis</p>
             </div>
         </section>
 
         <!-- BAGIAN 4: CALL TO ACTION PENUTUP -->
         <div class="hero cta-banner" style="margin-bottom: 0;">
             <div class="hero-pill" style="margin-bottom: 1rem;">
-                <?= ui_icon('sparkles', 13) ?> SATU AKUN UNTUK SEMUA JALUR SELEKSI
+                <?= ui_icon('sparkles', 13) ?> SIAPTES.ID &bull; TEMPAT BELAJAR DAN LATIHAN TES TERLENGKAP
             </div>
-            <h2 style="font-size: 1.9rem; font-weight: 800; margin-bottom: 0.75rem;">Siap Memulai Latihan Terarah Hari Ini?</h2>
+            <h2 style="font-size: 1.9rem; font-weight: 800; margin-bottom: 0.75rem;">Sudah Siap Gas Latihan Hari Ini?</h2>
             <p style="font-size: 0.98rem; max-width: 650px; margin: 0 auto 1.75rem; line-height: 1.7;">
-                Pilih jalur CPNS, BUMN, Sekolah Kedinasan, atau Psikotes Kerja di atas, lalu mulai simulasi CAT dan pendalaman bank soal sesuai target Anda.
+                Nggak perlu nunggu jadwal tes mepet baru belajar. Pilih jalur targetmu sekarang dan mulai cicil latihan dari paket gratisnya dulu!
             </p>
             <div style="display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
                 <?php if (!isLoggedIn()): ?>
@@ -228,7 +228,7 @@ require_once __DIR__ . '/includes/header.php';
                     </a>
                 <?php endif; ?>
                 <a href="jalur.php?kategori=cpns" class="btn btn-outline" style="font-size: 0.98rem; padding: 0.82rem 1.75rem;">
-                    Jelajahi Portal Seleksi
+                    Mulai Pilih Jalur Belajar
                 </a>
             </div>
         </div>

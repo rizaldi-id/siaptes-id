@@ -14,8 +14,8 @@
                     <h3 style="margin: 0; color: #f8fafc;">SIAP<span>TES</span>.ID</h3>
                 </div>
                 <p style="color: #94a3b8; line-height: 1.65; font-size: 0.85rem; max-width: 480px;">
-                    Platform persiapan dan simulasi Computer Assisted Test (CAT) terpadu di Indonesia.
-                    Satu portal nyaman untuk latihan soal dan tryout seleksi <b>CPNS / PPPK</b>, <b>Rekrutmen Bersama BUMN</b>, <b>Sekolah Kedinasan</b>, serta <b>Psikotes Kerja & Asesmen Perusahaan</b>.
+                    <b>SIAP TES</b> adalah tempat belajar dan latihan tes terlengkap di Indonesia.
+                    Cukup satu akun buat latihan tryout CAT &amp; bank soal <b>CPNS / PPPK</b>, <b>Rekrutmen BUMN</b>, <b>Sekolah Kedinasan</b>, sampai <b>Psikotes Kerja</b>.
                 </p>
                 <div style="margin-top: 1rem; display: flex; gap: 0.9rem; align-items: center; font-size: 0.78rem; color: #cbd5e1; flex-wrap: wrap;">
                     <span class="ui-inline"><?= ui_icon('landmark', 14) ?> Standar BKN &amp; MenPAN-RB</span>

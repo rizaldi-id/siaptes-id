@@ -150,9 +150,11 @@ $full_bleed_layout = true;
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Full-Bleed Deep-Navy Track Header -->
+<!-- Full-Bleed Track Header dengan Latar Foto Khusus -->
 <section class="pjk-hub-header">
-    <div class="container">
+    <div class="pjk-hub-bg" style="background-image: url('<?= htmlspecialchars($track['header_image'] ?? '') ?>');"></div>
+    <div class="pjk-hub-overlay"></div>
+    <div class="container pjk-hub-inner">
         <nav class="pjk-breadcrumb" aria-label="Breadcrumb">
             <a href="index.php" class="pjk-crumb-link">
                 <?= ui_icon('home', 13) ?> <span>Beranda</span>
@@ -199,7 +201,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="pjk-tab-icon tone-tryout"><?= ui_icon('monitor', 20) ?></span>
                 <span class="pjk-tab-copy">
                     <strong>Simulasi Tryout CAT</strong>
-                    <span><?= count($trackPackages) ?> paket simulasi berwaktu &amp; evaluasi skor</span>
+                    <span><?= count($trackPackages) ?> paket tryout berwaktu + hitung skor otomatis</span>
                 </span>
             </a>
 
@@ -212,7 +214,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="pjk-tab-icon tone-bank"><?= ui_icon('book-open', 20) ?></span>
                 <span class="pjk-tab-copy">
                     <strong>Bank Soal Mandiri</strong>
-                    <span><?= number_format($currentStats['questions']) ?>+ soal latihan bebas kuota</span>
+                    <span><?= number_format($currentStats['questions']) ?>+ soal latihan bebas kuota + pembahasan</span>
                 </span>
             </a>
 
@@ -225,7 +227,7 @@ require_once __DIR__ . '/includes/header.php';
                 <span class="pjk-tab-icon tone-artikel"><?= ui_icon('file-text', 20) ?></span>
                 <span class="pjk-tab-copy">
                     <strong>Artikel &amp; Panduan</strong>
-                    <span><?= count($trackArticles) ?> panduan kisi-kisi &amp; strategi lolos</span>
+                    <span><?= count($trackArticles) ?> kisi-kisi update &amp; tips lolos biar makin siap</span>
                 </span>
             </a>
         </div>
@@ -497,7 +499,7 @@ require_once __DIR__ . '/includes/header.php';
 
                     <div class="pjk-side-quick">
                         <h4>Paling Sering Dicari</h4>
-                        <p>Akses cepat materi &amp; simulasi yang paling banyak dibuka peserta <?= htmlspecialchars($track['short_title']) ?>:</p>
+                        <p>Materi &amp; latihan yang paling sering dibuka pejuang <?= htmlspecialchars($track['short_title']) ?>:</p>
                         <div class="pjk-quick-list">
                             <?php foreach ($track['quick_links'] as $qLink): ?>
                                 <a href="<?= htmlspecialchars($qLink['url']) ?>" class="pjk-quick-pill">

@@ -46,11 +46,11 @@ $isUserPremium = isPremiumUser();
 <div style="margin-bottom: 2rem;">
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.25rem;">
         <span class="badge badge-navy">MODUL SIMULASI CAT</span>
-        <span style="font-size: 0.8rem; color: var(--core-text-muted);">siaptes.id &bull; Sistem Tryout CAT Multi-Jalur</span>
+        <span style="font-size: 0.8rem; color: var(--core-text-muted);">siaptes.id &bull; Tempat Belajar &amp; Latihan Tes Terlengkap</span>
     </div>
-    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">Simulasi Tryout Ujian Seleksi Terpadu</h1>
+    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">Simulasi Tryout CAT Terlengkap</h1>
     <p style="color: var(--core-text-muted); max-width: 820px; font-size: 0.95rem;">
-        Uji kompetensi Anda dalam sistem Computer Assisted Test (CAT) nyata dengan timer hitung mundur, navigasi interaktif, formula penilaian resmi, dan kalkulasi passing grade real-time.
+        Latihan simulasi Computer Assisted Test (CAT) dengan timer hitung mundur, navigasi soal interaktif, dan cek skor passing grade secara langsung.
     </p>
 
     <!-- Track Filter Buttons -->

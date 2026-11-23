@@ -4340,9 +4340,36 @@ body.warm-reading-mode .ed-next-step {
    DEDICATED TRACK HUB (jalur.php)
    ============================================================ */
 .pjk-hub-header {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(135deg, #1b3460 0%, #24457d 100%);
   color: #ffffff;
   padding: 1.65rem 0 5.35rem;
+}
+
+.pjk-hub-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 45%;
+  background-repeat: no-repeat;
+  transform: scale(1.02);
+}
+
+.pjk-hub-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    102deg,
+    rgba(14, 30, 60, 0.86) 0%,
+    rgba(20, 44, 86, 0.72) 52%,
+    rgba(14, 30, 60, 0.78) 100%
+  );
+}
+
+.pjk-hub-inner {
+  position: relative;
+  z-index: 2;
 }
 
 .pjk-breadcrumb {

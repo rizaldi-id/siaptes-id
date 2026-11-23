@@ -23,8 +23,8 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= isset($page_title) ? htmlspecialchars($page_title) . ' - ' : '' ?>SIAP TES | Portal Tryout & Latihan CPNS, BUMN, Kedinasan & Psikotes - siaptes.id</title>
-    <meta name="description" content="<?= isset($meta_description) && $meta_description !== '' ? htmlspecialchars($meta_description) : 'SIAP TES (siaptes.id) - Satu platform terpadu untuk latihan soal, info seleksi, dan simulasi CAT CPNS, Rekrutmen Bersama BUMN, Sekolah Kedinasan, dan Psikotes Kerja.' ?>">
+    <title><?= isset($page_title) ? htmlspecialchars($page_title) . ' - ' : '' ?>SIAP TES | Tempat Belajar dan Latihan Tes Terlengkap - siaptes.id</title>
+    <meta name="description" content="<?= isset($meta_description) && $meta_description !== '' ? htmlspecialchars($meta_description) : 'SIAP TES (siaptes.id) — Tempat belajar dan latihan tes terlengkap untuk pejuang CPNS, Rekrutmen Bersama BUMN, Sekolah Kedinasan, dan Psikotes Kerja.' ?>">
     <?php $logoVer = @filemtime(__DIR__ . '/../assets/img/favicon.svg') ?: '20261120'; ?>
     <!-- Browser Toolbar / Tab Favicon & App Icons -->
     <link rel="icon" type="image/svg+xml" href="<?= $root_url ?>/assets/img/favicon.svg?v=<?= $logoVer ?>">
@@ -52,7 +52,7 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
                 <span class="gov-flag-red"></span>
                 <span class="gov-flag-white"></span>
             </span>
-            <span>PORTAL PERSIAPAN UJIAN & SELEKSI TERPADU RI &bull; <b>SIAPTES.ID</b></span>
+            <span>TEMPAT BELAJAR DAN LATIHAN TES TERLENGKAP &bull; <b>SIAPTES.ID</b></span>
         </div>
         <div class="gov-topbar-right">
             <span><span class="gov-status-dot"></span>PLATFORM AKTIF 24/7</span>
@@ -71,7 +71,7 @@ $currentScript = basename($_SERVER['SCRIPT_NAME']);
             </div>
             <div class="brand-text">
                 <div class="brand-title">SIAP<span>TES</span><small class="brand-domain">.ID</small></div>
-                <div class="brand-subtitle">Simulasi Seleksi Karier Terpadu</div>
+                <div class="brand-subtitle">Tempat Belajar &amp; Latihan Tes Terlengkap</div>
             </div>
         </a>
 
