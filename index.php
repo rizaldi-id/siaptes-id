@@ -1,426 +1,238 @@
 <?php
-// index.php
+// index.php — Portal Beranda Utama SIAP TES (Hero Nusantara + 4 Pilihan Kategori Tes)
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/includes/tracks_helper.php';
 require_once __DIR__ . '/includes/articles_helper.php';
-require_once __DIR__ . '/includes/tryout_blueprint.php';
+require_once __DIR__ . '/includes/icons.php';
+
+// Tangani pencarian dari hero search bar
+if (isset($_GET['search']) && trim((string)$_GET['search']) !== '') {
+    header('Location: ' . resolvePortalSearchRedirect((string)$_GET['search']));
+    exit;
+}
 
 $db = getDB();
 ensureArticlesTable($db);
 
-// Fetch 3 latest published articles for homepage SEO & engagement
+$tracks = getSelectionTracks();
+$trackCounts = getTrackQuestionCounts($db);
+
+// 3 artikel terbaru untuk section "Info & Panduan Seleksi Terbaru"
 $latestArticles = $db->query("
-    SELECT id, title, slug, category, excerpt, author_name, reading_time, views, created_at 
-    FROM articles 
-    WHERE is_published = 1 
-    ORDER BY is_featured DESC, created_at DESC, id DESC 
+    SELECT id, title, slug, category, excerpt, author_name, reading_time, views, created_at
+    FROM articles
+    WHERE is_published = 1
+    ORDER BY is_featured DESC, created_at DESC, id DESC
     LIMIT 3
-")->fetchAll();
+")->fetchAll(PDO::FETCH_ASSOC);
 $articleCats = getArticleCategories();
 
-// Count statistics
-$totalQuestions = $db->query("SELECT COUNT(*) FROM questions")->fetchColumn();
-$totalUsers = $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$totalAttempts = $db->query("SELECT COUNT(*) FROM exam_attempts WHERE status = 'completed'")->fetchColumn();
+// Statistik platform ringkas
+$totalQuestions = (int)$db->query("SELECT COUNT(*) FROM questions")->fetchColumn();
+$totalUsers = (int)$db->query("SELECT COUNT(*) FROM users")->fetchColumn();
+$totalAttempts = (int)$db->query("SELECT COUNT(*) FROM exam_attempts WHERE status = 'completed'")->fetchColumn();
 
-// Fetch active packages
-$packages = $db->query("
-    SELECT p.*, (SELECT COUNT(*) FROM questions WHERE package_id = p.id) as question_count 
-    FROM packages p 
-    WHERE is_active = 1 
-    ORDER BY p.id ASC
-")->fetchAll();
-
-$page_title = "Satu Platform untuk Semua Tes: CPNS, BUMN, Kedinasan & Psikotes";
+$page_title = "Portal Persiapan Seleksi Indonesia: CPNS, BUMN, Kedinasan & Psikotes";
+$meta_description = "Satu platform persiapan ujian CAT terpadu siaptes.id untuk seleksi CPNS, Rekrutmen Bersama BUMN, Sekolah Kedinasan, Psikotes Kerja, serta Tes Potensi Gratis.";
+$full_bleed_layout = true;
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<!-- Hero Section SIAP TES (siaptes.id) -->
-<div class="hero">
-    <div class="hero-pill">
-        <?= ui_icon('shield-check', 14) ?> SATU PLATFORM, SIAP SEMUA SELEKSI NASIONAL &amp; KARIER &bull; <b>SIAPTES.ID</b>
-    </div>
-    <h1>Belajar Lebih Tenang &amp; Terarah Bersama <span>SIAP TES</span></h1>
-    <p>
-        Platform persiapan dan simulasi ujian <b>Computer Assisted Test (CAT)</b> yang nyaman dibaca dan mudah digunakan.
-        Satu akun untuk latihan soal dan tryout <b>CPNS / PPPK</b>, <b>Rekrutmen Bersama BUMN</b>, <b>Sekolah Kedinasan</b>, serta <b>Psikotes Kerja</b>.
-    </p>
-    <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
-        <a href="tryout.php" class="btn btn-primary" style="font-size: 1rem; padding: 0.85rem 1.75rem;">
-            <?= ui_icon('play', 16) ?> Mulai Simulasi Tryout
-        </a>
-        <a href="tes-potensi.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.55rem; background: #eaf7f2; color: #196b52; border-color: #b7e3d4;">
-            <?= ui_icon('sparkles', 16) ?> Tes Kemampuan &amp; Potensi (Gratis)
-        </a>
-        <a href="latihan.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.55rem;">
-            <?= ui_icon('book-open', 16) ?> Jelajahi Bank Soal
-        </a>
-    </div>
+<!-- HERO PORTAL NUSANTARA: Search Bar + 2x2 Frosted-Glass Track Cards (Desktop & Mobile) -->
+<section class="pjk-hero" aria-label="Portal Pilihan Jalur Seleksi SIAP TES">
+    <div class="pjk-hero-bg" style="background-image: url('assets/img/hero-nusantara.jpg');"></div>
+    <div class="pjk-hero-overlay"></div>
 
-    <!-- Calm Trust Pills -->
-    <div class="hero-trust-row">
-        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Standar BKN &amp; MenPAN-RB</span>
-        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Standar BUMN (FHCI)</span>
-        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Kisi-kisi Kedinasan &amp; Psikotes</span>
-        <span class="hero-trust-item"><?= ui_icon('check', 14) ?> Pembahasan Trik Cepat</span>
-    </div>
-</div>
-
-<!-- Official Announcement Notice -->
-<div class="gov-notice">
-    <div class="gov-notice-icon"><?= ui_icon('bell', 18) ?></div>
-    <div class="gov-notice-content">
-        <h4>Pemberitahuan Sistem Seleksi Terpadu siaptes.id:</h4>
-        <p>
-            Platform <b>SIAP TES</b> kini mencakup 4 pilar seleksi utama: <b>CPNS (SKD & SKB)</b>, <b>BUMN (TKD, Core Values AKHLAK & English)</b>, <b>Sekolah Kedinasan (STAN, IPDN, STIS)</b>, dan <b>Psikotes Kerja Profesional</b>.
-            Pengguna baru dapat langsung mencoba <b>Paket Mini Tryout All-in-One (Trial Bebas Biaya)</b> atau aktivasi <b>Akses PRO VIP</b> untuk membuka seluruh fitur tanpa batas.
-        </p>
-    </div>
-</div>
-
-<!-- 4 PILAR UTAMA UJIAN YANG DIDUKUNG -->
-<div style="margin-bottom: 3rem;">
-    <div style="text-align: center; max-width: 760px; margin: 0 auto 2rem;">
-        <span class="badge badge-navy" style="margin-bottom: 0.5rem;">CAKUPAN LENGKAP DALAM 1 PLATFORM</span>
-        <h2 style="font-size: 2rem; font-weight: 800; color: var(--core-navy); margin-top: 0.5rem; margin-bottom: 0.75rem;">
-            Pilih Jalur Impian Anda di SIAP TES
-        </h2>
-        <p style="color: var(--core-text-muted); font-size: 0.95rem;">
-            Tak perlu lagi membeli banyak bimbel berbeda dengan biaya mahal. Semua modul dan latihan terlengkap telah kami satukan di domain resmi <b>siaptes.id</b>:
-        </p>
-    </div>
-
-    <div class="grid-2" style="gap: 1.5rem;">
-        <!-- Track 1: CPNS & ASN -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-twk"><?= ui_icon('landmark', 13) ?> CPNS &amp; PPPK (ASN)</span>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: var(--core-navy);">Standar CAT BKN</span>
+    <div class="container pjk-hero-inner">
+        <div class="pjk-hero-grid">
+            <!-- Kolom Kiri: Headline + Search Bar Berbingkai Emas -->
+            <div class="pjk-hero-copy">
+                <div class="pjk-hero-eyebrow">
+                    <?= ui_icon('shield-check', 14) ?> <span>PORTAL PERSIAPAN SELEKSI TERPADU &bull; SIAPTES.ID</span>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">
-                    Seleksi Kompetensi Dasar (SKD) &amp; SKB
-                </h3>
-                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1rem;">
-                    Meliputi Tes Wawasan Kebangsaan (TWK passing grade 65), Tes Intelegensia Umum (TIU passing grade 80), dan Tes Karakteristik Pribadi (TKP skala bobot 1–5, passing grade 166). Total 110 soal dalam 100 menit persis sistem asli BKN.
+                <h1>Portal Persiapan Seleksi Indonesia</h1>
+                <p>
+                    Platform resmi latihan <b>Computer Assisted Test (CAT)</b>, bank soal terstruktur, dan panduan belajar untuk pejuang <b>CPNS</b>, <b>BUMN</b>, <b>Sekolah Kedinasan</b>, dan <b>Psikotes Kerja</b>.
                 </p>
-            </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-size: 0.8rem; color: var(--core-text-muted);">110 Soal &bull; Timer 100 Menit</span>
-                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout CPNS <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
-            </div>
-        </div>
 
-        <!-- Track 2: BUMN -->
-        <div class="card card-navy-top" style="border-top-color: var(--core-blue); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-tkd_bumn"><?= ui_icon('building', 13) ?> REKRUTMEN BERSAMA BUMN</span>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: var(--core-blue);">Standar RBB FHCI</span>
+                <form action="index.php" method="GET" class="pjk-search" role="search">
+                    <input
+                        type="search"
+                        name="search"
+                        placeholder="Cari tryout, bank soal, TIU, AKHLAK, STAN, psikotes..."
+                        aria-label="Cari informasi, tryout, atau bank soal"
+                    >
+                    <button type="submit" aria-label="Cari sekarang">
+                        <?= ui_icon('search', 18) ?>
+                    </button>
+                </form>
+
+                <div class="pjk-hero-hints">
+                    <span>Populer:</span>
+                    <a href="jalur.php?kategori=cpns&amp;tab=tryout">Tryout CAT CPNS</a>
+                    <a href="jalur.php?kategori=bumn&amp;tab=bank">Bank Soal AKHLAK</a>
+                    <a href="jalur.php?kategori=kedinasan&amp;tab=bank">TPA STAN/STIS</a>
+                    <a href="tes-potensi.php">Tes IQ &amp; Buta Warna Gratis</a>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-navy); margin-bottom: 0.5rem;">
-                    TKD, Core Values AKHLAK &amp; Bahasa Inggris
-                </h3>
-                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1rem;">
-                    Simulasi terpadu seleksi BUMN nasional: Tes Kemampuan Dasar (TKD logika bisnis &amp; numerik), Core Values AKHLAK (Amanah, Kompeten, Harmonis, Loyal, Adaptif, Kolaboratif) dengan kasus kontekstual, dan English for Business.
-                </p>
             </div>
-            <div style="border-top: 1px solid var(--core-border); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-size: 0.8rem; color: var(--core-text-muted);">TKD + AKHLAK + English</span>
-                <a href="tryout.php" class="btn btn-primary btn-sm">Ikuti Tryout BUMN <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
-            </div>
-        </div>
 
-        <!-- Track 3: Kedinasan -->
-        <div class="card card-navy-top" style="border-top-color: #9c435f; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-kedinasan_tpa"><?= ui_icon('graduation-cap', 13) ?> SEKOLAH KEDINASAN</span>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: #9c435f;">SPMB STAN, STIS, IPDN</span>
+            <!-- Kolom Kanan: Grid 2x2 Kartu Pilihan Jenis Tes -->
+            <div class="pjk-hero-tracks">
+                <div class="pjk-tracks-label">Pilih tes sesuai kebutuhan Anda:</div>
+                <div class="pjk-cat-grid" id="pilih-jalur">
+                    <?php foreach ($tracks as $slug => $cfg):
+                        $cnt = $trackCounts[$slug]['questions'] ?? 0;
+                    ?>
+                        <a href="jalur.php?kategori=<?= urlencode($slug) ?>" class="pjk-cat-card">
+                            <div class="pjk-cat-top">
+                                <span class="pjk-cat-icon"><?= ui_icon($cfg['icon'], 24) ?></span>
+                                <span class="pjk-cat-count"><?= number_format($cnt) ?>+ Soal</span>
+                            </div>
+                            <h2><?= htmlspecialchars($cfg['short_title']) ?></h2>
+                            <div class="pjk-cat-foot">
+                                <p><?= htmlspecialchars($cfg['card_subtitle']) ?></p>
+                                <span class="pjk-cat-chevron"><?= ui_icon('chevron-right', 16) ?></span>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-text); margin-bottom: 0.5rem;">
-                    SKD Kedinasan &amp; TPA Akademik Terapan
-                </h3>
-                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.65; margin-bottom: 1rem;">
-                    Paket khusus seleksi calon praja dan taruna kedinasan: PKN STAN, Politeknik Statistika STIS, IPDN, Poltekip, Poltekim, dan STIN. Dilengkapi modul Matematika Terapan, Aljabar Fungsi, Geometri Ruang, dan Analisis Data.
-                </p>
-            </div>
-            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-size: 0.8rem; color: var(--core-text-muted);">SKD + TPA Kedinasan</span>
-                <a href="tryout.php?track=kedinasan" class="btn btn-primary btn-sm">Ikuti Tryout Kedinasan <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
             </div>
         </div>
-
-        <!-- Track 4: Psikotes Kerja -->
-        <div class="card card-navy-top" style="border-top-color: #5b52a8; display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="badge badge-psiko_logika"><?= ui_icon('brain', 13) ?> PSIKOTES KERJA &amp; ASESMEN</span>
-                    <span style="font-size: 0.78rem; font-weight: 700; color: #5b52a8;">Rekrutmen Korporat</span>
-                </div>
-                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--core-text); margin-bottom: 0.5rem;">
-                    Logika, Spasial Gambar &amp; Situational Judgement
-                </h3>
-                <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.65; margin-bottom: 1rem;">
-                    Latihan psikotes komprehensif untuk seleksi kerja perbankan (BCA, Mandiri, BRI, BNI), multinasional, startup, dan instansi. Menguji logika deduktif, visualisasi spasial 3D, rotasi gambar, dan Situational Judgement Test (SJT).
-                </p>
-            </div>
-            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-size: 0.8rem; color: var(--core-text-muted);">Logika + Spasial + SJT</span>
-                <a href="tryout.php?track=psikotes" class="btn btn-primary btn-sm">Ikuti Tryout Psikotes <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- FITUR GRATIS TANPA LOGIN: TES KEMAMPUAN & POTENSI -->
-<section class="tp-home-strip">
-    <div class="tp-home-head">
-        <div>
-            <span class="tp-badge-emerald"><?= ui_icon('sparkles', 13) ?> 100% GRATIS · TANPA LOGIN · LANGSUNG COBA</span>
-            <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
-            <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
-        </div>
-        <a href="tes-potensi.php" class="btn btn-primary btn-sm">Buka Semua Tes Gratis <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
-    </div>
-    <div class="tp-home-grid">
-        <a href="tes-potensi.php?tes=buta-warna" class="tp-home-card">
-            <?= ui_icon_box('eye', 'rose', 20) ?>
-            <strong>Tes Buta Warna</strong>
-            <span>18 pelat pseudoisokromatik SVG orisinal dengan hasil &amp; review instan.</span>
-            <em>Coba Gratis →</em>
-        </a>
-        <a href="tes-potensi.php?tes=iq" class="tp-home-card">
-            <?= ui_icon_box('brain', 'navy', 20) ?>
-            <strong>Tes IQ Online (30 Soal)</strong>
-            <span>Figural, Numerik, Verbal, Logis &amp; Spasial (25 menit) dengan pembahasan langsung.</span>
-            <em>Coba Gratis →</em>
-        </a>
-        <a href="tes-potensi.php?tes=minat-karier" class="tp-home-card">
-            <?= ui_icon_box('compass', 'emerald', 20) ?>
-            <strong>Minat Karier (RIASEC)</strong>
-            <span>Temukan Top-3 Holland Code &amp; rekomendasi jalur karier/seleksi yang cocok.</span>
-            <em>Coba Gratis →</em>
-        </a>
-        <a href="tes-potensi.php?tes=game-kognitif" class="tp-home-card">
-            <?= ui_icon_box('gamepad', 'plum', 20) ?>
-            <strong>10 Game Kognitif</strong>
-            <span>Kejar Angka, Memori Grid, Sprint Pola, Balon Risiko, Sinyal Berhenti &amp; lainnya.</span>
-            <em>Main Gratis →</em>
-        </a>
     </div>
 </section>
 
-<!-- Statistik Platform -->
-<div class="grid-3" style="margin-bottom: 3.5rem;">
-    <div class="stat-card twk">
-        <div class="stat-label">TOTAL BANK SOAL MULTI-TES</div>
-        <div class="stat-val"><?= number_format($totalQuestions) ?>+ <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Butir Soal</span></div>
-        <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">CPNS, BUMN, Kedinasan & Psikotes Kerja</p>
-    </div>
-    <div class="stat-card tiu">
-        <div class="stat-label">SESI SIMULASI DISELESAIKAN</div>
-        <div class="stat-val"><?= number_format($totalAttempts) ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Sesi Selesai</span></div>
-        <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Peserta aktif menguji kecepatan & akurasi setiap hari</p>
-    </div>
-    <div class="stat-card tkp">
-        <div class="stat-label">PESERTA TERDAFTAR DI SIAPTES.ID</div>
-        <div class="stat-val"><?= number_format($totalUsers) ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Member Aktif</span></div>
-        <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Terhubung dalam portal persiapan karier terintegrasi</p>
-    </div>
-</div>
+<!-- ROUNDED WHITE EDITORIAL SHEET (Menimpa bagian bawah hero seperti pajak.go.id) -->
+<div class="pjk-sheet">
+    <div class="container">
 
-<!-- SECTION: MENGAPA HARUS MEMILIH SIAP TES? -->
-<div style="margin-bottom: 3.5rem;">
-    <div style="text-align: center; max-width: 760px; margin: 0 auto 2.5rem;">
-        <span class="badge badge-gold" style="padding: 0.4rem 0.9rem; margin-bottom: 0.5rem;">KEUNGGULAN UTAMA PLATFORM</span>
-        <h2 style="font-size: 2rem; font-weight: 800; color: var(--core-navy); margin-top: 0.5rem; margin-bottom: 0.75rem;">
-            Kenapa Pejuang Karier Memilih Berlatih di SIAP TES?
-        </h2>
-        <p style="color: var(--core-text-muted); font-size: 1rem; line-height: 1.6;">
-            Persaingan memperebutkan kursi CPNS, BUMN, dan Kedinasan sangat ketat dengan ratusan ribu pendaftar. Berikut alasan kuat mengapa platform <b>siaptes.id</b> adalah partner terbaik Anda:
-        </p>
-    </div>
-
-    <div class="grid-3">
-        <!-- Benefit 1 -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('layers', 'navy', 20) ?></div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">4 Jalur Seleksi dalam 1 Akun</h3>
-            <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
-                Hemat hingga jutaan rupiah! Anda tidak perlu membeli paket langganan terpisah untuk CPNS, BUMN, STAN, atau psikotes perbankan. Semuanya ada di dalam satu platform <b>siaptes.id</b>.
-            </p>
-        </div>
-
-        <!-- Benefit 2 -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('monitor', 'blue', 20) ?></div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Simulasi CAT 99% Presisi Ujian Asli</h3>
-            <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
-                Navigasi nomor soal, penanda ragu-ragu kuning, timer hitung mundur akurat, serta fitur autosave instan ke cloud server. Membiasakan mental Anda agar tidak kaget di hari ujian resmi.
-            </p>
-        </div>
-
-        <!-- Benefit 3 -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('gift', 'emerald', 20) ?></div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Tersedia Paket Percobaan Gratis (Trial)</h3>
-            <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
-                Kami percaya pada kualitas sistem kami. Pengguna baru dapat langsung mengerjakan <b>Mini Tryout All-in-One</b> gratis tanpa syarat kartu kredit untuk merasakan pengalaman ujian CAT.
-            </p>
-        </div>
-
-        <!-- Benefit 4 -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('scale', 'plum', 20) ?></div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Evaluasi Passing Grade Real-Time</h3>
-            <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
-                Formula kalkulasi skor resmi: pembobotan TKP (1–5), AKHLAK BUMN, dan penalti/poin standar. Begitu ujian selesai, sistem langsung menampilkan status kelulusan Anda.
-            </p>
-        </div>
-
-        <!-- Benefit 5 -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('lightbulb', 'gold', 20) ?></div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Kunci &amp; Pembahasan Trik Cepat</h3>
-            <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
-                Bukan sekadar memberi tahu pilihan mana yang benar! Setiap butir soal dilengkapi analisis konsep, trik matematika cepat tanpa rumus berbelit-belit, dan dasar hukum regulasi.
-            </p>
-        </div>
-
-        <!-- Benefit 6 -->
-        <div class="card card-navy-top" style="display: flex; flex-direction: column;">
-            <div style="margin-bottom: 0.85rem;"><?= ui_icon_box('smartphone', 'rose', 20) ?></div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--core-navy);">Fleksibel di Smartphone, Tablet &amp; Laptop</h3>
-            <p style="font-size: 0.885rem; color: var(--core-text-muted); line-height: 1.6;">
-                Antarmuka modern berbasis web responsif berkecepatan tinggi yang dapat diakses kapan saja melalui smartphone di sela-sela aktivitas harian atau di laptop saat tryout intensif.
-            </p>
-        </div>
-    </div>
-</div>
-
-<!-- Daftar Paket Tryout Pilihan -->
-<div style="margin-bottom: 3.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
-        <div>
-            <h2 style="font-size: 1.45rem; font-weight: 800; color: var(--core-navy);">Paket Simulasi Tryout Aktif</h2>
-            <p style="color: var(--core-text-muted); font-size: 0.925rem;">Pilih simulasi berwaktu sesuai target karier yang ingin Anda capai.</p>
-        </div>
-        <a href="tryout.php" class="btn btn-outline-navy btn-sm">Lihat Semua <?= count($packages) ?> Paket Tryout →</a>
-    </div>
-
-    <div class="grid-2">
-        <?php 
-        $isUserPrem = isPremiumUser();
-        foreach ($packages as $pkg): 
-            $isPkgPrem = !empty($pkg['is_premium']);
-            $canPlay = (!$isPkgPrem || $isUserPrem);
-            $pkgMeta = getPackageDisplayMeta($db, $pkg);
-        ?>
-            <div class="card <?= $isPkgPrem ? 'card-gold-top' : 'card-navy-top' ?>" style="display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem; flex-wrap: wrap;">
+        <!-- BAGIAN 1: INFO & PANDUAN SELEKSI TERBARU (ARTIKEL) -->
+        <?php if (!empty($latestArticles)): ?>
+            <section class="pjk-section-info" style="margin-bottom: 3rem;">
+                <div class="pjk-section-head">
+                    <div class="pjk-section-title">
+                        <span class="pjk-section-icon"><?= ui_icon_box('file-text', 'navy', 20) ?></span>
                         <div>
-                            <?php if ($isPkgPrem): ?>
-                                <span class="badge badge-gold" style="margin-bottom: 0.25rem;"><?= ui_icon('crown', 12) ?> PRO VIP</span>
-                            <?php else: ?>
-                                <span class="badge badge-success" style="margin-bottom: 0.25rem;"><?= ui_icon('gift', 12) ?> TRIAL PERCOBAAN GRATIS</span>
-                            <?php endif; ?>
-                            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--core-navy);"><?= htmlspecialchars($pkg['title']) ?></h3>
+                            <h2>Info &amp; Panduan Seleksi Terbaru</h2>
+                            <p>Kisi-kisi terbaru, ambang batas nilai, dan strategi pengerjaan CAT dari redaksi siaptes.id</p>
                         </div>
-                        <span class="badge badge-navy" style="font-size: 0.8rem; padding: 0.35rem 0.65rem; white-space: nowrap;">
-                            <?= ui_icon('clock', 13) ?> <?= $pkg['duration_minutes'] ?> Menit
-                        </span>
                     </div>
-                    <p style="color: var(--core-text-muted); font-size: 0.885rem; line-height: 1.6; margin-bottom: 1.25rem;">
-                        <?= htmlspecialchars($pkg['description']) ?>
-                    </p>
-                    <div style="background: var(--core-navy-subtle); padding: 0.55rem 0.85rem; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 700; color: var(--core-navy); margin-bottom: 1rem;">
-                        <?php if ($pkgMeta['bank_pool_count'] > $pkgMeta['question_count']): ?>
-                            <?= (int)$pkgMeta['question_count'] ?> Soal yang diacak dari <?= number_format($pkgMeta['bank_pool_count']) ?> Bank Soal
-                        <?php else: ?>
-                            <?= (int)$pkgMeta['question_count'] ?> Soal
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--core-border); padding-top: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <span style="font-size: 0.85rem; font-weight: 600;">
-                        <?= $isPkgPrem ? '<span class="ui-inline" style="color:var(--core-gold-text);">' . ui_icon('lock', 14) . ' Khusus Member PRO</span>' : '<span class="ui-inline" style="color:var(--core-success);">' . ui_icon('check-circle', 14) . ' Bebas Akses (Trial)</span>' ?>
-                    </span>
-                    <?php if ($canPlay): ?>
-                        <a href="exam.php?action=start_package&package_id=<?= $pkg['id'] ?>" class="btn btn-primary btn-sm" onclick="return confirm('Mulai sesi tryout sekarang? Timer ujian akan langsung dihitung!');">
-                            Mulai Simulasi <?= ui_icon('arrow-right', 14, 'icon-arrow') ?>
-                        </a>
-                    <?php else: ?>
-                        <a href="upgrade.php?package_id=<?= $pkg['id'] ?>" class="btn btn-gold btn-sm">
-                            Aktivasi PRO (Rp 29.000 via DOKU)
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
-</div>
-
-<!-- SECTION: ARTIKEL & STRATEGI TERBARU (SEO TRAFFIC MAGNET) -->
-<?php if (!empty($latestArticles)): ?>
-<div style="margin-bottom: 3.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-        <div>
-            <span class="badge badge-navy" style="margin-bottom: 0.4rem;"><?= ui_icon('file-text', 12) ?> WAWASAN &amp; STRATEGI PEJUANG SELEKSI</span>
-            <h2 style="font-size: 1.55rem; font-weight: 800; color: var(--core-navy); margin: 0;">Artikel, Kisi-Kisi &amp; Tips Lulus Terbaru</h2>
-            <p style="color: var(--core-text-muted); font-size: 0.925rem; margin-top: 0.25rem;">Pelajari panduan strategi menjawab soal CAT dan informasi seleksi terbaru di siaptes.id.</p>
-        </div>
-        <a href="artikel.php" class="btn btn-outline-navy btn-sm">Baca Semua Artikel &amp; Tips <?= ui_icon('arrow-right', 14, 'icon-arrow') ?></a>
-    </div>
-
-    <div class="grid-3">
-        <?php foreach ($latestArticles as $art): 
-            $cMeta = $articleCats[$art['category']] ?? ['badge_class' => 'badge-navy', 'color' => '#2d4f8e'];
-        ?>
-            <article class="card card-navy-top" style="border-top-color: <?= $cMeta['color'] ?>; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.4rem;">
-                        <span class="badge <?= $cMeta['badge_class'] ?>"><?= htmlspecialchars($art['category']) ?></span>
-                        <span class="ui-inline" style="font-size: 0.76rem; color: var(--core-text-muted);"><?= ui_icon('clock', 12) ?> <?= (int)$art['reading_time'] ?> mnt baca</span>
-                    </div>
-                    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--core-navy); line-height: 1.4; margin-bottom: 0.6rem;">
-                        <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="color: inherit; text-decoration: none;">
-                            <?= htmlspecialchars($art['title']) ?>
-                        </a>
-                    </h3>
-                    <p style="font-size: 0.86rem; color: var(--core-text-muted); line-height: 1.6; margin-bottom: 1rem;">
-                        <?= htmlspecialchars(mb_strimwidth($art['excerpt'], 0, 130, '...')) ?>
-                    </p>
-                </div>
-                <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.4rem;">
-                    <span class="ui-inline" style="color: var(--core-text-muted);"><?= ui_icon('calendar', 12) ?> <?= formatTanggalIndo($art['created_at']) ?></span>
-                    <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" class="ui-inline" style="font-weight: 700; color: var(--core-navy); text-decoration: none;">
-                        Baca Selengkapnya <?= ui_icon('arrow-right', 13, 'icon-arrow') ?>
+                    <a href="artikel.php" class="pjk-link-all">
+                        Lihat semua Artikel <?= ui_icon('arrow-right', 15, 'icon-arrow') ?>
                     </a>
                 </div>
-            </article>
-        <?php endforeach; ?>
-    </div>
-</div>
-<?php endif; ?>
 
-<!-- SECTION: CALL TO ACTION (CTA BANNER) -->
-<div class="hero cta-banner" style="margin-bottom: 2rem;">
-    <div class="hero-pill" style="margin-bottom: 1rem;">
-        <?= ui_icon('sparkles', 13) ?> INVESTASI KARIER TERBAIK DI SIAPTES.ID
-    </div>
-    <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem;">Siap Mengamankan Posisi Impian Anda Tahun Ini?</h2>
-    <p style="font-size: 1rem; max-width: 660px; margin: 0 auto 1.85rem; line-height: 1.7;">
-        Mulai latihan lebih awal dengan ritme belajar yang nyaman dan terukur bersama ribuan pejuang seleksi di seluruh Indonesia.
-    </p>
-    <div style="display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
-        <a href="register.php" class="btn btn-gold" style="font-size: 1rem; padding: 0.85rem 1.85rem;">
-            Daftar Akun Gratis Sekarang
-        </a>
-        <a href="tryout.php" class="btn btn-outline" style="font-size: 1rem; padding: 0.85rem 1.85rem;">
-            Coba Tryout Trial Bebas Biaya
-        </a>
+                <div class="grid-3">
+                    <?php foreach ($latestArticles as $art):
+                        $cMeta = $articleCats[$art['category']] ?? ['badge_class' => 'badge-navy', 'color' => '#2d4f8e'];
+                    ?>
+                        <article class="card card-navy-top" style="border-top-color: <?= htmlspecialchars($cMeta['color']) ?>; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.4rem;">
+                                    <span class="badge <?= htmlspecialchars($cMeta['badge_class']) ?>"><?= htmlspecialchars($art['category']) ?></span>
+                                    <span class="ui-inline" style="font-size: 0.76rem; color: var(--core-text-muted);"><?= ui_icon('clock', 12) ?> <?= (int)$art['reading_time'] ?> mnt baca</span>
+                                </div>
+                                <h3 style="font-size: 1.08rem; font-weight: 800; color: var(--core-navy); line-height: 1.4; margin-bottom: 0.55rem;">
+                                    <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" style="color: inherit; text-decoration: none;">
+                                        <?= htmlspecialchars($art['title']) ?>
+                                    </a>
+                                </h3>
+                                <p style="font-size: 0.86rem; color: var(--core-text-muted); line-height: 1.6; margin-bottom: 1rem;">
+                                    <?= htmlspecialchars(mb_strimwidth($art['excerpt'], 0, 128, '...')) ?>
+                                </p>
+                            </div>
+                            <div style="border-top: 1px solid var(--core-border-light); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.4rem;">
+                                <span class="ui-inline" style="color: var(--core-text-muted);"><?= ui_icon('calendar', 12) ?> <?= formatTanggalIndo($art['created_at']) ?></span>
+                                <a href="baca-artikel.php?slug=<?= urlencode($art['slug']) ?>" class="ui-inline" style="font-weight: 700; color: var(--core-navy); text-decoration: none;">
+                                    Baca Panduan <?= ui_icon('arrow-right', 13, 'icon-arrow') ?>
+                                </a>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- BAGIAN 2: TES KEMAMPUAN & POTENSI GRATIS (Di bawah bagian utama sesuai instruksi) -->
+        <section class="tp-home-strip" style="margin-bottom: 3rem;">
+            <div class="tp-home-head">
+                <div>
+                    <span class="tp-badge-emerald"><?= ui_icon('sparkles', 13) ?> 100% GRATIS &bull; TANPA LOGIN &bull; LANGSUNG COBA</span>
+                    <h2>Tes Kemampuan &amp; Potensi Gratis</h2>
+                    <p>Ingin cek persepsi warna, menguji penalaran IQ, memetakan minat karier, atau pemanasan lewat game kognitif? Coba langsung tanpa perlu daftar akun!</p>
+                </div>
+                <a href="tes-potensi.php" class="btn btn-primary btn-sm">
+                    Buka Semua Tes Gratis <?= ui_icon('arrow-right', 14, 'icon-arrow') ?>
+                </a>
+            </div>
+            <div class="tp-home-grid">
+                <a href="tes-potensi.php?tes=buta-warna" class="tp-home-card">
+                    <?= ui_icon_box('eye', 'rose', 20) ?>
+                    <strong>Tes Buta Warna</strong>
+                    <span>18 pelat pseudoisokromatik SVG orisinal dengan hasil &amp; review instan.</span>
+                    <em>Coba Gratis <?= ui_icon('arrow-right', 13) ?></em>
+                </a>
+                <a href="tes-potensi.php?tes=iq" class="tp-home-card">
+                    <?= ui_icon_box('brain', 'navy', 20) ?>
+                    <strong>Tes IQ Online (30 Soal)</strong>
+                    <span>Figural, Numerik, Verbal, Logis &amp; Spasial (25 menit) dengan pembahasan langsung.</span>
+                    <em>Coba Gratis <?= ui_icon('arrow-right', 13) ?></em>
+                </a>
+                <a href="tes-potensi.php?tes=minat-karier" class="tp-home-card">
+                    <?= ui_icon_box('compass', 'emerald', 20) ?>
+                    <strong>Minat Karier (RIASEC)</strong>
+                    <span>Temukan Top-3 Holland Code &amp; rekomendasi jalur karier/seleksi yang cocok.</span>
+                    <em>Coba Gratis <?= ui_icon('arrow-right', 13) ?></em>
+                </a>
+                <a href="tes-potensi.php?tes=game-kognitif" class="tp-home-card">
+                    <?= ui_icon_box('gamepad', 'plum', 20) ?>
+                    <strong>10 Game Kognitif</strong>
+                    <span>Kejar Angka, Memori Grid, Sprint Pola, Balon Risiko, Sinyal Berhenti &amp; lainnya.</span>
+                    <em>Main Gratis <?= ui_icon('arrow-right', 13) ?></em>
+                </a>
+            </div>
+        </section>
+
+        <!-- BAGIAN 3: STATISTIK RINGKAS PLATFORM -->
+        <section class="grid-3" style="margin-bottom: 3rem;">
+            <div class="stat-card twk">
+                <div class="stat-label">TOTAL BANK SOAL MULTI-TES</div>
+                <div class="stat-val"><?= number_format($totalQuestions) ?>+ <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Butir Soal</span></div>
+                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">CPNS, BUMN, Kedinasan &amp; Psikotes Kerja</p>
+            </div>
+            <div class="stat-card tiu">
+                <div class="stat-label">SESI SIMULASI DISELESAIKAN</div>
+                <div class="stat-val"><?= number_format($totalAttempts) ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Sesi Selesai</span></div>
+                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Evaluasi skor dan ketepatan waktu otomatis</p>
+            </div>
+            <div class="stat-card tkp">
+                <div class="stat-label">PESERTA TERDAFTAR DI SIAPTES.ID</div>
+                <div class="stat-val"><?= number_format($totalUsers) ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--core-text-muted);">Member Aktif</span></div>
+                <p style="font-size: 0.825rem; color: var(--core-text-muted); margin-top: 0.25rem;">Portal belajar terintegrasi dalam satu akun</p>
+            </div>
+        </section>
+
+        <!-- BAGIAN 4: CALL TO ACTION PENUTUP -->
+        <div class="hero cta-banner" style="margin-bottom: 0;">
+            <div class="hero-pill" style="margin-bottom: 1rem;">
+                <?= ui_icon('sparkles', 13) ?> SATU AKUN UNTUK SEMUA JALUR SELEKSI
+            </div>
+            <h2 style="font-size: 1.9rem; font-weight: 800; margin-bottom: 0.75rem;">Siap Memulai Latihan Terarah Hari Ini?</h2>
+            <p style="font-size: 0.98rem; max-width: 650px; margin: 0 auto 1.75rem; line-height: 1.7;">
+                Pilih jalur CPNS, BUMN, Sekolah Kedinasan, atau Psikotes Kerja di atas, lalu mulai simulasi CAT dan pendalaman bank soal sesuai target Anda.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 0.85rem; flex-wrap: wrap;">
+                <?php if (!isLoggedIn()): ?>
+                    <a href="register.php" class="btn btn-gold" style="font-size: 0.98rem; padding: 0.82rem 1.75rem;">
+                        Daftar Akun Gratis Sekarang
+                    </a>
+                <?php endif; ?>
+                <a href="jalur.php?kategori=cpns" class="btn btn-outline" style="font-size: 0.98rem; padding: 0.82rem 1.75rem;">
+                    Jelajahi Portal Seleksi
+                </a>
+            </div>
+        </div>
+
     </div>
 </div>
 

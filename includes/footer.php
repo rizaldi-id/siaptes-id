@@ -1,7 +1,9 @@
 <?php
 // includes/footer.php
 ?>
+<?php if (empty($full_bleed_layout)): ?>
 </div> <!-- End .container -->
+<?php endif; ?>
 
 <footer>
     <div class="footer-container">
@@ -26,10 +28,10 @@
             <div class="footer-links">
                 <h4>Kategori Ujian</h4>
                 <ul>
-                    <li><a href="<?= $root_url ?>/tryout.php?track=cpns">Simulasi CAT SKD CPNS</a></li>
-                    <li><a href="<?= $root_url ?>/tryout.php?track=bumn">Rekrutmen BUMN (RBB)</a></li>
-                    <li><a href="<?= $root_url ?>/tryout.php?track=kedinasan">Sekolah Kedinasan</a></li>
-                    <li><a href="<?= $root_url ?>/tryout.php?track=psikotes">Psikotes Kerja</a></li>
+                    <li><a href="<?= $root_url ?>/jalur.php?kategori=cpns">Simulasi CAT SKD CPNS</a></li>
+                    <li><a href="<?= $root_url ?>/jalur.php?kategori=bumn">Rekrutmen BUMN (RBB)</a></li>
+                    <li><a href="<?= $root_url ?>/jalur.php?kategori=kedinasan">Sekolah Kedinasan</a></li>
+                    <li><a href="<?= $root_url ?>/jalur.php?kategori=psikotes">Psikotes Kerja</a></li>
                     <li><a href="<?= $root_url ?>/latihan.php">Bank Soal Semua Materi</a></li>
                 </ul>
             </div>

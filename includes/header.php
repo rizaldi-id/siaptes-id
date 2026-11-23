@@ -140,10 +140,14 @@ function toggleMobileNav() {
 }
 </script>
 
+<?php if (empty($full_bleed_layout)): ?>
 <div class="container">
+<?php endif; ?>
 <?php if (isset($_GET['msg'])): ?>
+    <?php if (!empty($full_bleed_layout)): ?><div class="container" style="padding-top: 1.25rem;"><?php endif; ?>
     <div style="background: #eef6fc; color: var(--core-navy); padding: 0.85rem 1.25rem; border-radius: var(--radius-sm); margin-bottom: 1.5rem; border: 1px solid #bfd7ec; border-left: 4px solid var(--core-navy); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 600;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color: var(--core-navy); flex-shrink: 0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
         <span><?= htmlspecialchars($_GET['msg']) ?></span>
     </div>
+    <?php if (!empty($full_bleed_layout)): ?></div><?php endif; ?>
 <?php endif; ?>
