@@ -18,6 +18,8 @@ define('MIDTRANS_IS_PRODUCTION', true);
 define('MIDTRANS_MERCHANT_ID', '');
 define('MIDTRANS_CLIENT_KEY', '');
 define('MIDTRANS_SERVER_KEY', '');
+// Diambil dari kolom "Signature Secret Key" di halaman Access Keys Dashboard Midtrans (untuk verifikasi webhook)
+define('MIDTRANS_SIGNATURE_SECRET_KEY', '');
 
 // --- 3. WHATSAPP ADMIN ---
 define('ADMIN_WHATSAPP_NUMBER', '6281221500930');

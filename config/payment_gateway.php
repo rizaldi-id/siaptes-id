@@ -58,6 +58,7 @@ if (!defined('TRIPAY_QRIS_CHANNEL')) define('TRIPAY_QRIS_CHANNEL', getenv('TRIPA
 if (!defined('MIDTRANS_MERCHANT_ID')) define('MIDTRANS_MERCHANT_ID', getenv('MIDTRANS_MERCHANT_ID') ?: '');
 if (!defined('MIDTRANS_CLIENT_KEY')) define('MIDTRANS_CLIENT_KEY', getenv('MIDTRANS_CLIENT_KEY') ?: '');
 if (!defined('MIDTRANS_SERVER_KEY')) define('MIDTRANS_SERVER_KEY', getenv('MIDTRANS_SERVER_KEY') ?: '');
+if (!defined('MIDTRANS_SIGNATURE_SECRET_KEY')) define('MIDTRANS_SIGNATURE_SECRET_KEY', getenv('MIDTRANS_SIGNATURE_SECRET_KEY') ?: '');
 if (!defined('MIDTRANS_IS_PRODUCTION')) {
     $envMidProd = getenv('MIDTRANS_IS_PRODUCTION');
     if ($envMidProd !== false) {
@@ -156,6 +157,33 @@ function isMidtransServerKeyValid(): bool {
 
 function isMidtransConfigured(): bool {
     return (isMidtransServerKeyValid() && trim(MIDTRANS_CLIENT_KEY) !== '');
+}
+
+/**
+ * Verifikasi Signature Key Webhook Midtrans (SHA-512).
+ * Mendukung akun Midtrans Multi-Server Key (Signature Secret Key terpisah) maupun legacy (Server Key).
+ */
+function verifyMidtransWebhookSignature(string $orderId, string $statusCode, string $grossAmount, string $signatureKey): bool {
+    $signatureKey = trim($signatureKey);
+    if ($signatureKey === '') {
+        return false;
+    }
+
+    $candidates = [];
+    if (trim(MIDTRANS_SIGNATURE_SECRET_KEY) !== '') {
+        $candidates[] = trim(MIDTRANS_SIGNATURE_SECRET_KEY);
+    }
+    if (isMidtransServerKeyValid()) {
+        $candidates[] = trim(MIDTRANS_SERVER_KEY);
+    }
+
+    foreach ($candidates as $secret) {
+        $expected = hash('sha512', $orderId . $statusCode . $grossAmount . $secret);
+        if (hash_equals($expected, $signatureKey)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function getMidtransSnapBaseUrl(): string {

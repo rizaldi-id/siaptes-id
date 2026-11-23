@@ -178,9 +178,9 @@ if (isset($payload['event']) && isset($payload['data']) && is_array($payload['da
 // 1. PENANGANAN CALLBACK WEBHOOK MIDTRANS (QRIS / GoPay / VA / Snap)
 // ----------------------------------------------------------------------------
 if (isset($payload['order_id']) && isset($payload['transaction_status'])) {
-    if (!isMidtransServerKeyValid()) {
+    if (!isMidtransServerKeyValid() && trim(MIDTRANS_SIGNATURE_SECRET_KEY) === '') {
         http_response_code(503);
-        echo json_encode(['status' => 'error', 'message' => 'Midtrans server key not configured']);
+        echo json_encode(['status' => 'error', 'message' => 'Midtrans credentials not configured']);
         exit;
     }
 
@@ -195,9 +195,8 @@ if (isset($payload['order_id']) && isset($payload['transaction_status'])) {
         $paymentType = 'Midtrans';
     }
 
-    // Verifikasi Signature Key Midtrans SHA-512 wajib lolos
-    $expectedSig = hash('sha512', $orderId . $statusCode . $grossAmount . trim(MIDTRANS_SERVER_KEY));
-    if ($signatureKey === '' || !hash_equals($expectedSig, $signatureKey)) {
+    // Verifikasi Signature Key Midtrans SHA-512 (mendukung Signature Secret Key & Server Key)
+    if (!verifyMidtransWebhookSignature($orderId, $statusCode, $grossAmount, $signatureKey)) {
         http_response_code(403);
         echo json_encode(['status' => 'error', 'message' => 'Invalid Midtrans signature']);
         exit;
